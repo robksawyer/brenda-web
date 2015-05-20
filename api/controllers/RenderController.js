@@ -12,7 +12,7 @@ module.exports = {
 		var options = {
 			mode: 'binary',
 			pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
-			//pythonOptions: ['-u'],
+			pythonOptions: ['-u'],
 			scriptPath: 'lib/brenda/',
 			args: ['status']
 		};
