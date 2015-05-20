@@ -1,7 +1,9 @@
 # Brenda Web Interface
 > The goal of this project is to create a web interface for the Blender render farm software for [Amazon Web Services](http://aws.amazon.com/) known as [Brenda](https://github.com/jamesyonan/brenda).
 
+# Milestones
 
+[Beta 1.0 - Coming Late July](https://github.com/robksawyer/brenda-web/milestones/Beta%20Version%201.0)
 
 # Getting Started
 
@@ -26,5 +28,3 @@
 # Inspiration
 - [Flamenco](http://www.flamenco.io/)
 - [Brender](http://www.brender-farm.org/) - I believe this became Flamenco.
-
-

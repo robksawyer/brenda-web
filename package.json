@@ -1,8 +1,8 @@
 {
-  "name": "hibrenda",
+  "name": "brenda-web",
   "private": true,
-  "version": "0.0.0",
-  "description": "a Sails application",
+  "version": "0.0.1",
+  "description": "A web interface for Brenda.",
   "keywords": [],
   "dependencies": {
     "aws-sdk": "^2.1.29",
@@ -28,13 +28,15 @@
   },
   "scripts": {
     "debug": "node debug app.js",
-    "start": "node app.js"
+    "start": "node app.js",
+    "postinstall": "bower install"
   },
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/robsawyer/hibrenda.git"
+    "url": "git://github.com/robksawyer/brenda-web.git"
   },
-  "author": "robsawyer",
-  "license": ""
+  "devDependencies": {
+    "grunt-bower": "^0.19.0"
+  }
 }
