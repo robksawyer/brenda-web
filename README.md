@@ -1,6 +1,14 @@
 # Brenda Web Interface
 > The goal of this project is to create a web interface for the Blender render farm software for [Amazon Web Services](http://aws.amazon.com/) known as [Brenda](https://github.com/jamesyonan/brenda).
 
+# Getting Started
+
+1. `git clone https://github.com/robksawyer/brenda-web.git`
+1. `cd brenda-web`
+1. Open your Terminal ([iTerm 2](https://www.iterm2.com/))
+1. Run the command `sails lift`
+1. Navigate to `http://localhost:1337`
+
 # Web/NodeJS Framework
 - [Sails](http://sailsjs.org)
 
