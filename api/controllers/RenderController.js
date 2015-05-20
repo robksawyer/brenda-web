@@ -7,6 +7,25 @@
 
 module.exports = {
 
+	price: function (req, res)
+	{
+		var options = {
+			mode: 'binary',
+			pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+			pythonOptions: ['-u'],
+			scriptPath: 'lib/brenda/',
+			args: ['']
+		};
+		sails.python.run('brenda-price', options, function (err, results) {
+			if (err) throw err;
+			// results is an array consisting of messages collected during execution
+			sails.log('results: %j', results);
+			res.view({
+				results: results
+			});
+		});
+	},
+
 	status: function (req, res)
 	{
 		var options = {
@@ -24,8 +43,6 @@ module.exports = {
 				results: results
 			});
 		});
-
-		res.view();
 	}
 };
 
