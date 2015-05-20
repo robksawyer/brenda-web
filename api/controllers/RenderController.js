@@ -7,12 +7,25 @@
 
 module.exports = {
 
-	function status(req, res)
+	status: function (req, res)
 	{
-		sails.python.run('my_script.py', function (err) {
+		var options = {
+			mode: 'binary',
+			pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+			//pythonOptions: ['-u'],
+			scriptPath: 'lib/brenda/',
+			args: ['status']
+		};
+		sails.python.run('brenda-work', options, function (err, results) {
 			if (err) throw err;
-			console.log('finished');
+			// results is an array consisting of messages collected during execution
+			sails.log('results: %j', results);
+			res.view({
+				results: results
+			});
 		});
+
+		res.view();
 	}
 };
 
