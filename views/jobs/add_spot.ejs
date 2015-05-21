@@ -80,6 +80,12 @@
 						<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
 					</div>
 					<div class="form-group">
+						<label for="inputStartFrame">Starting Frame</label>
+						<input type="text" class="form-control input-xs" id="inputStartFrame" placeholder="1" value="1">
+						<label for="inputEndFrame">Ending Frame</label>
+						<input type="text" class="form-control input-xs" id="inputEndFrame" placeholder="100" value="">
+					</div>
+					<div class="form-group">
 						<label for="inputProjectFile">Upload Blender <img src="/images/blender.png" alt="" width="15" height="15" style="margin: -4px 0 0 0" /> Project</label><br>
 						<span id="inputProjectFile" class="btn btn-default btn-file">
 							Browse <input type="file">

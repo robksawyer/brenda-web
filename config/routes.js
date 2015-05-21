@@ -36,6 +36,10 @@ module.exports.routes = {
     view: 'homepage'
   },
 
+  '/help/packing': {
+    view: 'help/packing'
+  }
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

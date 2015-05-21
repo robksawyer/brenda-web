@@ -1,0 +1,59 @@
+<div class="container">
+	<div class="row-fluid">
+		<div class="pageheader">
+			<h1>How to pack your file for uploading</h1>
+			<p class="lead">You can upload your files to the Brenda Web Interface either packed or unpacked. If you have no special needs, like using fonts or video textures, it is preferable to pack the .blend file and upload it packed.</p>
+		</div>
+
+		<section>
+			<h2>Using Packed files</h2>
+			<p class="lead">In order to pack your file, just go to File -> External Data -> Pack into .blend file.</p>
+
+			<p>After doing this you must save the file. Now all texture files in your scene are saved inside the .blend file so your scene can render correctly. Read after the image if you use linked libraries.</p>
+
+			<p>When using linked libraries, it's possible to pack them in the .blend file when using Blender 2.66 or higher.</p>
+
+			<p><strong>Here's how to do it:</strong></p>
+			<ul>
+				<li>Make sure all linked libraries have the textures packed. Even if using Cycles, blender 2.66+ will render properly with the textures packed</li>
+				<li>Use the "Pack Blender Libraries" command. As of 2.66, this is not linked in the menu. Just press spacebar and then search for the command.</li>
+			</ul>
+
+			<p>That will pack the linked libraries in the blend file. Now you can upload it to Brenda Web Interface and render it.</p>
+
+			<div class="alert alert-warning" role="alert">
+				<p>If you use addons in your project, you should know that this is currently not supported.</p>
+			</div>
+
+			<p>If you use fonts in your file, you should note that fonts cannot be packed in the .blend files. This is a limitation of Blender. If you prefer to use packed files and use fonts, the only workaround for this is to convert the fonts to curves.</p>
+
+			<p><strong>Here's how to do it:</strong></p>
+			<ul>
+				<li>select the object</li>
+				<li>press alt-C on your keyboard</li>
+				<li>this brings up the contextual menu for converting the text</li>
+				<li>select "curves from mesh/text" or "mesh from text"</li>
+				<li>both option should work. Depends of what suits you best, the mesh or curve object</li>
+			</ul>
+
+			<p>Please note that video textures, as well as image sequence textures do not get packed in the .blend file. If you use such textures, consider uploading the files unpacked instead.</p>
+		</section>
+		<section>
+			<h2>Uploading unpacked files</h2>
+			<p class="lead">In order to upload the files unpacked, please make sure you use relative paths in your file.</p>
+
+			<p><strong>To do so, follow these steps:</strong></p>
+			<ul>
+				<li>Zip the .blend file and all the directories containing your data (textures and others)</li>
+				<li>Make sure the zip structure has only your main .blend file in the zip root folder.</li>
+				<li>Upload the ZIP file either via the browser or via an S3 client of your choice.</li>
+			</ul>
+			<p>Alternatively, upload the entire directory with the .blend file and the textures in a separate folder via FTP. You'll then be able to select the folder in the FTP file list.</p>
+
+			<!-- <p>We also support more complex folder structures. Just make sure to use relative paths and upload your entire folder structure in a separate directory in the FTP root. You'll then be able to browse to the .blend file to render and the entire folder structure will be used when rendering. This can be used for more complex projects.</p>-->
+		</section>
+		<section>
+			<p>Have a special requirement that is not addressed above? Please <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=enhancement" target="_blank">get in touch</a> and we'll try to help you.</p>
+		</section>
+	</div>
+</div>
