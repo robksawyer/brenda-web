@@ -5,6 +5,7 @@
   "description": "A web interface for Brenda.",
   "keywords": [],
   "dependencies": {
+    "adm-zip": "^0.4.7",
     "aws-q": "^0.1.2",
     "aws-sdk": "^2.1.29",
     "ejs": "~0.8.4",

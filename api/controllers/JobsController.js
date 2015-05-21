@@ -5,6 +5,8 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
+var zip = require('adm-zip')
+
 module.exports = {
 
 	index: function (req, res){
@@ -38,6 +40,38 @@ module.exports = {
 		res.view({
 			todo: 'Not implemented yet!'
 		});
+	},
+
+	/**
+	*
+	* Converts a file into a zip file.
+	*	More details:
+	*		https://github.com/cthackers/adm-zip/wiki/ADM-ZIP-Introduction
+	*
+	* @param targetFile: string - Must include the file path and name e.g. /home/me/some_picture.png
+	* @param destPath: string - Must include the destination file path and name e.g. /home/me/mynew.zip
+	*
+	**/
+
+	createZip: function (targetFile, destPath, comment){
+		if(!comment) comment = "entry comment goes here";
+		if(!targetFile) sails.log.error("createZip: Target file was not provided.");
+		if(!destPath) sails.log.error("createZip: Destination file and path was provided.");
+
+		// creating archives
+		var zip = new AdmZip();
+
+		// add file directly
+		//zip.addFile(filename, new Buffer("inner content of the file"), comment);
+
+		// add local file
+		zip.addLocalFile(targetFile);
+
+		// get everything as a buffer
+		var willSendthis = zip.toBuffer();
+
+		// or write everything to disk
+		zip.writeZip(/*target file name*/destPath);
 	}
 };
 

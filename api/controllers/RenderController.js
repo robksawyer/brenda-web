@@ -5,6 +5,8 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
+var moment = require("moment");
+
 module.exports = {
 
 	index: function (req, res){

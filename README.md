@@ -26,6 +26,8 @@
 - [aws-sdk](https://www.npmjs.com/package/aws-sdk): Amazon SDK for Node
 - [knox](https://www.npmjs.com/package/knox): Amazon S3 client
 - [aws-q](https://www.npmjs.com/package/aws-q): Give the AWS SDK some Q promise magic
+- [adm-zip](https://www.npmjs.com/package/adm-zip): Automatically zipping .blend files in order to push to Amazon S3
+- [moment](http://momentjs.com/) - Formatting time data
 
 
 # Wuh? What is Brenda?
