@@ -35,7 +35,7 @@ module.exports = {
 				//sails.log('results: %j', results);
 
 				//Build a JSON array of the price data
-				jsonData = '{ "prices": { [';
+				jsonData = '{ "prices": {';
 				var cleanTitle;
 				var counter = 0;
 				for(var i=0;i<results.length;i++){
@@ -43,23 +43,23 @@ module.exports = {
 					if(results[i].indexOf("Spot price data for instance") > -1){
 						//Found a title
 						var tTitle = results[i];
-						cleanTitle = tTitle.replace(/Spot\sprice\sdata\sfor\sinstance\s/gi,'');
-						cleanTitle = cleanTitle.replace(/\./gi,'_');
+						cleanTitleDots = tTitle.replace(/Spot\sprice\sdata\sfor\sinstance\s/gi,'');
+						cleanTitle = cleanTitleDots.replace(/\./gi,'_');
 						if(i == results.length-1){
-							jsonData += '}';
+							jsonData += ']';
 						}else if(i > 0){
-							jsonData += '},';
+							jsonData += '],';
 						}
-						jsonData += '{';
+						jsonData += '"' + cleanTitle + '": [';
 					} else {
 						//Found a price
 						var tPriceData = results[i].split(' ');
 						tPriceData[0] = tPriceData[0].replace(/-/gi,'_');
-						jsonData += '{'; //Add the region as the node
+						jsonData += '{'; //Add the instance name as the node
 						if(tPriceData.length > 1){
-							jsonData += '"name" : "' + cleanTitle + '",';
+							jsonData += '"name" : "' + cleanTitleDots + '",';
 							jsonData += '"region" : "' + tPriceData[0] + '",';
-							jsonData += '"timestamp": "' + tPriceData[1] + '",';
+							jsonData += '"timestamp": "' + moment(tPriceData[1]).format("MM-DD-YYYY HH:mm Z") + '",';
 							jsonData += '"price": "' + tPriceData[2] + '"';
 						}
 						if(i == results.length-1 || counter > 3){
@@ -70,9 +70,11 @@ module.exports = {
 						}
 					}
 				}
-				jsonData += "]}}"; //close the json block
+				jsonData += "]";
 
-				sails.log.info(jsonData);
+				jsonData += "}}"; //close the json block
+
+				//sails.log.info(jsonData);
 
 				res.view({
 					results: JSON.parse(jsonData)
@@ -107,6 +109,28 @@ module.exports = {
 				results: results
 			});
 		});
+	},
+
+	formatTime: function(unixTimestamp) {
+		var dt = new Date(unixTimestamp * 1000);
+
+		var hours = dt.getHours();
+		var minutes = dt.getMinutes();
+		var seconds = dt.getSeconds();
+
+		// the above dt.get...() functions return a single digit
+		// so I prepend the zero here when needed
+		if (hours < 10)
+			hours = '0' + hours;
+
+		if (minutes < 10)
+			minutes = '0' + minutes;
+
+		if (seconds < 10)
+			seconds = '0' + seconds;
+
+		return hours + ":" + minutes + ":" + seconds;
 	}
+
 };
 
