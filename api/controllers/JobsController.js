@@ -34,7 +34,7 @@ module.exports = {
 			sails.log('Created a job with the name ' + created.name);
 		});*/
 		if(req.params != undefined){
-			sails.log(req.params);
+			//sails.log(req.params);
 		}
 
 		res.view({
