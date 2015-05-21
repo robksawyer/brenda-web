@@ -13,9 +13,15 @@
 		<ul class="nav navbar-nav navbar-right">
 			<li><a href="/">Dashboard</a></li>
 			<li><a href="/setting">Settings</a></li>
-			<li><a href="/job">Jobs</a></li>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Jobs <span class="caret"></span></a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="/jobs">Overview</a></li>
+					<li><a href="/jobs/add_spot">Add a Spot Render Job</a></li>
+				</ul>
+			</li>
 			<li><a href="/render/price">Spot Prices</a></li>
-			<li><a href="http://www.github.com/robksawyer/brenda-web">Help</a></li>
+			<li><a href="http://www.github.com/robksawyer/brenda-web" target="_blank">Help</a></li>
 		</ul>
 		<form class="navbar-form navbar-right">
 			<input type="text" class="form-control" placeholder="Search...">

@@ -9,7 +9,7 @@ module.exports = {
 
 	index: function (req, res){
 
-		return res.view('jobs/index', {
+		return res.view({
 			todo: "This needs to be setup."
 		});
 	},

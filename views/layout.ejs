@@ -115,5 +115,16 @@
 		<script src="/js/ie10-viewport-bug-workaround.js"></script>
 		<script src="/js/moment.js"></script>
 		<!--SCRIPTS END-->
+
+		<script type="text/javascript">
+		//Pretty file input buttons thanks to...
+		//http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/
+		$(document).on('change', '.btn-file :file', function() {
+			var input = $(this),
+				numFiles = input.get(0).files ? input.get(0).files.length : 1,
+				label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+				input.trigger('fileselect', [numFiles, label]);
+		});
+		</script>
 	</body>
 </html>

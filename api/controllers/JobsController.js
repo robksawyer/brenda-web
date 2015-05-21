@@ -9,7 +9,7 @@ module.exports = {
 
 	index: function (req, res){
 
-		return res.view('jobs/index', {
+		return res.view({
 			todo: "This needs to be setup."
 		});
 	},
@@ -20,7 +20,7 @@ module.exports = {
 	*
 	**/
 
-	add: function (req, res){
+	add_spot: function (req, res){
 		/*Job.create({
 			project_name: "Test Project",
 			project_filename: "blah.gz.zip",
@@ -31,8 +31,11 @@ module.exports = {
 			}
 			sails.log('Created a job with the name ' + created.name);
 		});*/
-		sails.log(req.params);
-		return res.json({
+		if(req.params != undefined){
+			sails.log(req.params);
+		}
+
+		res.view({
 			todo: 'Not implemented yet!'
 		});
 	}

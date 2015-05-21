@@ -31,6 +31,23 @@ module.exports = function(grunt) {
 				src: ['**/*'],
 				dest: 'www'
 			}]
+		},
+		bower: {
+			files: [{
+				//for bootstrap fonts
+				expand: true,
+				dot: true,
+				cwd: 'bower_components/bootstrap/dist',
+				src: ['fonts/*.*'],
+				dest: '.tmp/public/styles'
+			}, {
+				//for font-awesome
+				expand: true,
+				dot: true,
+				cwd: 'bower_components/fontawesome',
+				src: ['fonts/*.*'],
+				dest: '.tmp/public/styles'
+			}]
 		}
 	});
 

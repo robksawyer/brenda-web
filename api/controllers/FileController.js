@@ -29,11 +29,11 @@ module.exports = {
 			// You can apply a file upload limit (in bytes)
 			maxBytes: 1000000,
 
-			dirname: path.resolve('', 'assets/useruploads')
+			dirname: path.resolve('', 'files/projects')
 		}, function whenDone(err, uploadedFiles) {
 			var filenameContainer = uploadedFiles[0].fd.split('/')
 					filename          = filenameContainer[filenameContainer.length - 1 ];
-					filelocation      = '/useruploads/' + filename;
+					filelocation      = '/projects/' + filename;
 			console.log(filename);
 			var temp = {};
 			temp.files = [
