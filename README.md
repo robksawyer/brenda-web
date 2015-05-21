@@ -1,5 +1,5 @@
 # Brenda Web Interface
-> The goal of this project is to create a web interface for the Blender render farm software for [Amazon Web Services](http://aws.amazon.com/) known as [Brenda](https://github.com/jamesyonan/brenda).
+> The goal of this project is to create a web interface that allows users to easily submit and manage Blender render jobs submitted via [Amazon Web Services](http://aws.amazon.com/). Right now the backend heavily relies on the work done by James Yonan. See the github project, titled Brenda at [jamesyonan/brenda](https://github.com/jamesyonan/brenda).
 
 # Milestones
 
