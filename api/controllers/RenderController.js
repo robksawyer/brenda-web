@@ -7,20 +7,20 @@
 
 module.exports = {
 
+	index: function (req, res){
+
+		return res.view({
+			todo: "This needs to be setup."
+		});
+	},
+
 	price: function (req, res)
 	{
-		if (typeof localStorage === "undefined" || localStorage === null)
-		{
-			var LocalStorage = sails.localStorage;
-			var localStorage = new LocalStorage('./brenda');
-		}
 
 		var jsonData = "";
-		var localStoragePrices = localStorage.getItem('AWSPrices');
-		sails.log.info(localStoragePrices);
 
-		if(localStoragePrices)
-		{
+		//if(localStoragePrices)
+		//{
 
 			var options = {
 				mode: 'text',
@@ -35,7 +35,7 @@ module.exports = {
 				//sails.log('results: %j', results);
 
 				//Build a JSON array of the price data
-				jsonData = '{ "prices": {';
+				jsonData = '{ "prices": { [';
 				var cleanTitle;
 				var counter = 0;
 				for(var i=0;i<results.length;i++){
@@ -50,14 +50,15 @@ module.exports = {
 						}else if(i > 0){
 							jsonData += '},';
 						}
-						jsonData += '"'+ cleanTitle +'": {';
+						jsonData += '{';
 					} else {
 						//Found a price
 						var tPriceData = results[i].split(' ');
-
 						tPriceData[0] = tPriceData[0].replace(/-/gi,'_');
-						jsonData += '"' + tPriceData[0] +'": {'; //Add the region as the node
+						jsonData += '{'; //Add the region as the node
 						if(tPriceData.length > 1){
+							jsonData += '"name" : "' + cleanTitle + '",';
+							jsonData += '"region" : "' + tPriceData[0] + '",';
 							jsonData += '"timestamp": "' + tPriceData[1] + '",';
 							jsonData += '"price": "' + tPriceData[2] + '"';
 						}
@@ -69,19 +70,16 @@ module.exports = {
 						}
 					}
 				}
-				jsonData += "}}}"; //close the json block
+				jsonData += "]}}"; //close the json block
 
-				// no: set a new local storage
-				localStorage.setItem('AWSPrices', jsonData);
-				sails.log.info('Localstorage created successfully.');
 				sails.log.info(jsonData);
 
-				res.view('render/price', {
+				res.view({
 					results: JSON.parse(jsonData)
 				});
 			});
 
-		}
+		/*}
 		else
 		{
 			//yes: retrieve localstorage
@@ -89,7 +87,7 @@ module.exports = {
 			res.view('render/price', {
 				results: jsonData
 			});
-		}
+		}*/
 	},
 
 	status: function (req, res)

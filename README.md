@@ -15,8 +15,18 @@
 1. Run the command `sails lift`
 1. Navigate to `http://localhost:1337`
 
-# Web/NodeJS Framework
+# Technology Stack
+
+## Web/NodeJS Framework
 - [Sails](http://sailsjs.org)
+
+## NPM Packages
+- [skipper-s3](https://www.npmjs.com/package/skipper-s3): Streaming file uploads to S3
+- [skipper-s3-alt](https://www.npmjs.com/package/skipper-s3-alt): An alternative skipper driver for upload files in AWS S3
+- [aws-sdk](https://www.npmjs.com/package/aws-sdk): Amazon SDK for Node
+- [knox](https://www.npmjs.com/package/knox): Amazon S3 client
+- [aws-q](https://www.npmjs.com/package/aws-q): Give the AWS SDK some Q promise magic
+
 
 # Wuh? What is Brenda?
 - [Blender Cycles Cloud Render Farming Using AWS, Deadline and Brenda](https://www.youtube.com/watch?v=NkZ60lF-nKM) is a great introduction to the software.

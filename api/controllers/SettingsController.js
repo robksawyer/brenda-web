@@ -7,6 +7,12 @@
 
 module.exports = {
 
+	index: function (req, res){
+
+		return res.view('jobs/index', {
+			todo: "This needs to be setup."
+		});
+	},
 
 };
 
