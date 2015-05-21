@@ -32,41 +32,100 @@
 			<h1>Add a Spot Instance Render Job</h1>
 			<p class="lead">Helps you start a render job on <a href="http://aws.amazon.com/" target="_blank">Amazon Web Services</a>.</p>
 		</div>
-		<form>
-			<div class="form-group">
-				<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-				<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>">
-			</div>
-			<div class="form-group">
-				<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-				<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>">
-			</div>
-			<div class="form-group">
-				<label for="inputSQSRegion">Amazon SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-				<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>">
-			</div>
-			<div class="form-group">
-				<label for="inputEC2Region">Amazon EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-				<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>">
-			</div>
-			<div class="form-group">
-				<label for="inputProjectFile">Upload Blender Project</label><br>
-				<span id="inputProjectFile" class="btn btn-default btn-file">
-					Browse <input type="file">
-				</span>
-			</div>
-			<br>
-			<!-- <div class="form-group">
-				<label for="inputRenderOutput">Render Output Location</label>
-				<input type="text" class="form-control" id="inputRenderOutput" placeholder="s3://mybucket.blender.frame.bucket">
-			</div> -->
 
-			<!-- <div class="checkbox">
-				<label><input type="checkbox"> Remember me</label>
-			</div> -->
-			<button type="submit" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Save</button>
-			<button type="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job.">Start</button>
-		</form>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-files-o"></i> Clone an existing job</h1>
+			</div>
+			<form id="clone-job">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="selectionCloneJob">Select job:</label>
+						<select class="form-control" id="selectionCloneJob">
+							<option>Fake Job 1</option>
+							<option>Fake Job 2</option>
+							<option>Fake Job 3</option>
+							<option>Fake Job 4</option>
+						</select>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-success" title="Copyies the settings from the selected job and starts a new one from it.">Clone Job</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Add a New Job</h1>
+			</div>
+			<form id="new-job">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>">
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<label for="inputSQSRegion">Amazon SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>">
+					</div>
+					<div class="form-group">
+						<label for="inputEC2Region">Amazon EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>">
+					</div>
+					<div class="form-group">
+						<label for="inputProjectFile">Upload Blender Project</label><br>
+						<span id="inputProjectFile" class="btn btn-default btn-file">
+							Browse <input type="file">
+						</span>
+					</div>
+					<br>
+					<!-- <div class="form-group">
+						<label for="inputRenderOutput">Render Output Location</label>
+						<input type="text" class="form-control" id="inputRenderOutput" placeholder="s3://mybucket.blender.frame.bucket">
+					</div> -->
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Save</button>
+						<button type="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job.">Start</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<!-- Existing job on S3 -->
+		<!-- TODO: Retrieve a list of jobs in the project bucket. -->
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-file-archive-o"></i> Use a file already uploaded on S3</h1>
+			</div>
+			<form id="existing-job">
+				<div class="panel-body">
+					<!-- Select Multiple -->
+					<div class="control-group">
+						<label class="control-label" for="selectmultiple">Select Multiple</label>
+						<div class="controls">
+							<select id="selectmultiple" name="selectmultiple" class="form-control " multiple="">
+								<option>Option one</option>
+								<option>Option two</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Select File</button>
+					</div>
+				</div>
+			</form>
+		</div>
 	</div>
 </div>
 
