@@ -12,6 +12,7 @@
 module.exports.bootstrap = function(cb) {
 
 	sails.python = require('python-shell');
+	sails.RSVP = require('rsvp');
 	//sails.localStorage = require('node-localstorage').LocalStorage;
 
 	// It's very important to trigger this callback method when you are finished

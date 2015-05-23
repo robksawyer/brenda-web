@@ -23,7 +23,8 @@ module.exports.brenda = {
 		ami_id: 'ami-6988ba59',
 		ec2_region: 'us-west-2',
 		sqs_region: 'us-west-2',
-		default_instance_type: 'c3.2xlarge'
+		default_instance_type: 'c3.2xlarge',
+		setupFileLocation: 'lib/brenda/setup.py' //Used to get version
 	}
 
 }

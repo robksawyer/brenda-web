@@ -9,10 +9,23 @@ module.exports = {
 
 	index: function (req, res){
 
-		return res.view({
-			todo: "This needs to be setup."
+		var results;
+		BrendaService.getBrendaVersion().then(
+			function (data){
+				results = data;
+			},
+			function (reason){
+				sails.log(reason);
+			}
+		).then(function(){
+
+			res.view({
+				version: results
+			});
+
 		});
-	},
+
+	}
 
 };
 

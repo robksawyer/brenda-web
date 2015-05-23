@@ -1,0 +1,247 @@
+
+
+<!--<div id="projectfile" class="projectfile">
+	<div class="js-preview userpic__preview"></div>
+	<div class="btn btn-success js-fileapi-wrapper">
+		<div class="js-browse">
+			<span class="btn-txt">Choose</span>
+			<input type="file" name="filedata">
+		</div>
+		<div class="js-upload" style="display: none;">
+			<div class="progress progress-success"><div class="js-progress bar"></div></div>
+			<span class="btn-txt">Uploading</span>
+		</div>
+	</div>
+</div>
+
+<div id="popup" class="popup" style="display: none;">
+	<div class="popup__body"><div class="js-img"></div></div>
+	<div style="margin: 0 0 5px; text-align: center;">
+		<div class="js-upload btn btn_browse btn_browse_small">Upload</div>
+	</div>
+</div>
+
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>
+
+<script>
+	var examples = [];
+</script>-->
+<div class="container">
+	<div class="row-fluid">
+		<div class="header">
+			<h1>Settings</h1>
+			<p class="lead">These settings allow you to customize your rendering experience.</a>.</p>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-user"></i> Profile Settings</h1>
+			</div>
+			<form id="user-settings">
+				<div class="panel-body">
+					<div class="form-group">
+						<div class="input-group">
+							<div class="col-md-5">
+								<img src="holder.js/128x128" alt="user-profile-thumb" />
+							</div>
+							<div class="col-md-7">
+								<label for="inputProjectFile">Upload Profile Image <br>
+								<span id="inputProjectFile" class="btn btn-default btn-file">
+									Browse <input type="file">
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputName">Full Name</label>
+						<input type="text" class="form-control" id="inputName" placeholder="Groot">
+					</div>
+					<div class="form-group">
+						<label for="inputEmail">Email</label>
+						<input type="text" class="form-control" id="inputEmail" placeholder="funny@aol.com">
+						<span id="helpBlock" class="help-block alert alert-info">User only to send you notifications.</span>
+					</div>
+					<div class="form-group">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" value="" checked>
+								Email on render complete.
+								</label>
+							</div>
+							<div class="checkbox disabled">
+							<label>
+								<input type="checkbox" value="" disabled>
+								Email when instance up for more than an hour. (Coming soon.)
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cogs"></i> Amazon Settings</h1>
+			</div>
+			<form id="amazon-settings">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>" value="<%= sails.config.brenda.settings.ami_id %>">
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>" value="<%= sails.config.brenda.settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-4">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>" value="<%= sails.config.brenda.settings.sqs_region %>">
+								</div>
+								<div class="col-xs-4">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" placeholder="20">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div>
+					<!-- <div class="form-group">
+						<label for="inputMaxAmount">Max Amount (in dollars)</label>
+    					<div class="input-group">
+							<div class="input-group-addon">$</div>
+							<input type="text" class="form-control input-xs" id="inputMaxAmount" placeholder=".07">
+						</div>
+					</div> -->
+					<!-- <div class="form-group">
+						<label for="inputRenderOutput">Render Output Location</label>
+						<input type="text" class="form-control" id="inputRenderOutput" placeholder="s3://mybucket.blender.frame.bucket">
+					</div> -->
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cubes"></i> Brenda Settings <small>Settings wll be used by default when starting a new render job.</small></h1>
+			</div>
+			<form id="brenda-settings">
+				<div class="panel-body">
+					<div class="row-fluid">
+						<p>Current version: <%= version %></p>
+					</div>
+					<!-- <div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>" value="<%= sails.config.brenda.settings.ami_id %>">
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>" value="<%= sails.config.brenda.settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-4">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>" value="<%= sails.config.brenda.settings.sqs_region %>">
+								</div>
+								<div class="col-xs-4">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" placeholder="20">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div> -->
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+	</div>
+</div>
+
+<!--<link href="http://rubaxa.github.io/jquery.fileapi/statics/main.css" rel="stylesheet" type="text/css"/>
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
+
+<!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
+<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script>
+
+<script type="text/javascript">
+/*$(document).ready(function() {
+	console.log('ready')
+
+	$('#userpic').fileapi({
+		url: '/file/s3upload',
+		accept: 'image/*',
+		imageSize: { minWidth: 200, minHeight: 200 },
+		elements: {
+			active: { show: '.js-upload', hide: '.js-browse' },
+			preview: {
+				el: '.js-preview',
+				width: 200,
+				height: 200
+			},
+			progress: '.js-progress'
+		},
+		onSelect: function (evt, ui){
+			var file = ui.files[0];
+			if( !FileAPI.support.transform ) {
+				alert('Your browser does not support Flash :(');
+			} else if( file ){
+				$('#popup').modal({
+					closeOnEsc: true,
+					closeOnOverlayClick: false,
+					onOpen: function (overlay){
+							$(overlay).on('click', '.js-upload', function (){
+							$.modal().close();
+							$('#userpic').fileapi('upload');
+						});
+						$('.js-img', overlay).cropper({
+							file: file,
+							bgColor: '#fff',
+							maxSize: [$(window).width()-100, $(window).height()-100],
+							minSize: [200, 200],
+							selection: '90%',
+							onSelect: function (coords){
+								$('#userpic').fileapi('crop', file, coords);
+								console.log($('#userpic').fileapi('crop', file, coords))
+							}
+						});
+					}
+				}).open();
+			}
+		}
+	});
+});*/
+</script>
