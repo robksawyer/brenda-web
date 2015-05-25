@@ -38,7 +38,7 @@ module.exports = {
 			sails.log(req.file('inputProjectFile'));
 		}*/
 
-		BrendaService.applyAmazonS3Config();
+		BrendaService.getAmazonS3ConfigFile();
 
 		/*if (req.method == 'POST'){
 

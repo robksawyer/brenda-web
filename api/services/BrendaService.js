@@ -44,14 +44,31 @@ module.exports = {
 	},
 
 
-	applyAmazonS3Config: function(){
+	getAmazonS3ConfigFile: function(){
 
-		//TODO: Make the path a variable that can be updated via the settings for PC users.
-		fs.readFile('~/.aws/credentials', 'utf8', function (err,data) {
-			if (err) {
-				return sails.log(err);
-			}
-			sails.log(data);
+		var homedir = (process.platform === 'win32') ? process.env.HOMEPATH : process.env.HOME;
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			fs.readFile( path.resolve(homedir, '.aws', 'credentials'), 'utf8', function (err,data) {
+				if (err) {
+					return sails.log(err);
+				}
+				var aws_access_key_id = data.match(/aws_access_key_id\s*=\s*(.*)/);
+				if(aws_access_key_id[1] != undefined){
+					aws_access_key_id = aws_access_key_id[1];
+				}else{
+					reject( new Error("Unable to find the Amazon Access Key in the file provided. See http://amzn.to/1PIF3WB") );
+				}
+				sails.log(aws_access_key_id)
+				var aws_secret_access_key = data.match(/aws_secret_access_key\s*=\s*(.*)/);
+				if(aws_secret_access_key[1] != undefined){
+					aws_secret_access_key = aws_secret_access_key[1];
+				}else{
+					reject( new Error("Unable to find the Amazon Secret Key in the file provided. See http://amzn.to/1PIF3WB") );
+				}
+			});
 		});
+
+		return promise;
 	}
 }
