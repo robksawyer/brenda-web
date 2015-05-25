@@ -5,9 +5,8 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 var path = require('path');
+
 module.exports = {
-
-
 
 	/**
 	 * `FileController.upload()`

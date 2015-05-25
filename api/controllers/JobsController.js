@@ -33,11 +33,26 @@ module.exports = {
 			}
 			sails.log('Created a job with the name ' + created.name);
 		});*/
+		sails.log(req.file);
 		if(req.params != undefined){
-			//sails.log(req.params);
+			sails.log(req.params);
+			//Create a zip file if needed.
 		}
 
-		res.view({
+		res.view('jobs/add_spot',{
+			todo: 'Not implemented yet!'
+		});
+	},
+
+
+	clone: function(req, res) {
+		res.view('jobs/add_spot',{
+			todo: 'Not implemented yet!'
+		});
+	},
+
+	existingS3Job: function (req, res) {
+		res.view('jobs/add_spot',{
 			todo: 'Not implemented yet!'
 		});
 	},
@@ -71,7 +86,12 @@ module.exports = {
 		var willSendthis = zip.toBuffer();
 
 		// or write everything to disk
-		zip.writeZip(/*target file name*/destPath);
+		var promise = new sails.RSVP.Promise(function(fullfill, reject) {
+
+			fullfill(zip.writeZip(/*target file name*/destPath));
+
+		});
+		return promise;
 	}
 };
 

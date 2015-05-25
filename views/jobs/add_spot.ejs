@@ -37,7 +37,7 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-files-o"></i> Clone an existing job</h1>
 			</div>
-			<form id="clone-job">
+			<form id="clone-job" action="/jobs/clone" method="PUT">
 				<div class="panel-body">
 					<div class="form-group">
 						<label for="selectionCloneJob">Select job:</label>
@@ -61,7 +61,7 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Add a New Job</h1>
 			</div>
-			<form id="new-job">
+			<form id="new-job" action="/jobs/add_spot" method="POST" enctype="multipart/form-data">
 				<div class="panel-body">
 					<div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
@@ -108,7 +108,7 @@
 					</div>
 					<div class="form-group">
 						<label for="inputMaxAmount">Max Amount (in dollars)</label>
-    					<div class="input-group">
+						<div class="input-group">
 							<div class="input-group-addon">$</div>
 							<input type="text" class="form-control input-xs" id="inputMaxAmount" placeholder=".07">
 						</div>
@@ -116,8 +116,8 @@
 					<div class="form-group">
 						<div class="input-group">
 							<label for="inputProjectFile">Upload Blender <img src="/images/blender.png" alt="" width="15" height="15" style="margin: -4px 0 0 0" /> Project</label><br>
-							<span id="inputProjectFile" class="btn btn-default btn-file">
-								Browse <input type="file">
+							<span class="btn btn-default btn-file">
+								Browse <input type="file" id="inputProjectFile">
 							</span>
 						</div>
 					</div>
@@ -129,8 +129,8 @@
 				</div>
 				<div class="panel-footer clearfix">
 					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Save</button>
-						<button type="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job.">Start</button>
+						<button type="submit" id="save" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Save</button>
+						<button type="submit" id="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job.">Start</button>
 					</div>
 				</div>
 			</form>
@@ -142,7 +142,7 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-file-archive-o"></i> Use a file already uploaded on S3</h1>
 			</div>
-			<form id="existing-job">
+			<form id="existing-job" action="/jobs/existingS3Job" method="PUT">
 				<div class="panel-body">
 					<!-- Select Multiple -->
 					<div class="control-group">
@@ -169,14 +169,14 @@
 <link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
 
 <!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
-<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
+<!-- <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script> -->
 
 <script type="text/javascript">
-$(document).ready(function() {
+/*$(document).ready(function() {
 	console.log('ready')
 
 	$('#userpic').fileapi({
@@ -221,5 +221,5 @@ $(document).ready(function() {
 			}
 		}
 	});
-});
+});*/
 </script>

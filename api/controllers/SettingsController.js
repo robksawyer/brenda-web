@@ -9,7 +9,10 @@ module.exports = {
 
 	index: function (req, res){
 
+		sails.log(req.params);
+
 		var results;
+		//Get the version of Brenda that's being used.
 		BrendaService.getBrendaVersion().then(
 			function (data){
 				results = data;

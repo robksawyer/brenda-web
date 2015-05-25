@@ -23,8 +23,6 @@ module.exports = {
 					fs.readFile(setupFileLocation, {encoding: 'utf-8'}, function (err, data) {
 						if (!err) {
 							var match = data.match(/VERSION="([0-9].*)"/);
-							sails.log.info(match[0]);
-							sails.log.info(match[1]);
 							if(match[1] != undefined && match[1] != ""){
 								fullfill( match[1] );
 							} else {
