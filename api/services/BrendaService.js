@@ -41,5 +41,17 @@ module.exports = {
 		});
 
 		return promise;
+	},
+
+
+	applyAmazonS3Config: function(){
+
+		//TODO: Make the path a variable that can be updated via the settings for PC users.
+		fs.readFile('~/.aws/credentials', 'utf8', function (err,data) {
+			if (err) {
+				return sails.log(err);
+			}
+			sails.log(data);
+		});
 	}
 }

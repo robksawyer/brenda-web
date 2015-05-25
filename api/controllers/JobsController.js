@@ -33,19 +33,44 @@ module.exports = {
 			}
 			sails.log('Created a job with the name ' + created.name);
 		});*/
-		sails.log(req.file);
-		if(req.params != undefined){
-			sails.log(req.params);
-			//Create a zip file if needed.
-		}
+
+		/*if(req){
+			sails.log(req.file('inputProjectFile'));
+		}*/
+
+		BrendaService.applyAmazonS3Config();
+
+		/*if (req.method == 'POST'){
+
+			req.file('project_file').upload({
+				adapter: require('skipper-s3'),
+				key: 'S3 Key',
+				secret: 'S3 Secret',
+				bucket: 'Bucket Name'
+			}, function (err, filesUploaded) {
+				if (err) return res.negotiate(err);
+				return res.ok({
+					files: uploadedFiles,
+					textParams: req.params.all()
+				});
+			});
+			if(req.params != undefined){
+				sails.log(req.params);
+				//Create a zip file if needed.
+			}
+		}*/
 
 		res.view('jobs/add_spot',{
 			todo: 'Not implemented yet!'
 		});
 	},
 
+	create_spot: function (req, res){
+		sails.log(req.params);
+	},
 
 	clone: function(req, res) {
+		sails.log(req.params);
 		res.view('jobs/add_spot',{
 			todo: 'Not implemented yet!'
 		});

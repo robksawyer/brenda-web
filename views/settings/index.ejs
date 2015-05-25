@@ -37,7 +37,7 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-user"></i> Profile Settings</h1>
 			</div>
-			<form id="user-settings">
+			<form id="user-settings" action="/settings/profile">
 				<div class="panel-body">
 					<div class="form-group">
 						<div class="input-group">
@@ -47,30 +47,30 @@
 							<div class="col-md-7">
 								<label for="inputProjectFile">Upload Profile Image <br>
 								<span id="inputProjectFile" class="btn btn-default btn-file">
-									Browse <input type="file">
+									Browse <input type="file" name="profile_image">
 								</span>
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputName">Full Name</label>
-						<input type="text" class="form-control" id="inputName" placeholder="Groot">
+						<input type="text" class="form-control" id="inputName" name="fullname" placeholder="Groot">
 					</div>
 					<div class="form-group">
 						<label for="inputEmail">Email</label>
-						<input type="text" class="form-control" id="inputEmail" placeholder="funny@aol.com">
+						<input type="text" class="form-control" id="inputEmail" name="email" placeholder="funny@aol.com">
 						<span id="helpBlock" class="help-block alert alert-info">User only to send you notifications.</span>
 					</div>
 					<div class="form-group">
 						<div class="checkbox">
 							<label>
-								<input type="checkbox" value="" checked>
+								<input type="checkbox" name="email_on_render_complete" checked>
 								Email on render complete.
 								</label>
 							</div>
 							<div class="checkbox disabled">
 							<label>
-								<input type="checkbox" value="" disabled>
+								<input type="checkbox" name="email_when_instance_up_for_hour" disabled>
 								Email when instance up for more than an hour. (Coming soon.)
 							</label>
 						</div>
@@ -78,7 +78,7 @@
 				</div>
 				<div class="panel-footer clearfix">
 					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+						<button type="submit" class="btn btn-primary" title="Saves your settings." name="save">Save</button>
 					</div>
 				</div>
 			</form>
@@ -88,15 +88,15 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-cogs"></i> Amazon Settings</h1>
 			</div>
-			<form id="amazon-settings">
+			<form id="amazon-settings" action="/settings/amazon">
 				<div class="panel-body">
 					<div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>" value="<%= sails.config.brenda.settings.ami_id %>">
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= sails.config.brenda.settings.ami_id %>" value="<%= sails.config.brenda.settings.ami_id %>">
 					</div>
 					<div class="form-group">
 						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>" value="<%= sails.config.brenda.settings.default_instance_type %>">
+						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= sails.config.brenda.settings.default_instance_type %>" value="<%= sails.config.brenda.settings.default_instance_type %>">
 					</div>
 					<div class="form-group">
 						<div class="well">
@@ -104,18 +104,18 @@
 							<div class="input-group">
 								<div class="col-xs-4">
 									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>" value="<%= sails.config.brenda.settings.sqs_region %>">
+									<input type="text" class="form-control" id="inputSQSRegion" name="sqs_region" placeholder="<%= sails.config.brenda.settings.sqs_region %>" value="<%= sails.config.brenda.settings.sqs_region %>">
 								</div>
 								<div class="col-xs-4">
 									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
+									<input type="text" class="form-control" id="inputEC2Region" name="ec2_region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
-						<input type="text" class="form-control" id="inputEC2InstanceCount" placeholder="20">
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="ec2_instance_count" placeholder="20">
 						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
 					</div>
 					<!-- <div class="form-group">
@@ -132,7 +132,7 @@
 				</div>
 				<div class="panel-footer clearfix">
 					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+						<button type="submit" name="save" class="btn btn-primary" title="Saves your settings.">Save</button>
 					</div>
 				</div>
 			</form>
@@ -142,7 +142,7 @@
 			<div class="panel-heading">
 				<h1 class="panel-title"><i class="fa fa-cubes"></i> Brenda Settings <small>Settings wll be used by default when starting a new render job.</small></h1>
 			</div>
-			<form id="brenda-settings">
+			<form id="brenda-settings" action="/settings/brenda">
 				<div class="panel-body">
 					<div class="row-fluid">
 						<p>Current version: <%= version %></p>
@@ -178,7 +178,7 @@
 				</div>
 				<div class="panel-footer clearfix">
 					<div class="pull-right">
-						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+						<button type="submit" name="save" class="btn btn-primary" title="Saves your settings.">Save</button>
 					</div>
 				</div>
 			</form>
