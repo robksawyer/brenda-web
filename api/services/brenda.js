@@ -263,10 +263,14 @@ module.exports = {
 	/**
 	*
 	* Creates a bucket on Amazon S3.
-	*
+	* @param id integer The setting id to update
+	* @param bucketName string A name for the bucket
+	* @param region string The region to create the bucket in
+	* @param type string The database attribute to update with the bucket name
+	* @return RSVP.Promise
 	**/
 
-	createS3Bucket: function(bucketName, region){
+	createS3Bucket: function(id, bucketName, region, type){
 		if(!bucketName){
 			sails.log.error('You must provide a name before you can create a bucket.');
 			return false;
@@ -285,22 +289,107 @@ module.exports = {
 			//GrantWriteACP: 'STRING_VALUE'
 		};
 
+		//Load the credentials and build configuration
+		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+
 		var s3 = new AWS.S3({
 			region: region
 		});
-		//Load the credentials and build configuration
-		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			s3.createBucket(params, function(err, data) {
 				if (err) {
+					//sails.log.error(err, err.stack); // an error occurred
+					sails.log.error(err.code);
+					if(err.code == "BucketAlreadyOwnedByYou"){
+						//Associate the bucket with the database variable
+						Settings.findOne({id: id}).exec( function(err, found){
+							if(err){
+								sails.log.error(err);
+								reject({message: "Unable to find the settings record." });
+							}
+							if(!type){
+								reject({message: "The attribute type was not found."});
+							}
+
+							found[type] = bucketName;
+							found.save(function(err, s){
+								if(err){
+									sails.log.error(err);
+									reject({message: "Unable to save the bucket association."});
+								}
+								sails.log.info('Updated settings property ' + type + ' with ' + bucketName + '.');
+								fullfill(bucketName);
+							});
+
+						});
+					}else {
+						reject(err);
+					}
+				} else {
+					sails.log(data); // successful response
+					fullfill(bucketName);
+				}
+			});
+		});
+
+		return promise;
+	},
+
+	/**
+	*
+	* Removes a bucket on Amazon S3.
+	* @param bucketName string The name of the bucket
+	* @param type string (aws_s3_project_bucket | aws_s3_render_bucket)
+	* @return promise
+	**/
+
+	removeS3Bucket: function(id, bucketName, region, type){
+		if(!bucketName){
+			sails.log.error('You must provide a name before you can remove a bucket.');
+			return false;
+		}
+		if(!region){
+			sails.log.error('You must provide a region before you can remove a bucket.');
+			return false;
+		}
+
+		var params = {
+			Bucket: bucketName
+		};
+
+		//Load the credentials and build configuration
+		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+
+		var s3 = new AWS.S3({
+			region: region
+		});
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			s3.deleteBucket(params, function(err, data) {
+				if (err) {
 					sails.log.error(err, err.stack); // an error occurred
 					reject(err);
 				}
-				else {
-					sails.log(data); // successful response
-					fullfill(data);
-				}
+
+				sails.log(data); // successful response
+
+				//Delete the name in the database
+				Settings.findOne({ id: id }).exec(function(err, found) {
+					if(err){
+						sails.log.error(err);
+						reject(err);
+					}
+					found[type] = "";
+					found.save(function(err, s){
+						if(err){
+							sails.log.error(err);
+							reject(err);
+						}
+						fullfill(bucketName);
+					});
+				});
+
 			});
 		});
 

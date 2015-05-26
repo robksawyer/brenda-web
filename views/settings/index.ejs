@@ -123,21 +123,6 @@
 						<input type="text" class="form-control" id="inputEC2InstanceCount" name="ec2_instance_count" placeholder="20">
 						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
 					</div>
-					<div class="form-group">
-						<div class="well">
-							<p class="lead">Amazon S3 Buckets</p>
-							<div class="input-group">
-								<div class="col-xs-4">
-									<label for="inputS3ProjectBucket">Project Bucket</label>
-									<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
-								</div>
-								<div class="col-xs-4">
-									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
-									<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
-								</div>
-							</div>
-						</div>
-					</div>
 					<!-- <div class="form-group">
 						<label for="inputMaxAmount">Max Amount (in dollars)</label>
     					<div class="input-group">
@@ -157,6 +142,62 @@
 					</div>
 				</div>
 			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cogs"></i> Amazon Bucket Settings</h1>
+			</div>
+			<!--<form id="amazon-bucket-settings" name="amazon_bucket_settings" action="/settings/amazon" method="POST">-->
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="col-xs-5">
+							<% if ( settings.aws_s3_project_bucket ) { %>
+									<label for="inputS3ProjectBucket">Project Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket"><i class="fa fa-trash red"></i></a></div>
+									</div>
+									<div id="static_project_bucket" class="modal hide fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+											<div class="modal-body">
+												<p>Are you sure you want to delete the S3 bucket? Warning: This will destroy the contents of it as well.</p>
+											</div>
+											<div class="modal-footer">
+												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+												<button type="button" onclick="location.href='/settings/removeBucket?id=<%= settings.id %>&type=aws_s3_project_bucket'" class="btn btn-danger">Delete</button>
+											</div>
+										</div>
+							<% } else { %>
+									<label for="inputS3ProjectBucket">Project Bucket</label>
+									<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
+							<% } %>
+						</div>
+						<div class="col-xs-5">
+							<% if ( settings.aws_s3_render_bucket ) { %>
+									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket"><i class="fa fa-trash red"></i></a></div>
+										<div id="static_render_bucket" class="modal hide fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+											<div class="modal-body">
+												<p>Are you sure you want to delete the S3 bucket? Warning: This will destroy the contents of it as well.</p>
+											</div>
+											<div class="modal-footer">
+												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+												<button type="button" onclick="location.href='/settings/removeBucket?id=<%= settings.id %>&type=aws_s3_render_bucket'" class="btn btn-danger">Delete</button>
+											</div>
+										</div>
+									</div>
+							<% } else { %>
+									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
+									<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
+							<% } %>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- </form> -->
 		</div>
 
 		<div class="panel panel-default">
