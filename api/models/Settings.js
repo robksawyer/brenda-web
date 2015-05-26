@@ -8,11 +8,36 @@
 module.exports = {
 
 	attributes: {
-		email: 'string', //Update this later and move to a user model
-		ami_id: 'string',
-		ec2_region: 'string',
-		sqs_region: 'string',
-		default_instance_type: 'string'
+		email: {
+			type: 'string', //Update this later and move to a user model
+		},
+		ami_id: {
+			type: 'string'
+		},
+		ec2_region: {
+			type: 'string'
+		},
+		sqs_region: {
+			type: 'string'
+		},
+		default_instance_type: {
+			type: 'string'
+		},
+		ec2_instance_count: {
+			type: 'integer'
+		},
+		aws_access_key_id: {
+			type: 'string'
+		},
+		aws_secret_access_key_id: {
+			type: 'string'
+		},
+		aws_s3_project_bucket: {
+			type: 'string'
+		},
+		aws_s3_render_bucket: {
+			type: 'string'
+		}
 	}
 };
 

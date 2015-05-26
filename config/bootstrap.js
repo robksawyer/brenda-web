@@ -15,6 +15,8 @@ module.exports.bootstrap = function(cb) {
 	sails.RSVP = require('rsvp');
 
 	var os = require('os');
+
+	sails.EOL = os.EOL;
 	//sails.localStorage = require('node-localstorage').LocalStorage;
 
 	// It's very important to trigger this callback method when you are finished

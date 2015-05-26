@@ -38,31 +38,35 @@ module.exports = {
 			sails.log(req.file('inputProjectFile'));
 		}*/
 
-		BrendaService.getAmazonS3ConfigFile();
+		sails.log( sails.config.aws.settings.s3_project_bucket );
 
-		/*if (req.method == 'POST'){
+		if (req.method == 'POST'){
 
-			req.file('project_file').upload({
-				adapter: require('skipper-s3'),
-				key: 'S3 Key',
-				secret: 'S3 Secret',
-				bucket: 'Bucket Name'
-			}, function (err, filesUploaded) {
-				if (err) return res.negotiate(err);
-				return res.ok({
-					files: uploadedFiles,
-					textParams: req.params.all()
-				});
-			});
-			if(req.params != undefined){
-				sails.log(req.params);
-				//Create a zip file if needed.
-			}
-		}*/
+			BrendaService.getAmazonS3ConfigFile().then(
+				function(data){
+					sails.log(data);
+					sails.log(sails.config.aws.settings.s3_project_bucket);
 
-		res.view('jobs/add_spot',{
-			todo: 'Not implemented yet!'
-		});
+					req.file('project_file').upload({
+						adapter: require('skipper-s3'),
+						key: data.aws_access_key_id,
+						secret: data.aws_secret_access_key,
+						bucket: sails.config.aws.settings.s3_project_bucket //Select the project bucket
+					}, function (err, filesUploaded) {
+						if (err) return res.negotiate(err);
+
+						res.view('jobs/add_spot',{
+							files: uploadedFiles,
+							textParams: req.params.all()
+						});
+					});
+				},
+				function(reason){
+					sails.log(reason);
+				}
+			);
+
+		}
 	},
 
 	create_spot: function (req, res){
