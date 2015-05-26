@@ -51,19 +51,6 @@ module.exports = {
 											sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
 										});
 
-										/*Settings.find({id: 1}, function(err, settingRecord){
-											if(err){
-												sails.log.error("Unable to find the setting record in order to save Brenda version.");
-											}
-											created.brenda_version = data;
-											created.save(function(err, s){
-												if(err){
-													sails.log.error("There was an error adding the Brenda version to the settings.");
-												}
-												sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
-											});
-										});*/
-
 									}else{
 										sails.log.error("There was an error finding the Brenda version.");
 									}
@@ -72,7 +59,31 @@ module.exports = {
 									sails.log.error(reason);
 
 								}
-							).then(function(){
+							)
+							//Debating about keeping this or just having the user add these to the aws file.
+							/*.then(function(){
+								brenda.getAmazonS3ConfigFile().then(
+									function(data){
+										if(data.aws_access_key_id != undefined){
+											created.aws_access_key_id = data.aws_access_key_id;
+										}
+										if(data.aws_secret_access_key != undefined){
+											created.aws_secret_access_key = data.aws_secret_access_key;
+										}
+
+										created.save(function(err, s){
+											if(err){
+												sails.log.error("There was an error adding the AWS keys to the settings.");
+											}
+											sails.log.info("Had success saving AWS keys from ~/.aws/credentials to the settings.");
+										});
+									},
+									function(reason){
+										sails.log.error(reason);
+									}
+								);
+							})*/
+							.then(function(){
 								res.view({
 									//version: results,
 									settings: created

@@ -2,7 +2,6 @@
  * Brenda API Configuration
  *
  * This file contains the main Brenda settings used in the app.
- * This is generated/updated by filling out the /settings/index data.
  *
  */
 

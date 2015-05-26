@@ -15,6 +15,12 @@ module.exports = {
 	brendaFileStart: 'module.exports.brenda = {' + sails.EOL + sails.EOL + 'settings: {' + sails.EOL,
 	brendaFileEnd: sails.EOL + '}' + sails.EOL + sails.EOL + '}',
 
+	/**
+	*
+	* Find the Brenda version by pulling the data from the setup.py file.
+	*
+	**/
+
 	getBrendaVersion: function(){
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
@@ -51,6 +57,12 @@ module.exports = {
 		return promise;
 	},
 
+
+	/**
+	*
+	* Finds the data in the Amazon shared credential file (~/.aws/credential).
+	* More details: http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
+	**/
 
 	getAmazonS3ConfigFile: function(){
 
