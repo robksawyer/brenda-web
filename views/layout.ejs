@@ -39,8 +39,17 @@
 		<link rel="stylesheet" href="/styles/css/font-awesome.css">
 		<link rel="stylesheet" href="/styles/dist/css/bootstrap.css">
 		<link rel="stylesheet" href="/styles/importer.css">
+		<link rel="stylesheet" href="/styles/xstyles/bootstrap-modal-bs3patch.css">
 		<link rel="stylesheet" href="/styles/xstyles/dashboard.css">
 		<!--STYLES END-->
+
+		<!-- jQuery from Google's CDN -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+		<!-- Fall back to a local copy of jQuery if the CDN fails -->
+		<script>
+		window.jQuery || document.write('<script src="/js/dist/jquery.js"><\/script>')
+		</script>
 
 		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 		<!--[if lt IE 9]>
@@ -109,7 +118,6 @@
 
 		<!--SCRIPTS-->
 		<script src="/js/dependencies/sails.io.js"></script>
-		<script src="/js/dist/jquery.js"></script>
 		<script src="/js/dist/js/bootstrap.js"></script>
 		<script src="/js/holder.js"></script>
 		<script src="/js/ie10-viewport-bug-workaround.js"></script>

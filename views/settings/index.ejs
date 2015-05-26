@@ -153,46 +153,92 @@
 				<div class="form-group">
 					<div class="input-group">
 						<div class="col-xs-5">
+
 							<% if ( settings.aws_s3_project_bucket ) { %>
+								<form action="/settings/removeBucket" method="POST">
 									<label for="inputS3ProjectBucket">Project Bucket</label>
 									<div class="input-group">
 										<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
-										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket"><i class="fa fa-trash red"></i></a></div>
-									</div>
-									<div id="static_project_bucket" class="modal hide fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_project_bucket">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket_add"><i class="fa fa-trash text-danger"></i></a></div>
+										<div id="static_project_bucket_add" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
 											<div class="modal-body">
-												<p>Are you sure you want to delete the S3 bucket? Warning: This will destroy the contents of it as well.</p>
+												<p>Are you sure you want to delete the project S3 bucket?</p>
+												<p class="alert alert-danger">Warning: This will destroy the contents of it as well.</p>
 											</div>
 											<div class="modal-footer">
 												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="button" onclick="location.href='/settings/removeBucket?id=<%= settings.id %>&type=aws_s3_project_bucket'" class="btn btn-danger">Delete</button>
+												<button type="submit" class="btn btn-danger">Delete</button>
 											</div>
 										</div>
+									</div>
+								</form>
 							<% } else { %>
+								<form action="/settings/createBucket" method="POST">
 									<label for="inputS3ProjectBucket">Project Bucket</label>
-									<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" placeholder="my-bucket-name">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_project_bucket">
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket_delete"><i class="fa fa-plus-square text-success"></i></a></div>
+										<div id="static_project_bucket_delete" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
+											<div class="modal-body">
+												<p>Are you sure you want to add this project S3 bucket?</p>
+											</div>
+											<div class="modal-footer">
+												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+												<button type="submit" class="btn btn-success">Add</button>
+											</div>
+										</div>
+									</div>
+								</form>
 							<% } %>
+
 						</div>
 						<div class="col-xs-5">
+
 							<% if ( settings.aws_s3_render_bucket ) { %>
-									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
+								<form action="/settings/removeBucket" method="POST">
+									<label for="inputS3RenderBucket">Frame &amp; Render Bucket</label>
 									<div class="input-group">
 										<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
-										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket"><i class="fa fa-trash red"></i></a></div>
-										<div id="static_render_bucket" class="modal hide fade" tabindex="-1" data-backdrop="static" data-keyboard="false">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_render_bucket">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket_add"><i class="fa fa-trash text-danger"></i></a></div>
+										<div id="static_render_bucket_add" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
 											<div class="modal-body">
-												<p>Are you sure you want to delete the S3 bucket? Warning: This will destroy the contents of it as well.</p>
+												<p>Are you sure you want to delete the render S3 bucket?</p>
+												<p class="alert alert-danger">Warning: This will destroy the contents of it as well.</p>
 											</div>
 											<div class="modal-footer">
 												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="button" onclick="location.href='/settings/removeBucket?id=<%= settings.id %>&type=aws_s3_render_bucket'" class="btn btn-danger">Delete</button>
+												<button type="submit" class="btn btn-danger">Delete</button>
 											</div>
 										</div>
 									</div>
+								</form>
 							<% } else { %>
-									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
-									<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
+								<form action="/settings/createBucket" method="POST">
+									<label for="inputS3RenderBucket">Frame &amp; Render Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" placeholder="my-bucket-name">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_render_bucket">
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket_delete"><i class="fa fa-plus-square text-success"></i></a></div>
+										<div id="static_render_bucket_delete" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
+											<div class="modal-body">
+												<p>Are you sure you want to add this render S3 bucket?</p>
+											</div>
+											<div class="modal-footer">
+												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+												<button type="submit" class="btn btn-success">Add</button>
+											</div>
+										</div>
+									</div>
+								</form>
 							<% } %>
+
 						</div>
 					</div>
 				</div>
@@ -261,10 +307,44 @@
 <script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script>
 
 <script type="text/javascript">
-/*$(document).ready(function() {
-	console.log('ready')
+$(document).ready(function() {
+	if(console) console.log('ready');
 
-	$('#userpic').fileapi({
+	/*$('#openBtn').click(function(){
+		$('#static_project_bucket_add').modal({show:true});
+		$('#static_project_bucket_delete').modal({show:true});
+		$('#static_render_bucket_add').modal({show:true});
+		$('#static_render_bucket_delete').modal({show:true});
+	});*/
+
+	//Stacking modal windows
+	//More info: http://miles-by-motorcycle.com/fv-b-8-670/stacking-bootstrap-dialogs-using-event-callbacks
+	/*$('.modal').on('hidden.bs.modal', function( event ) {
+		$(this).removeClass( 'fv-modal-stack' );
+		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
+	});
+
+	$('.modal').on( 'shown.bs.modal', function ( event ) {
+		// keep track of the number of open modals
+		if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' )
+		{
+			$('body').data( 'fv_open_modals', 0 );
+		}
+
+		// if the z-index of this modal has been set, ignore.
+		if ( $(this).hasClass( 'fv-modal-stack' ) )
+		{
+			return;
+		}
+
+		$(this).addClass( 'fv-modal-stack' );
+		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) + 1 );
+		$(this).css('z-index', 1040 + (10 * $('body').data( 'fv_open_modals' )));
+		$('.modal-backdrop' ).not( '.fv-modal-stack' ).css( 'z-index', 1039 + (10 * $('body').data( 'fv_open_modals' )));
+		$('.modal-backdrop' ).not( 'fv-modal-stack' ).addClass( 'fv-modal-stack' );
+	});*/
+
+	/*$('#userpic').fileapi({
 		url: '/file/s3upload',
 		accept: 'image/*',
 		imageSize: { minWidth: 200, minHeight: 200 },
@@ -305,6 +385,6 @@
 				}).open();
 			}
 		}
-	});
-});*/
+	});*/
+});
 </script>

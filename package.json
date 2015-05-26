@@ -40,6 +40,7 @@
     "rsvp": "^3.0.18",
     "sails": "~0.11.0",
     "sails-disk": "~0.10.0",
+    "sails-hook-validation": "^0.2.1",
     "skipper-s3": "^0.5.5",
     "validator": "^3.40.0"
   },
