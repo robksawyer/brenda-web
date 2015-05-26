@@ -103,13 +103,17 @@
 						<div class="well">
 							<p class="lead">Amazon Regions</p>
 							<div class="input-group">
-								<div class="col-xs-4">
+								<div class="col-xs-3">
 									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" name="sqs_region" placeholder="<%= settings.sqs_region %>" value="<%= settings.sqs_region %>">
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="<%= settings.aws_sqs_region %>" value="<%= settings.aws_sqs_region %>">
 								</div>
-								<div class="col-xs-4">
+								<div class="col-xs-3">
 									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" name="ec2_region" placeholder="<%= settings.ec2_region %>" value="<%= settings.ec2_region %>">
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="<%= settings.aws_ec2_region %>" value="<%= settings.aws_ec2_region %>">
+								</div>
+								<div class="col-xs-3">
+									<label for="inputS3Region">S3 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="<%= settings.aws_s3_region %>" value="<%= settings.aws_s3_region %>">
 								</div>
 							</div>
 						</div>

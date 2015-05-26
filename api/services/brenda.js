@@ -4,7 +4,8 @@
 
 var fs = require('fs'),
 	path = require('path'),
-	util = require('util');
+	util = require('util'),
+	AWS = require('aws-sdk');
 
 module.exports = {
 
@@ -257,5 +258,53 @@ module.exports = {
 		for( var i=0; i < length; i++ )
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		return text;
+	},
+
+	/**
+	*
+	* Creates a bucket on Amazon S3.
+	*
+	**/
+
+	createS3Bucket: function(bucketName, region){
+		if(!bucketName){
+			sails.log.error('You must provide a name before you can create a bucket.');
+			return false;
+		}
+		if(!region){
+			sails.log.error('You must provide a region before you can create a bucket.');
+			return false;
+		}
+		var params = {
+			Bucket: bucketName, /* required */
+			ACL: 'authenticated-read', //'private | public-read | public-read-write | authenticated-read',
+			//GrantFullControl: 'STRING_VALUE',
+			//GrantRead: 'STRING_VALUE',
+			//GrantReadACP: 'STRING_VALUE',
+			//GrantWrite: 'STRING_VALUE',
+			//GrantWriteACP: 'STRING_VALUE'
+		};
+
+		var s3 = new AWS.S3({
+			region: region
+		});
+		//Load the credentials and build configuration
+		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			s3.createBucket(params, function(err, data) {
+				if (err) {
+					sails.log.error(err, err.stack); // an error occurred
+					reject(err);
+				}
+				else {
+					sails.log(data); // successful response
+					fullfill(data);
+				}
+			});
+		});
+
+		return promise;
 	}
+
 }

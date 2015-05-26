@@ -40,7 +40,7 @@
 ################################################
 
 config/local.js
-config/aws.js
+config/aws.json
 
 
 

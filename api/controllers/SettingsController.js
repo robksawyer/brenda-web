@@ -19,19 +19,8 @@ module.exports = {
 
 					if(found == undefined){
 						sails.log.info('Settings have not been established. Creating a settings record.');
-						var defaultSettings = {
-							id: 1,
-							ami_id: "",
-							ec2_region: "us-west-2",
-							sqs_region: "us-west-2",
-							default_instance_type: "c3.2xlarge",
-							aws_access_key_id: "",
-							aws_secret_access_key_id: "",
-							aws_s3_project_bucket: "",
-							aws_s3_render_bucket: ""
-						};
 
-						Settings.create(defaultSettings).exec(function(err, created){
+						Settings.create({id: 1}).exec(function(err, created){
 							if(err){
 								sails.log.error(err);
 							}
@@ -143,21 +132,73 @@ module.exports = {
 					sails.log.error(err);
 				}
 
+				if(!settingRecord){
+					sails.log.error('Unable to find settings record.');
+					return res.redirect('/settings');
+				}
 				var ignoreAttributes = ['id','brenda_version'];
+				var buildS3ProjectBucket = false;
+				var buildS3RenderBucket = false;
 				var settingAttributes = Object.keys(settingRecord);
 				for(var i=0; i < settingAttributes.length; i++){
 					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
 						//sails.log(req.param(settingAttributes[i]));
 						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
-							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+
+							if(settingAttributes[i] == 'aws_s3_project_bucket' && req.param(settingAttributes[i]) != settingRecord.aws_s3_project_bucket){
+
+								//if(settingRecord.aws_s3_region != undefined && settingRecord.aws_s3_region != ""){
+									buildS3ProjectBucket = true;
+								//}
+
+							}else if(settingAttributes[i] == 'aws_s3_render_bucket'  && req.param(settingAttributes[i]) != settingRecord.aws_s3_render_bucket){
+
+								//if(settingRecord.aws_s3_region != undefined && settingRecord.aws_s3_region != ""){
+									buildS3RenderBucket = true;
+								//}
+
+							}else{
+								settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+							}
+
 						}
 					}
+				}
+
+				if(buildS3ProjectBucket){
+					brenda.createS3Bucket(
+						req.param(settingAttributes[i]), settingRecord.aws_s3_region
+					)
+					.then(
+						function(data){
+							sails.log('S3 project bucket ' + data + ' saved successfully!');
+							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+						},
+						function(reason){
+							sails.log.error(reason);
+						}
+					);
+				}
+
+				if(buildS3RenderBucket){
+					brenda.createS3Bucket(
+						req.param(settingAttributes[i]), settingRecord.aws_s3_region
+					)
+					.then(
+						function(data){
+							sails.log('S3 render bucket ' + data + ' saved successfully!');
+							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+						},
+						function(reason){
+							sails.log.error(reason);
+						}
+					);
 				}
 
 				settingRecord.save(
 					function(err, s){
 						if(err) {
-							sails.log.error('Not able to find save the Amazon settings');
+							sails.log.error('Unable to save the Amazon settings');
 						}else{
 							sails.log.info("Amazon settings saved.");
 						}
@@ -170,6 +211,5 @@ module.exports = {
 
 
 	}
-
 };
 

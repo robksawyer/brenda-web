@@ -9,34 +9,40 @@ module.exports = {
 
 	attributes: {
 		brenda_version: {
-			type: 'string'
+			type: 'string',
+			defaultsTo: ''
 		},
 		ami_id: {
-			type: 'string'
+			type: 'string',
+			defaultsTo: ''
 		},
-		ec2_region: {
-			type: 'string'
+		aws_s3_region: {
+			type: 'string',
+			defaultsTo: 'us-west-2'
 		},
-		sqs_region: {
-			type: 'string'
+		aws_ec2_region: {
+			type: 'string',
+			defaultsTo: 'us-west-2'
+		},
+		aws_sqs_region: {
+			type: 'string',
+			defaultsTo: 'us-west-2'
 		},
 		default_instance_type: {
-			type: 'string'
+			type: 'string',
+			defaultsTo: 'c3.2xlarge'
 		},
 		ec2_instance_count: {
-			type: 'integer'
-		},
-		aws_access_key_id: {
-			type: 'string'
-		},
-		aws_secret_access_key_id: {
-			type: 'string'
+			type: 'integer',
+			defaultsTo: 1
 		},
 		aws_s3_project_bucket: {
-			type: 'string'
+			type: 'string',
+			defaultsTo: ''
 		},
 		aws_s3_render_bucket: {
-			type: 'string'
+			type: 'string',
+			defaultsTo: ''
 		}
 	}
 };
