@@ -8,6 +8,7 @@
     "adm-zip": "^0.4.7",
     "aws-q": "^0.1.2",
     "aws-sdk": "^2.1.29",
+    "bcryptjs": "^2.1.0",
     "ejs": "~0.8.4",
     "grunt": "0.4.2",
     "grunt-contrib-clean": "~0.5.0",
@@ -26,12 +27,21 @@
     "knox": "^0.9.2",
     "moment": "^2.10.3",
     "node-localstorage": "^0.5.0",
+    "passport": "^0.2.2",
+    "passport-cas": "0.0.3",
+    "passport-facebook": "^2.0.0",
+    "passport-github": "^0.1.5",
+    "passport-google-oauth": "^0.2.0",
+    "passport-http-bearer": "^1.0.1",
+    "passport-local": "^1.0.0",
+    "passport-twitter": "^1.0.3",
     "python-shell": "^0.1.0",
     "rc": "~0.5.0",
     "rsvp": "^3.0.18",
     "sails": "~0.11.0",
     "sails-disk": "~0.10.0",
-    "skipper-s3": "^0.5.5"
+    "skipper-s3": "^0.5.5",
+    "validator": "^3.40.0"
   },
   "scripts": {
     "debug": "node debug app.js",
@@ -45,6 +55,7 @@
   },
   "devDependencies": {
     "grunt-bower": "^0.19.0",
-    "grunt-remove": "^0.1.0"
+    "grunt-remove": "^0.1.0",
+    "sails-generate-auth": "^0.3.1"
   }
 }

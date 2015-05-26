@@ -93,11 +93,11 @@
 				<div class="panel-body">
 					<div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= sails.config.aws.settings.ami_id %>" value="<%= sails.config.aws.settings.ami_id %>">
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" value="<%= settings.ami_id %>">
 					</div>
 					<div class="form-group">
 						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= sails.config.aws.settings.default_instance_type %>" value="<%= sails.config.aws.settings.default_instance_type %>">
+						<input type="text" class="form-control" id="inputInstanceType" name="default_instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
 					</div>
 					<div class="form-group">
 						<div class="well">
@@ -105,11 +105,11 @@
 							<div class="input-group">
 								<div class="col-xs-4">
 									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" name="sqs_region" placeholder="<%= sails.config.aws.settings.sqs_region %>" value="<%= sails.config.aws.settings.sqs_region %>">
+									<input type="text" class="form-control" id="inputSQSRegion" name="sqs_region" placeholder="<%= settings.sqs_region %>" value="<%= settings.sqs_region %>">
 								</div>
 								<div class="col-xs-4">
 									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" name="ec2_region" placeholder="<%= sails.config.aws.settings.ec2_region %>" value="<%= sails.config.aws.settings.ec2_region %>">
+									<input type="text" class="form-control" id="inputEC2Region" name="ec2_region" placeholder="<%= settings.ec2_region %>" value="<%= settings.ec2_region %>">
 								</div>
 							</div>
 						</div>
@@ -121,11 +121,11 @@
 					</div>
 					<div class="form-group">
 						<label for="inputAWSAccessKey">AWS Access Key</label>
-						<input type="password" class="form-control" id="inputAWSAccessKey" name="aws_access_key_id" value="<%= sails.config.aws.settings.aws_access_key_id %>">
+						<input type="password" class="form-control" id="inputAWSAccessKey" name="aws_access_key_id" value="<%= settings.aws_access_key_id %>">
 					</div>
 					<div class="form-group">
 						<label for="inputAWSSecretAccessKey">AWS Secret Access Key</label>
-						<input type="password" class="form-control" id="inputAWSSecretAccessKey" name="aws_secret_access_key_id" value="<%= sails.config.aws.settings.aws_secret_access_key_id %>">
+						<input type="password" class="form-control" id="inputAWSSecretAccessKey" name="aws_secret_access_key_id" value="<%= settings.aws_secret_access_key_id %>">
 					</div>
 					<div class="form-group">
 						<div class="well">
@@ -133,11 +133,11 @@
 							<div class="input-group">
 								<div class="col-xs-4">
 									<label for="inputS3ProjectBucket">Project Bucket</label>
-									<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= sails.config.aws.settings.aws_s3_project_bucket %>">
+									<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
 								</div>
 								<div class="col-xs-4">
 									<label for="inputS3RenderBucket">Frame/Render Bucket</label>
-									<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= sails.config.aws.settings.aws_s3_render_bucket %>">
+									<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
 								</div>
 							</div>
 						</div>
@@ -170,7 +170,7 @@
 			<form id="brenda-settings" name="brendaSettings" action="/settings/brenda" method="POST">
 				<div class="panel-body">
 					<div class="row-fluid">
-						<p>Current version: <%= version %></p>
+						<p>Current version: <%= settings.brenda_version %></p>
 					</div>
 					<!-- <div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>

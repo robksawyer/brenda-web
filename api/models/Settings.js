@@ -8,8 +8,8 @@
 module.exports = {
 
 	attributes: {
-		email: {
-			type: 'string', //Update this later and move to a user model
+		brenda_version: {
+			type: 'string'
 		},
 		ami_id: {
 			type: 'string'

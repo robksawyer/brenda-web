@@ -19,21 +19,21 @@
 
 module.exports.policies = {
 
-  /***************************************************************************
-  *                                                                          *
-  * Default policy for all controllers and actions (`true` allows public     *
-  * access)                                                                  *
-  *                                                                          *
-  ***************************************************************************/
+	/***************************************************************************
+	*                                                                          *
+	* Default policy for all controllers and actions (`true` allows public     *
+	* access)                                                                  *
+	*                                                                          *
+	***************************************************************************/
 
-  // '*': true,
+	// '*': true,
 
-  /***************************************************************************
-  *                                                                          *
-  * Here's an example of mapping some policies to run before a controller    *
-  * and its actions                                                          *
-  *                                                                          *
-  ***************************************************************************/
+	/***************************************************************************
+	*                                                                          *
+	* Here's an example of mapping some policies to run before a controller    *
+	* and its actions                                                          *
+	*                                                                          *
+	***************************************************************************/
 	// RabbitController: {
 
 		// Apply the `false` policy as the default for all of RabbitController's actions
@@ -48,4 +48,7 @@ module.exports.policies = {
 		// before letting any users feed our rabbits
 		// feed : ['isNiceToAnimals', 'hasRabbitFood']
 	// }
+
+	'*': [ 'passport', /* your auth dependant policies go here */ ]
+
 };
