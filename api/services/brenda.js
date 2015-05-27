@@ -271,32 +271,34 @@ module.exports = {
 	**/
 
 	createS3Bucket: function(id, bucketName, region, type){
-		if(!bucketName){
-			sails.log.error('You must provide a name before you can create a bucket.');
-			return false;
-		}
-		if(!region){
-			sails.log.error('You must provide a region before you can create a bucket.');
-			return false;
-		}
-		var params = {
-			Bucket: bucketName, /* required */
-			ACL: 'authenticated-read', //'private | public-read | public-read-write | authenticated-read',
-			//GrantFullControl: 'STRING_VALUE',
-			//GrantRead: 'STRING_VALUE',
-			//GrantReadACP: 'STRING_VALUE',
-			//GrantWrite: 'STRING_VALUE',
-			//GrantWriteACP: 'STRING_VALUE'
-		};
-
-		//Load the credentials and build configuration
-		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
-
-		var s3 = new AWS.S3({
-			region: region
-		});
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(!bucketName){
+				sails.log.error('You must provide a name before you can create a bucket.');
+				reject({message: 'You must provide a name before you can create a bucket.'});
+			}
+			if(!region){
+				sails.log.error('You must provide a region before you can create a bucket.');
+				reject({message: 'You must provide a region before you can create a bucket.'});
+			}
+			var params = {
+				Bucket: bucketName, /* required */
+				ACL: 'authenticated-read', //'private | public-read | public-read-write | authenticated-read',
+				//GrantFullControl: 'STRING_VALUE',
+				//GrantRead: 'STRING_VALUE',
+				//GrantReadACP: 'STRING_VALUE',
+				//GrantWrite: 'STRING_VALUE',
+				//GrantWriteACP: 'STRING_VALUE'
+			};
+
+			//Load the credentials and build configuration
+			AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+
+			var s3 = new AWS.S3({
+				region: region
+			});
+
 			s3.createBucket(params, function(err, data) {
 				if (err) {
 					//sails.log.error(err, err.stack); // an error occurred
@@ -319,7 +321,10 @@ module.exports = {
 									reject({message: "Unable to save the bucket association."});
 								}
 								sails.log.info('Updated settings property ' + type + ' with ' + bucketName + '.');
-								fullfill(bucketName);
+								fullfill({
+									bucket_name: bucketName,
+									location: data.Location
+								});
 							});
 
 						});
@@ -327,8 +332,11 @@ module.exports = {
 						reject(err);
 					}
 				} else {
-					sails.log(data); // successful response
-					fullfill(bucketName);
+					//sails.log(data); // successful response
+					fullfill({
+							bucket_name: bucketName,
+							location: data.Location
+						});
 				}
 			});
 		});

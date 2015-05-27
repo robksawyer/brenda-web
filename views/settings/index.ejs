@@ -26,12 +26,54 @@
 <script>
 	var examples = [];
 </script>-->
+
 <div class="container">
 	<div class="row-fluid">
 		<div class="header">
 			<h1>Settings</h1>
 			<p class="lead">These settings allow you to customize your rendering experience.</a>.</p>
 		</div>
+
+		<!-- MODALS -->
+		<div id="modal_project_bucket_delete" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Amazon S3 Project Bucket Deletion</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<p>Are you sure you want to delete the S3 bucket <span class="label label-warning"><%= settings.aws_s3_project_bucket %></span>?</p>
+							<p class="alert alert-danger"><strong>Warning:</strong> This will destroy the contents of it as well.</p>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+						<button type="submit" class="btn btn-danger" onclick="document.getElementById('form_project_bucket_delete').submit();">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modal_render_bucket_delete" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Amazon S3 Render Bucket Deletion</h4>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to delete the S3 bucket <span class="label label-warning"><%= settings.aws_s3_render_bucket %></span>?</p>
+						<p class="alert alert-danger"><strong>Warning:</strong> This will destroy the contents of it as well.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+						<button type="submit" class="btn btn-danger" onclick="document.getElementById('form_render_bucket_delete').submit();">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /MODALS -->
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -146,7 +188,7 @@
 
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h1 class="panel-title"><i class="fa fa-cogs"></i> Amazon Bucket Settings</h1>
+				<h1 class="panel-title"><i class="fa fa-th"></i> Amazon Bucket Settings</h1>
 			</div>
 			<!--<form id="amazon-bucket-settings" name="amazon_bucket_settings" action="/settings/amazon" method="POST">-->
 			<div class="panel-body">
@@ -155,43 +197,26 @@
 						<div class="col-xs-5">
 
 							<% if ( settings.aws_s3_project_bucket ) { %>
-								<form action="/settings/removeBucket" method="POST">
-									<label for="inputS3ProjectBucket">Project Bucket</label>
+								<form action="/settings/removeBucket" method="POST" id="form_project_bucket_delete">
+									<label for="inputS3ProjectBucketDel">Project Bucket</label>
 									<div class="input-group">
-										<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
+										<input type="text" class="form-control" id="inputS3ProjectBucketDel" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
 										<input type="hidden" name="id" value="<%= settings.id %>">
 										<input type="hidden" name="type" value="aws_s3_project_bucket">
-										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket_add"><i class="fa fa-trash text-danger"></i></a></div>
-										<div id="static_project_bucket_add" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
-											<div class="modal-body">
-												<p>Are you sure you want to delete the project S3 bucket?</p>
-												<p class="alert alert-danger">Warning: This will destroy the contents of it as well.</p>
-											</div>
-											<div class="modal-footer">
-												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="submit" class="btn btn-danger">Delete</button>
-											</div>
-										</div>
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#modal_project_bucket_delete"><i class="fa fa-trash text-danger"></i></a></div>
 									</div>
+									<span id="helpBlock" class="help-block alert alert-warning">This is destructive and will also delete everything in the bucket.</span>
 								</form>
 							<% } else { %>
-								<form action="/settings/createBucket" method="POST">
-									<label for="inputS3ProjectBucket">Project Bucket</label>
+								<form action="/settings/createBucket" method="POST" id="form_project_bucket_add">
+									<label for="inputS3ProjectBucketAdd">Project Bucket</label>
 									<div class="input-group">
-										<input type="text" class="form-control" id="inputS3ProjectBucket" name="aws_s3_project_bucket" placeholder="my-bucket-name">
+										<input type="text" class="form-control" id="inputS3ProjectBucketAdd" name="aws_s3_project_bucket" placeholder="my-bucket-name">
 										<input type="hidden" name="id" value="<%= settings.id %>">
 										<input type="hidden" name="type" value="aws_s3_project_bucket">
-										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a data-toggle="modal" href="#static_project_bucket_delete"><i class="fa fa-plus-square text-success"></i></a></div>
-										<div id="static_project_bucket_delete" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
-											<div class="modal-body">
-												<p>Are you sure you want to add this project S3 bucket?</p>
-											</div>
-											<div class="modal-footer">
-												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="submit" class="btn btn-success">Add</button>
-											</div>
-										</div>
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a href="#" onclick="document.getElementById('form_project_bucket_add').submit();"><i class="fa fa-plus-square text-success"></i></a></div>
 									</div>
+									<span id="helpBlock" class="help-block alert alert-info">You are not charged when you create a bucket; you are charged when you store objects in the bucket and when you transfer objects in and out of the bucket. For more information, see <a href="http://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 Pricing</a>.</span>
 								</form>
 							<% } %>
 
@@ -199,43 +224,26 @@
 						<div class="col-xs-5">
 
 							<% if ( settings.aws_s3_render_bucket ) { %>
-								<form action="/settings/removeBucket" method="POST">
-									<label for="inputS3RenderBucket">Frame &amp; Render Bucket</label>
+								<form action="/settings/removeBucket" method="POST" id="form_render_bucket_delete">
+									<label for="inputS3RenderBucketDel">Frame &amp; Render Bucket</label>
 									<div class="input-group">
-										<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
+										<input type="text" class="form-control" id="inputS3RenderBucketDel" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
 										<input type="hidden" name="id" value="<%= settings.id %>">
 										<input type="hidden" name="type" value="aws_s3_render_bucket">
-										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket_add"><i class="fa fa-trash text-danger"></i></a></div>
-										<div id="static_render_bucket_add" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
-											<div class="modal-body">
-												<p>Are you sure you want to delete the render S3 bucket?</p>
-												<p class="alert alert-danger">Warning: This will destroy the contents of it as well.</p>
-											</div>
-											<div class="modal-footer">
-												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="submit" class="btn btn-danger">Delete</button>
-											</div>
-										</div>
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#modal_render_bucket_delete"><i class="fa fa-trash text-danger"></i></a></div>
 									</div>
+									<span id="helpBlock" class="help-block alert alert-warning">This is destructive and will also delete everything in the bucket.</span>
 								</form>
 							<% } else { %>
-								<form action="/settings/createBucket" method="POST">
-									<label for="inputS3RenderBucket">Frame &amp; Render Bucket</label>
+								<form action="/settings/createBucket" method="POST" id="form_render_bucket_add">
+									<label for="inputS3RenderBucketAdd">Frame &amp; Render Bucket</label>
 									<div class="input-group">
-										<input type="text" class="form-control" id="inputS3RenderBucket" name="aws_s3_render_bucket" placeholder="my-bucket-name">
+										<input type="text" class="form-control" id="inputS3RenderBucketAdd" name="aws_s3_render_bucket" placeholder="my-bucket-name">
 										<input type="hidden" name="id" value="<%= settings.id %>">
 										<input type="hidden" name="type" value="aws_s3_render_bucket">
-										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a data-toggle="modal" href="#static_render_bucket_delete"><i class="fa fa-plus-square text-success"></i></a></div>
-										<div id="static_render_bucket_delete" class="modal fade" tabindex="-1" data-width="760" style="display: none;">
-											<div class="modal-body">
-												<p>Are you sure you want to add this render S3 bucket?</p>
-											</div>
-											<div class="modal-footer">
-												<button type="button" data-dismiss="modal" class="btn">Cancel</button>
-												<button type="submit" class="btn btn-success">Add</button>
-											</div>
-										</div>
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a href="#" onclick="document.getElementById('form_render_bucket_add').submit();"><i class="fa fa-plus-square text-success"></i></a></div>
 									</div>
+									<span id="helpBlock" class="help-block alert alert-info">You are not charged when you create a bucket; you are charged when you store objects in the bucket and when you transfer objects in and out of the bucket. For more information, see <a href="http://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 Pricing</a>.</span>
 								</form>
 							<% } %>
 
@@ -292,7 +300,6 @@
 				</div>
 			</form>
 		</div>
-
 	</div>
 </div>
 
@@ -300,21 +307,19 @@
 <link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
 
 <!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
-<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
+<!-- <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
 <script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script> -->
 
 <script type="text/javascript">
 $(document).ready(function() {
 	if(console) console.log('ready');
 
 	/*$('#openBtn').click(function(){
-		$('#static_project_bucket_add').modal({show:true});
-		$('#static_project_bucket_delete').modal({show:true});
-		$('#static_render_bucket_add').modal({show:true});
-		$('#static_render_bucket_delete').modal({show:true});
+		$('#modal_project_bucket_delete').modal({show:true});
+		$('#modal_render_bucket_delete').modal({show:true});
 	});*/
 
 	//Stacking modal windows

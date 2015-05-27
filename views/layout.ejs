@@ -39,7 +39,6 @@
 		<link rel="stylesheet" href="/styles/css/font-awesome.css">
 		<link rel="stylesheet" href="/styles/dist/css/bootstrap.css">
 		<link rel="stylesheet" href="/styles/importer.css">
-		<link rel="stylesheet" href="/styles/xstyles/bootstrap-modal-bs3patch.css">
 		<link rel="stylesheet" href="/styles/xstyles/dashboard.css">
 		<!--STYLES END-->
 
@@ -61,9 +60,64 @@
 	<body>
 		<%- partial('./partials/nav.ejs') %>
 
+		<% if(typeof error !== 'undefined' && error.length > 0){ %>
+			<!-- Error Handling -->
+			<% if(typeof error.Errors !== 'undefined' && error.Errors.length > 0) { %>
+				<!-- sails-hook-validation errors -->
+				<% _.forEach(error.Errors, function(n){ %>
+					<div class="alert alert-dismissible alert-danger" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<% error.Error[n].message %>
+					</div>
+				<% }); %>
+			<% } else { %>
+				<% _.forEach(error, function(n){ %>
+					<div class="alert alert-dismissible alert-danger" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<%
+							if(typeof error[n] !== 'undefined' && typeof error[n].message !== 'undefined'){
+								error[n].message
+							}
+						%>
+					</div>
+				<% }); %>
+			<% } %>
+			<!-- /Error Handling -->
+		<% } %>
+
+		<% if(typeof info !== 'undefined' && info.length > 0){ %>
+			<!-- Notification Handling -->
+				<% _.forEach(info, function(n){ %>
+					<div class="alert alert-dismissible alert-info" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<%= info[0].message %>
+						<%
+							if(typeof info[n] !== 'undefined' && typeof info[n].message !== 'undefined'){
+								info[n].message
+							}
+						%>
+					</div>
+				<% }); %>
+			<!-- /Notification Handling -->
+		<% } %>
+
+		<% if(typeof success !== 'undefined' && success.length > 0){ %>
+			<!-- Success Handling -->
+				<% _.forEach(success, function(n){ %>
+					<div class="alert alert-dismissible alert-success" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<%
+							if(typeof success[n] !== 'undefined' && typeof success[n].message !== 'undefined'){
+								success[n].message
+							}
+						%>
+					</div>
+				<% }); %>
+			<!-- /Success Handling -->
+		<% } %>
+
 		<div class="container-fluid">
 			<%- body %>
-
 
 
 			<!--
@@ -118,6 +172,7 @@
 
 		<!--SCRIPTS-->
 		<script src="/js/dependencies/sails.io.js"></script>
+		<script src="/js/dist/jquery.js"></script>
 		<script src="/js/dist/js/bootstrap.js"></script>
 		<script src="/js/holder.js"></script>
 		<script src="/js/ie10-viewport-bug-workaround.js"></script>

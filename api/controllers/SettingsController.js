@@ -134,9 +134,9 @@ module.exports = {
 
 				if(!settingRecord){
 					sails.log.error('Unable to find settings record.');
-					return res.redirect('/settings');
+					return res.redirect('settings/index');
 				}
-				var ignoreAttributes = ['id','brenda_version'];
+				var ignoreAttributes = ['id','brenda_version','aws_s3_project_bucket','aws_s3_render_bucket'];
 				var buildS3ProjectBucket = false;
 				var buildS3RenderBucket = false;
 				var settingAttributes = Object.keys(settingRecord);
@@ -144,77 +144,12 @@ module.exports = {
 					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
 						//sails.log(req.param(settingAttributes[i]));
 						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
-
-							if(settingAttributes[i] == 'aws_s3_project_bucket' && req.param(settingAttributes[i]) != settingRecord.aws_s3_project_bucket){
-
-								//if(settingRecord.aws_s3_region != undefined && settingRecord.aws_s3_region != ""){
-									buildS3ProjectBucket = true;
-								//}
-
-							}else if(settingAttributes[i] == 'aws_s3_render_bucket'  && req.param(settingAttributes[i]) != settingRecord.aws_s3_render_bucket){
-
-								//if(settingRecord.aws_s3_region != undefined && settingRecord.aws_s3_region != ""){
-									buildS3RenderBucket = true;
-								//}
-
-							}else{
-								settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
-							}
-
+							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
 						}
 					}
 				}
 
-				return res.redirect('/settings');
-
-				/*if(buildS3ProjectBucket){
-					brenda.createS3Bucket(
-						req.param('id'), req.param('aws_s3_project_bucket'), settingRecord.aws_s3_region, 'aws_s3_project_bucket'
-					).then(
-						function(data){
-							sails.log('S3 project bucket ' + data + ' saved successfully!');
-							settingRecord['aws_s3_project_bucket'] = req.param('aws_s3_project_bucket');
-
-							settingRecord.save( function(err, s){
-								if(err) {
-									sails.log.error('Unable to save the Amazon settings for project bucket.');
-								}
-								sails.log.info("Amazon settings saved for project bucket.");
-							});
-						},
-						function(reason){
-							sails.log.error(reason);
-						}
-					);
-				}*/
-
-				/*if(buildS3RenderBucket){
-					brenda.createS3Bucket(
-						req.param('id'), req.param('aws_s3_render_bucket'), settingRecord.aws_s3_region, 'aws_s3_render_bucket'
-					).then(
-						function(data){
-							sails.log('S3 render bucket ' + data + ' saved successfully!');
-							settingRecord['aws_s3_render_bucket'] = req.param('aws_s3_render_bucket');
-
-							settingRecord.save( function(err, s){
-								if(err) {
-									sails.log.error('Unable to save the Amazon settings for render bucket.');
-									return res.redirect('/settings');
-								}
-								sails.log.info("Amazon settings saved for render bucket.");
-
-								return res.redirect('/settings');
-							});
-						},
-						function(reason){
-							sails.log.error(reason);
-						}
-					);
-
-				} else {
-					//Return to the settings page.
-					return res.redirect('/settings');
-				}*/
+				return res.redirect('settings/index');
 
 			});
 
@@ -232,37 +167,75 @@ module.exports = {
 	**/
 
 	createBucket: function(req, res){
+		if(typeof req.param('id') === 'undefined' ){
+			res.view('settings/index',{
+								error: [{
+									message: 'You must provide a setting record id.'
+								}]
+							});
+		}
+		if(typeof req.param('type') === 'undefined' ){
+			res.view('settings/index',{
+								error: [{
+									message: 'You must provide a setting model type attribute.'
+								}]
+							});
+		}
 
 		Settings.findOne({ id: req.param('id') }).exec(function(err, found) {
 			if(err){
 				sails.log.error(err);
-				return res.redirect('/settings');
+				res.view('settings/index',{
+								error: [{
+									message: err
+								}]
+							});
 			}
 
-			if(req.param('name') == undefined || req.param('name') == ""){
+			var model_attr = req.param('type');
+			sails.log.info(req.param(req.param('type')));
+			sails.log.info(req.param(model_attr));
+
+			if(req.param(model_attr) == undefined || req.param(model_attr) == ""){
 				sails.log.error("You must provide a bucket name before you can create a bucket.");
-				return res.redirect('/settings');
+				res.view('settings/index',{
+								error: [{
+									message: "You must provide a bucket name before you can create a bucket."
+								}]
+							});
 			}
 
 			brenda.createS3Bucket(
-				req.param('id'), req.param('name'), found.aws_s3_region, req.param('type')
+				req.param('id'), req.param(model_attr), found.aws_s3_region, req.param('type')
 			).then(
 				function(data){
-					sails.log('S3 render bucket ' + data + ' saved successfully!');
-					found[req.param('type')] = req.param('name');
+					sails.log.info('S3 render bucket ' + data.bucket_name + ' saved successfully!');
+					found[req.param('type')] = req.param(model_attr);
 					found.save( function(err, s){
 						if(err) {
 							sails.log.error('Unable to save the Amazon settings for ' + req.param('type') + '.');
-							return res.redirect('/settings');
+							res.view('settings/index',{
+								error: [{
+									message: 'Unable to save the Amazon settings for ' + req.param('type') + '.'
+								}]
+							});
 						}
-						sails.log.info("Amazon settings saved for " + req.param('type') + ".");
 
-						return res.redirect('/settings');
+						res.view('settings/index',{
+								success: [
+									{ message: "Bucket " + data.bucket_name + " created." },
+									{ message: "You can find your new bucket at <a href='" + data.location + "' target='_blank'>" + data.location  + "</a>." }
+								]
+							});
 					});
 				},
 				function(reason){
 					sails.log.error(reason);
-					return res.redirect('/settings');
+					res.view('settings/index',{
+								error: [{
+									message: reason
+								}]
+							});
 				}
 			);
 		});
@@ -277,13 +250,30 @@ module.exports = {
 	**/
 
 	removeBucket: function(req, res){
+		if(typeof req.param('id') === 'undefined' ){
+			res.view('settings/index',{
+								error: [{
+									message: 'You must provide a setting record id.'
+								}]
+							});
+		}
 
-		sails.log(req.param('id'));
+		if(typeof req.param('type') === 'undefined' ){
+			res.view('settings/index',{
+								error: [{
+									message: 'You must provide a setting model type attribute.'
+								}]
+							});
+		}
 
 		Settings.findOne({ id: req.param('id') }).exec(function(err, found) {
 			if(err){
 				sails.log.error(err);
-				return res.redirect('/settings');
+				res.view('settings/index',{
+								error: [{
+									message: err
+								}]
+							});
 			}
 
 			brenda.removeS3Bucket(
@@ -292,11 +282,19 @@ module.exports = {
 			.then(
 				function(data){
 					sails.log('S3 render bucket ' + data + ' removed successfully!');
-					return res.redirect('/settings');
+					res.view('settings/index',{
+								info: [{
+									message: 'Amazon S3 bucket ' + data + ' removed successfully!'
+								}]
+							});
 				},
 				function(reason){
 					sails.log.error(reason);
-					return res.redirect('/settings');
+					res.view('settings/index',{
+								error: [{
+									message: reason
+								}]
+							});
 				}
 			);
 
