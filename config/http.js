@@ -21,7 +21,7 @@ module.exports.http = {
   *                                                                           *
   ****************************************************************************/
 
-  // middleware: {
+  /*middleware: {*/
 
   /***************************************************************************
   *                                                                          *
@@ -30,23 +30,23 @@ module.exports.http = {
   *                                                                          *
   ***************************************************************************/
 
-    // order: [
-    //   'startRequestTimer',
-    //   'cookieParser',
-    //   'session',
-    //   'myRequestLogger',
-    //   'bodyParser',
-    //   'handleBodyParserError',
-    //   'compress',
-    //   'methodOverride',
-    //   'poweredBy',
-    //   '$custom',
-    //   'router',
-    //   'www',
-    //   'favicon',
-    //   '404',
-    //   '500'
-    // ],
+  /*   order: [
+      'startRequestTimer',
+      'cookieParser',
+      'session',
+      'myRequestLogger',
+      'bodyParser',
+      'handleBodyParserError',
+      'compress',
+      'methodOverride',
+      'poweredBy',
+      '$custom',
+      'router',
+      'www',
+      'favicon',
+      '404',
+      '500'
+     ],*/
 
   /****************************************************************************
   *                                                                           *
@@ -54,10 +54,10 @@ module.exports.http = {
   *                                                                           *
   ****************************************************************************/
 
-    // myRequestLogger: function (req, res, next) {
-    //     console.log("Requested :: ", req.method, req.url);
-    //     return next();
-    // }
+    /*myRequestLogger: function (req, res, next) {
+        console.log("Requested :: ", req.method, req.url);
+        return next();
+    }*/
 
 
   /***************************************************************************
@@ -69,9 +69,22 @@ module.exports.http = {
   *                                                                          *
   ***************************************************************************/
 
-    // bodyParser: require('skipper')
+    //bodyParser: require('skipper')
 
-  // },
+  /************************************************************************************************************************
+  *                                                                                                                       *
+  * Custom middleware that connects angular folder to express                                                             *
+  * See: https://github.com/balderdashy/sails/blob/master/lib/hooks/http/middleware/load.js                               *
+  * And: http://stackoverflow.com/questions/21807224/sailsjs-v0-10-express-custommiddleware-not-loading#answer-21807257   *                                                                 *
+  ************************************************************************************************************************/
+
+    /*customMiddleware: function (app) {
+      console.log(__dirname);
+      var express = require('../node_modules/sails/node_modules/express');
+      app.use('/angular',express.static(__dirname+"/../angular"));
+    }*/
+
+  /*},*/
 
   /***************************************************************************
   *                                                                          *
@@ -84,4 +97,5 @@ module.exports.http = {
   ***************************************************************************/
 
   // cache: 31557600000
+
 };

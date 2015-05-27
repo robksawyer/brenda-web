@@ -27,26 +27,7 @@
 	var examples = [];
 </script>-->
 
-<!-- PROCESS FORM WITH ANGULAR -->
-<script type="text/javascript">
-angular.module('settingsModule', [])
-	.controller('SettingsCtrl', ['$scope','$http', '$window' , function ($scope, $http, $window) {
-
-		$scope.amazonSettings  = {};
-		// create a blank object to hold our form information
-		// $scope will allow this to pass between controller and view
-		$http.get('/settings/1', function(response) {
-			$scope.amazonSettings = response.data;
-		},
-		function(errorResponse){
-			//Error occured
-		});
-
-		$window.alert($scope.amazonSettings);
-	}]);
-</script>
-
-<div class="container" ng-controller="SettingsCtrl">
+<div class="container" ng-controller="SettingsController">
 	<div class="row-fluid">
 		<div class="header">
 			<h1>Settings</h1>

@@ -24,7 +24,9 @@ module.exports = function(grunt) {
 			files: {
 				'.tmp/public/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.html': require('../pipeline').jsFilesToInject,
-				'views/**/*.ejs': require('../pipeline').jsFilesToInject
+				'views/**/*.ejs': require('../pipeline').jsFilesToInject,
+				//AngularJS Files
+				'views/**/*.controller.js': require('../pipeline').jsFilesToInject
 			}
 		},
 
@@ -39,7 +41,9 @@ module.exports = function(grunt) {
 			files: {
 				'.tmp/public/**/*.html': require('../pipeline').jsFilesToInject,
 				'views/**/*.html': require('../pipeline').jsFilesToInject,
-				'views/**/*.ejs': require('../pipeline').jsFilesToInject
+				'views/**/*.ejs': require('../pipeline').jsFilesToInject,
+				//AngularJS Files
+				'views/**/*.controller.js': require('../pipeline').jsFilesToInject
 			}
 		},
 
@@ -53,7 +57,9 @@ module.exports = function(grunt) {
 			files: {
 				'.tmp/public/**/*.html': ['.tmp/public/min/production.min.js'],
 				'views/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.js']
+				'views/**/*.ejs': ['.tmp/public/min/production.min.js'],
+				//AngularJS Files
+				'views/**/*.controller.js': ['.tmp/public/min/production.min.js']
 			}
 		},
 
@@ -68,7 +74,9 @@ module.exports = function(grunt) {
 			files: {
 				'.tmp/public/**/*.html': ['.tmp/public/min/production.min.js'],
 				'views/**/*.html': ['.tmp/public/min/production.min.js'],
-				'views/**/*.ejs': ['.tmp/public/min/production.min.js']
+				'views/**/*.ejs': ['.tmp/public/min/production.min.js'],
+				//AngularJS Files
+				'views/**/*.controller.js': ['.tmp/public/min/production.min.js']
 			}
 		},
 

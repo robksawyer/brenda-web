@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app="brendaApp">
+<html lang="en" ng-app="brenda">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -58,7 +58,7 @@
 		<![endif]-->
 	</head>
 
-	<body>
+	<body ng-controller="AppController">
 		<%- partial('./partials/nav.ejs') %>
 
 		<% if(typeof error !== 'undefined' && error.length > 0){ %>
@@ -113,7 +113,6 @@
 
 		<div class="container-fluid">
 			<%- body %>
-
 
 			<!--
 					Client-side Templates

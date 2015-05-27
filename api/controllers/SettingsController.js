@@ -283,6 +283,8 @@ module.exports = {
 							});
 		}
 
+		//Check to ensure the id exists in the database
+		//TODO: Add the logged in user id here to ensure the user has permissions to this id.
 		Settings.findOne({ id: req.param('id') }).exec(function(err, found) {
 			if(err){
 				sails.log.error(err);
