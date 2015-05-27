@@ -19,75 +19,24 @@ module.exports = {
 						});
 				}
 
-				if(found == undefined){
+				if(!found){
+
+					//Generate a settings record
 					sails.log.info('Settings have not been established. Creating a settings record.');
-
-					Settings.create({id: 1}).exec(function(err, created){
-						if(err){
-							sails.log.error(err);
-							res.view('settings/index',{
-								error: [{message: err}]
-							});
-						}
-
-						sails.log("Created the settings record " + created.id);
-
-						//Get the version of Brenda that's being used.
-						brenda.getBrendaVersion().then(
-							function (data){
-								if(data){
-
-									created.brenda_version = data;
-									created.save(function(err, s){
-										if(err){
-											sails.log.error("There was an error adding the Brenda version to the settings.");
-										}
-										sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
-									});
-
-								}else{
-									sails.log.error("There was an error finding the Brenda version.");
-								}
-							},
-							function (reason){
-								sails.log.error(reason);
-								res.view('settings/index',{
-									error: [{message: reason}]
-								});
-							}
-						)
-						//Debating about keeping this or just having the user add these to the aws file.
-						/*.then(function(){
-							brenda.getAmazonS3ConfigFile().then(
-								function(data){
-									if(data.aws_access_key_id != undefined){
-										created.aws_access_key_id = data.aws_access_key_id;
-									}
-									if(data.aws_secret_access_key != undefined){
-										created.aws_secret_access_key = data.aws_secret_access_key;
-									}
-
-									created.save(function(err, s){
-										if(err){
-											sails.log.error("There was an error adding the AWS keys to the settings.");
-										}
-										sails.log.info("Had success saving AWS keys from ~/.aws/credentials to the settings.");
-									});
-								},
-								function(reason){
-									sails.log.error(reason);
-								}
-							);
-						})*/
-						.then(function(){
+					brenda.createSettingsRecord(1).then(
+						function(data){
 							res.view('settings/index', {
-								//version: results,
-								settings: created,
+								settings: data,
 								info: [{message: "Generated a settings record."}]
+							});
+						},
+						function(reason){
+							res.view('settings/index', {
+								settings: undefined,
+								error: [{message: reason}]
 							});
 						});
 
-					});
 				} else {
 
 					res.view({
@@ -101,6 +50,12 @@ module.exports = {
 
 	},
 
+	/**
+	*
+	* Pulls the current Brenda version from the database
+	*
+	**/
+
 	getBrendaVersion: function(){
 		Settings.query('SELECT settings.brenda_version FROM settings', function(err, results){
 			if(err){
@@ -109,6 +64,12 @@ module.exports = {
 			return results;
 		});
 	},
+
+	/**
+	*
+	* Pulls the Brenda version from the setup.py file and updates the database
+	*
+	**/
 
 	reloadBrendaVersion: function(){
 		//Get the version of Brenda that's being used.
@@ -128,6 +89,63 @@ module.exports = {
 		);
 	},
 
+	/**
+	*
+	* Handles updating the User's profile settings
+	*
+	**/
+	profile: function(req, res){
+
+		if(req.method == 'POST'){
+
+			User.findOne({id: req.param('id')}, function(err, userRecord){
+				if(err){
+					return res.serverError(err);
+				}
+
+				if(!userRecord){
+
+					//Generate a new user
+					User.create(req.params.all()).exec(function createUser(err, created){
+						if(err){
+							return res.serverError(err);
+						}
+						sails.log.info(savedRecord);
+						res.redirect('settings/');
+					});
+
+				}else {
+
+					var ignoreAttributes = [];
+					var settingAttributes = Object.keys(User.attributes);
+					for(var i=0; i < settingAttributes.length; i++){
+						if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
+							//sails.log(settingAttributes[i]);
+							if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
+								userRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+							}
+						}
+					}
+
+					userRecord.save(function(err, savedRecord){
+						if(err){
+							return res.serverError(err);
+						}
+						sails.log.info(savedRecord);
+						res.redirect('settings/');
+					});
+
+				}
+
+			});
+		}
+	},
+
+	/**
+	*
+	* Handles updating the Amazon settings
+	*
+	**/
 	amazon: function(req, res){
 
 		if(req.method == 'POST'){
@@ -140,12 +158,10 @@ module.exports = {
 					return res.notFound();
 				}
 				var ignoreAttributes = ['id','brenda_version','aws_s3_project_bucket','aws_s3_render_bucket'];
-				var buildS3ProjectBucket = false;
-				var buildS3RenderBucket = false;
-				var settingAttributes = Object.keys(settingRecord);
+				var settingAttributes = Object.keys(Settings.attributes);
 				for(var i=0; i < settingAttributes.length; i++){
 					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
-						//sails.log(req.param(settingAttributes[i]));
+						//sails.log(settingAttributes[i]);
 						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
 							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
 						}
@@ -156,7 +172,8 @@ module.exports = {
 					if(err){
 						return res.serverError(err);
 					}
-					return res.ok();
+
+					res.redirect('settings/');
 				});
 			});
 		}
@@ -224,7 +241,7 @@ module.exports = {
 									{ message: "You can find your new bucket at <a href='" + data.location + "' target='_blank'>" + data.location  + "</a>." }
 								]
 							});*/
-						res.redirect('settings/index');
+						res.redirect('settings/');
 						//return res.ok();
 					});
 				},
@@ -272,7 +289,7 @@ module.exports = {
 									message: 'Amazon S3 bucket ' + data + ' removed successfully!'
 								}]
 							});*/
-					res.redirect('settings/index');
+					res.redirect('settings/');
 					//return res.ok();
 				},
 				function(reason){

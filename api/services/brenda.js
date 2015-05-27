@@ -103,6 +103,12 @@ module.exports = {
 	},
 
 	//Read the settings file `/config/brenda.js`
+	/**
+	*
+	* Block comment
+	*
+	**/
+
 	getConfigFile: function(){
 		if(!this.brendaConfigFile){
 			throw new Error("Unable to find the config file.");
@@ -129,7 +135,7 @@ module.exports = {
 
 
 	/**
-	*
+	* @DEPRACATED
 	* Writes a new brenda config file with the values from the /settings
 	*
 	**/
@@ -174,7 +180,7 @@ module.exports = {
 
 
 	/**
-	*
+	* @DEPRECATED
 	* Writes a new Amazon config file with the values from the /settings
 	*
 	**/
@@ -401,6 +407,78 @@ module.exports = {
 			});
 		});
 
+		return promise;
+	},
+
+	createSettingsRecord: function(id){
+		if(!id) id = 1;
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			//Start with record id 1
+			Settings.create({id: id}).exec(function(err, created){
+				if(err){
+					sails.log.error(err);
+					reject(err);
+				}
+
+				sails.log("Created the settings record " + created.id);
+
+				//Get the version of Brenda that's being used.
+				brenda.getBrendaVersion().then(
+					function (data){
+						if(data){
+
+							created.brenda_version = data;
+							created.save(function(err, s){
+								if(err){
+									reject("There was an error adding the Brenda version to the settings.");
+								}
+								sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
+								fullfill(s);
+							});
+
+						}else{
+							reject("There was an error finding the Brenda version.");
+						}
+					},
+					function (reason){
+						sails.log.error(reason);
+						reject(reason);
+					}
+				)
+				//Debating about keeping this or just having the user add these to the aws file.
+				/*.then(function(){
+					brenda.getAmazonS3ConfigFile().then(
+						function(data){
+							if(data.aws_access_key_id != undefined){
+								created.aws_access_key_id = data.aws_access_key_id;
+							}
+							if(data.aws_secret_access_key != undefined){
+								created.aws_secret_access_key = data.aws_secret_access_key;
+							}
+
+							created.save(function(err, s){
+								if(err){
+									sails.log.error("There was an error adding the AWS keys to the settings.");
+									reject("There was an error adding the AWS keys to the settings.");
+								}
+								sails.log.info("Had success saving AWS keys from ~/.aws/credentials to the settings.");
+								fullfill("Had success saving AWS keys from ~/.aws/credentials to the settings.");
+							});
+						},
+						function(reason){
+							sails.log.error(reason);
+							reject(reason);
+						}
+					);
+				})*/
+				.then(function(data){
+					//Pass along the saved data
+					fullfill(data);
+				});
+
+			});
+		});
 		return promise;
 	}
 

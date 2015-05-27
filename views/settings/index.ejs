@@ -31,7 +31,7 @@
 	<div class="row-fluid">
 		<div class="header">
 			<h1>Settings</h1>
-			<p class="lead">These settings allow you to customize your rendering experience.</a>.</p>
+			<p class="lead">These settings allow you to customize your rendering experience.</p>
 		</div>
 
 		<!-- MODALS -->
@@ -162,7 +162,7 @@
 					</div>
 					<div class="form-group">
 						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
-						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20">
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20" value="<%= settings.aws_ec2_instance_count %>">
 						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
 					</div>
 					<!-- <div class="form-group">

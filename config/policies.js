@@ -49,6 +49,11 @@ module.exports.policies = {
 		// feed : ['isNiceToAnimals', 'hasRabbitFood']
 	// }
 
-	'*': [ 'passport', /* your auth dependant policies go here */ ]
+	//https://github.com/kasperisager/sails-generate-auth
+	'*': ['passport', 'sessionAuth'],
+
+	'auth': {
+		'*': ['passport']
+	}
 
 };
