@@ -9,7 +9,8 @@
   // Create frontend module and specify dependencies for that
   angular.module('frontend', [
     'frontend-templates',
-    'views.core'
+    'frontend.core',
+    'frontend.admin'
   ]);
 
   /**

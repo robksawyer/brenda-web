@@ -2,5 +2,5 @@
 (function() {
   'use strict';
 
-  angular.module('views.core.services', []);
+  angular.module('frontend.core.services', []);
 }());

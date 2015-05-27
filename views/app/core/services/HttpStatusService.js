@@ -9,7 +9,7 @@
 (function() {
   'use strict';
 
-  angular.module('views.core.services')
+  angular.module('frontend.core.services')
     .factory('HttpStatusService',
       function factory() {
         return {

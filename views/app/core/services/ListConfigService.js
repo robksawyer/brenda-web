@@ -10,7 +10,7 @@
 (function() {
   'use strict';
 
-  angular.module('views.core.services')
+  angular.module('frontend.core.services')
     .factory('ListConfig', [
       '_',
       function factory(_) {

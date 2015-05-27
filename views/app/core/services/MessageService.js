@@ -14,7 +14,7 @@
 (function() {
   'use strict';
 
-  angular.module('views.core.services')
+  angular.module('frontend.core.services')
     .factory('MessageService', [
       'toastr', '_',
       function factory(toastr, _) {

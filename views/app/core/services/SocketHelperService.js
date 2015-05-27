@@ -21,7 +21,7 @@
 (function() {
   'use strict';
 
-  angular.module('views.core.services')
+  angular.module('frontend.core.services')
     .factory('SocketHelperService', [
       '_',
       function factory(_) {
