@@ -42,6 +42,7 @@
     "sails-disk": "~0.10.0",
     "sails-hook-validation": "^0.2.1",
     "skipper-s3": "^0.5.5",
+    "toastr": "^2.0.4",
     "validator": "^3.40.0"
   },
   "scripts": {

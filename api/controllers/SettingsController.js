@@ -9,92 +9,96 @@ module.exports = {
 
 	index: function (req, res){
 
-		if(req.method == "GET"){
-			//Retrieve the settings
-			Settings.findOne({id:1}).exec(
-				function findSettings(err, found){
-					if(err){
-						sails.log.error(err);
-					}
-
-					if(found == undefined){
-						sails.log.info('Settings have not been established. Creating a settings record.');
-
-						Settings.create({id: 1}).exec(function(err, created){
-							if(err){
-								sails.log.error(err);
-							}
-
-							sails.log("Created the settings record " + created.id);
-
-							//Get the version of Brenda that's being used.
-							brenda.getBrendaVersion().then(
-								function (data){
-									if(data){
-
-										created.brenda_version = data;
-										created.save(function(err, s){
-											if(err){
-												sails.log.error("There was an error adding the Brenda version to the settings.");
-											}
-											sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
-										});
-
-									}else{
-										sails.log.error("There was an error finding the Brenda version.");
-									}
-								},
-								function (reason){
-									sails.log.error(reason);
-
-								}
-							)
-							//Debating about keeping this or just having the user add these to the aws file.
-							/*.then(function(){
-								brenda.getAmazonS3ConfigFile().then(
-									function(data){
-										if(data.aws_access_key_id != undefined){
-											created.aws_access_key_id = data.aws_access_key_id;
-										}
-										if(data.aws_secret_access_key != undefined){
-											created.aws_secret_access_key = data.aws_secret_access_key;
-										}
-
-										created.save(function(err, s){
-											if(err){
-												sails.log.error("There was an error adding the AWS keys to the settings.");
-											}
-											sails.log.info("Had success saving AWS keys from ~/.aws/credentials to the settings.");
-										});
-									},
-									function(reason){
-										sails.log.error(reason);
-									}
-								);
-							})*/
-							.then(function(){
-								res.view({
-									//version: results,
-									settings: created
-								});
-							});
-
+		//Retrieve the settings
+		Settings.findOne({id:1}).exec(
+			function findSettings(err, found){
+				if(err){
+					sails.log.error(err);
+					res.view('settings/index',{
+							error: [{ message: err }]
 						});
-					} else {
-
-						res.view({
-							//version: results,
-							settings: found
-						});
-					}
-
 				}
-			);
-		} else {
-			res.view({
-				message: "Only GET requests allowed."
-			});
-		}
+
+				if(found == undefined){
+					sails.log.info('Settings have not been established. Creating a settings record.');
+
+					Settings.create({id: 1}).exec(function(err, created){
+						if(err){
+							sails.log.error(err);
+							res.view('settings/index',{
+								error: [{message: err}]
+							});
+						}
+
+						sails.log("Created the settings record " + created.id);
+
+						//Get the version of Brenda that's being used.
+						brenda.getBrendaVersion().then(
+							function (data){
+								if(data){
+
+									created.brenda_version = data;
+									created.save(function(err, s){
+										if(err){
+											sails.log.error("There was an error adding the Brenda version to the settings.");
+										}
+										sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
+									});
+
+								}else{
+									sails.log.error("There was an error finding the Brenda version.");
+								}
+							},
+							function (reason){
+								sails.log.error(reason);
+								res.view('settings/index',{
+									error: [{message: reason}]
+								});
+							}
+						)
+						//Debating about keeping this or just having the user add these to the aws file.
+						/*.then(function(){
+							brenda.getAmazonS3ConfigFile().then(
+								function(data){
+									if(data.aws_access_key_id != undefined){
+										created.aws_access_key_id = data.aws_access_key_id;
+									}
+									if(data.aws_secret_access_key != undefined){
+										created.aws_secret_access_key = data.aws_secret_access_key;
+									}
+
+									created.save(function(err, s){
+										if(err){
+											sails.log.error("There was an error adding the AWS keys to the settings.");
+										}
+										sails.log.info("Had success saving AWS keys from ~/.aws/credentials to the settings.");
+									});
+								},
+								function(reason){
+									sails.log.error(reason);
+								}
+							);
+						})*/
+						.then(function(){
+							res.view('settings/index', {
+								//version: results,
+								settings: created,
+								info: [{message: "Generated a settings record."}]
+							});
+						});
+
+					});
+				} else {
+
+					res.view({
+						//version: results,
+						settings: found
+					});
+				}
+
+			}
+		);
+
 	},
 
 	getBrendaVersion: function(){
@@ -129,12 +133,11 @@ module.exports = {
 		if(req.method == 'POST'){
 			Settings.findOne({id: req.param('id')}, function(err, settingRecord){
 				if(err){
-					sails.log.error(err);
+					return res.serverError(err);
 				}
 
 				if(!settingRecord){
-					sails.log.error('Unable to find settings record.');
-					return res.redirect('settings/index');
+					return res.notFound();
 				}
 				var ignoreAttributes = ['id','brenda_version','aws_s3_project_bucket','aws_s3_render_bucket'];
 				var buildS3ProjectBucket = false;
@@ -149,14 +152,28 @@ module.exports = {
 					}
 				}
 
-				return res.redirect('settings/index');
-
+				settingRecord.save(function(err, savedRecord){
+					if(err){
+						return res.serverError(err);
+					}
+					return res.ok();
+				});
 			});
-
-		} else {
-			return res.json({error: 'You are not permitted to update.'});
 		}
+	},
 
+	getSettings: function(req, res){
+		Settings.findOne({id: req.param('id')}, function(err, settingRecord){
+			if(err){
+				return res.serverError(err);
+			}
+
+			if(!settingRecord){
+				return res.notFound();
+			}
+			sails.log(settingRecord);
+			return res.json(200, settingRecord);
+		});
 	},
 
 	/**

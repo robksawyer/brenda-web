@@ -27,7 +27,26 @@
 	var examples = [];
 </script>-->
 
-<div class="container">
+<!-- PROCESS FORM WITH ANGULAR -->
+<script type="text/javascript">
+angular.module('settingsModule', [])
+	.controller('SettingsCtrl', ['$scope','$http', '$window' , function ($scope, $http, $window) {
+
+		$scope.amazonSettings  = {};
+		// create a blank object to hold our form information
+		// $scope will allow this to pass between controller and view
+		$http.get('/settings/1', function(response) {
+			$scope.amazonSettings = response.data;
+		},
+		function(errorResponse){
+			//Error occured
+		});
+
+		$window.alert($scope.amazonSettings);
+	}]);
+</script>
+
+<div class="container" ng-controller="SettingsCtrl">
 	<div class="row-fluid">
 		<div class="header">
 			<h1>Settings</h1>
@@ -135,11 +154,11 @@
 				<div class="panel-body">
 					<div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" value="<%= settings.ami_id %>">
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" ng-model="amazonSettings.ami_id">
 					</div>
 					<div class="form-group">
 						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputInstanceType" name="default_instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
+						<input type="text" class="form-control" id="inputInstanceType" name="default_instance_type" placeholder="<%= settings.default_instance_type %>" ng-model="amazonSettings.default_instance_type">
 					</div>
 					<div class="form-group">
 						<div class="well">
@@ -147,29 +166,29 @@
 							<div class="input-group">
 								<div class="col-xs-3">
 									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="<%= settings.aws_sqs_region %>" value="<%= settings.aws_sqs_region %>">
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="<%= settings.aws_sqs_region %>" ng-model="amazonSettings.aws_sqs_region">
 								</div>
 								<div class="col-xs-3">
 									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="<%= settings.aws_ec2_region %>" value="<%= settings.aws_ec2_region %>">
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="<%= settings.aws_ec2_region %>" ng-model="amazonSettings.aws_ec2_region">
 								</div>
 								<div class="col-xs-3">
 									<label for="inputS3Region">S3 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="<%= settings.aws_s3_region %>" value="<%= settings.aws_s3_region %>">
+									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="<%= settings.aws_s3_region %>" ng-model="amazonSettings.aws_s3_region">
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
-						<input type="text" class="form-control" id="inputEC2InstanceCount" name="ec2_instance_count" placeholder="20">
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20" ng-model="amazonSettings.aws_ec2_instance_count">
 						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
 					</div>
 					<!-- <div class="form-group">
 						<label for="inputMaxAmount">Max Amount (in dollars)</label>
     					<div class="input-group">
 							<div class="input-group-addon">$</div>
-							<input type="text" class="form-control input-xs" id="inputMaxAmount" placeholder=".07">
+							<input type="text" class="form-control input-xs" id="inputMaxAmount" placeholder=".07" ng-model="amazonSettings.aws_max_amount">
 						</div>
 					</div> -->
 					<!-- <div class="form-group">
@@ -184,6 +203,11 @@
 					</div>
 				</div>
 			</form>
+
+			<!-- SHOW DATA FROM INPUTS AS THEY ARE BEING TYPED -->
+			<pre>
+				{{ amazonSettings }}
+			</pre>
 		</div>
 
 		<div class="panel panel-default">
@@ -250,6 +274,7 @@
 						</div>
 					</div>
 				</div>
+				<span id="helpBlock" class="help-block alert alert-info"><strong>Tip:</strong> If you've already created a bucket in your S3 account, just add the name, click <i class="fa fa-plus-square text-success"></i> and the app will make the association.</span>
 			</div>
 			<!-- </form> -->
 		</div>
@@ -302,94 +327,3 @@
 		</div>
 	</div>
 </div>
-
-<!--<link href="http://rubaxa.github.io/jquery.fileapi/statics/main.css" rel="stylesheet" type="text/css"/>
-<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
-
-<!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
-<!-- <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
-<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script> -->
-
-<script type="text/javascript">
-$(document).ready(function() {
-	if(console) console.log('ready');
-
-	/*$('#openBtn').click(function(){
-		$('#modal_project_bucket_delete').modal({show:true});
-		$('#modal_render_bucket_delete').modal({show:true});
-	});*/
-
-	//Stacking modal windows
-	//More info: http://miles-by-motorcycle.com/fv-b-8-670/stacking-bootstrap-dialogs-using-event-callbacks
-	/*$('.modal').on('hidden.bs.modal', function( event ) {
-		$(this).removeClass( 'fv-modal-stack' );
-		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
-	});
-
-	$('.modal').on( 'shown.bs.modal', function ( event ) {
-		// keep track of the number of open modals
-		if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' )
-		{
-			$('body').data( 'fv_open_modals', 0 );
-		}
-
-		// if the z-index of this modal has been set, ignore.
-		if ( $(this).hasClass( 'fv-modal-stack' ) )
-		{
-			return;
-		}
-
-		$(this).addClass( 'fv-modal-stack' );
-		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) + 1 );
-		$(this).css('z-index', 1040 + (10 * $('body').data( 'fv_open_modals' )));
-		$('.modal-backdrop' ).not( '.fv-modal-stack' ).css( 'z-index', 1039 + (10 * $('body').data( 'fv_open_modals' )));
-		$('.modal-backdrop' ).not( 'fv-modal-stack' ).addClass( 'fv-modal-stack' );
-	});*/
-
-	/*$('#userpic').fileapi({
-		url: '/file/s3upload',
-		accept: 'image/*',
-		imageSize: { minWidth: 200, minHeight: 200 },
-		elements: {
-			active: { show: '.js-upload', hide: '.js-browse' },
-			preview: {
-				el: '.js-preview',
-				width: 200,
-				height: 200
-			},
-			progress: '.js-progress'
-		},
-		onSelect: function (evt, ui){
-			var file = ui.files[0];
-			if( !FileAPI.support.transform ) {
-				alert('Your browser does not support Flash :(');
-			} else if( file ){
-				$('#popup').modal({
-					closeOnEsc: true,
-					closeOnOverlayClick: false,
-					onOpen: function (overlay){
-							$(overlay).on('click', '.js-upload', function (){
-							$.modal().close();
-							$('#userpic').fileapi('upload');
-						});
-						$('.js-img', overlay).cropper({
-							file: file,
-							bgColor: '#fff',
-							maxSize: [$(window).width()-100, $(window).height()-100],
-							minSize: [200, 200],
-							selection: '90%',
-							onSelect: function (coords){
-								$('#userpic').fileapi('crop', file, coords);
-								console.log($('#userpic').fileapi('crop', file, coords))
-							}
-						});
-					}
-				}).open();
-			}
-		}
-	});*/
-});
-</script>

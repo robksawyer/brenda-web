@@ -32,7 +32,7 @@ module.exports = {
 			type: 'string',
 			defaultsTo: 'c3.2xlarge'
 		},
-		ec2_instance_count: {
+		aws_ec2_instance_count: {
 			type: 'integer',
 			defaultsTo: 1
 		},

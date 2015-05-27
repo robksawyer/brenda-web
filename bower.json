@@ -19,6 +19,9 @@
     "bootstrap": "~3.0.3",
     "fontawesome": "~4.3.0",
     "moment": "~2.10.3",
-    "rsvp": "~3.0.18"
+    "rsvp": "~3.0.18",
+    "angular": "~1.4.0",
+    "toastr": "~2.1.1",
+    "lodash": "~3.9.3"
   }
 }
