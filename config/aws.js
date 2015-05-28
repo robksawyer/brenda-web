@@ -13,4 +13,4 @@ module.exports.aws = {
 		region: process.env.AWS_DEFAULT_REGION
 	}
 
-}
+};

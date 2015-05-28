@@ -43,6 +43,9 @@ module.exports = {
 		aws_s3_render_bucket: {
 			type: 'string',
 			defaultsTo: ''
+		},
+		owner:{
+			model: 'user'
 		}
 	}
 };

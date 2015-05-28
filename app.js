@@ -54,9 +54,6 @@ process.chdir(__dirname);
     }
   }
 
-  var dotenv = require('dotenv');
-  dotenv.load();
-
   // Start server
   sails.lift(rc('sails'));
 })();

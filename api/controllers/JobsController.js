@@ -23,50 +23,44 @@ module.exports = {
 	**/
 
 	add_spot: function (req, res){
-		/*Job.create({
-			project_name: "Test Project",
-			project_filename: "blah.gz.zip",
-			work_queue: 'grootfarm-queue'
-		}).exec(function createJob(err, created){
-			if(err){
-				sails.log.error(err);
-			}
-			sails.log('Created a job with the name ' + created.name);
-		});*/
-
-		/*if(req){
-			sails.log(req.file('inputProjectFile'));
-		}*/
-
-		sails.log( sails.config.aws.settings.s3_project_bucket );
 
 		if (req.method == 'POST'){
 
-			BrendaService.getAmazonS3ConfigFile().then(
-				function(data){
-					sails.log(data);
-					sails.log(sails.config.aws.settings.s3_project_bucket);
+			//Check to see if a Blender file was uploaded
+			if(req.file('inputProjectFile')){
+				sails.log.info("==== File Found ====");
+				sails.log(req.file('inputProjectFile'));
+				sails.log.info("====================");
+			}
 
-					req.file('project_file').upload({
-						adapter: require('skipper-s3'),
-						key: data.aws_access_key_id,
-						secret: data.aws_secret_access_key,
-						bucket: sails.config.aws.settings.s3_project_bucket //Select the project bucket
-					}, function (err, filesUploaded) {
-						if (err) return res.negotiate(err);
-
-						res.view('jobs/add_spot',{
-							files: uploadedFiles,
-							textParams: req.params.all()
-						});
-					});
-				},
-				function(reason){
-					sails.log(reason);
+			/*Job.create({
+				project_name: "Test Project",
+				project_filename: "blah.gz.zip",
+				work_queue: 'grootfarm-queue'
+			}).exec(function createJob(err, created){
+				if(err){
+					sails.log.error(err);
 				}
-			);
+				sails.log('Created a job with the name ' + created.name);
+			});*/
 
 		}
+
+		//Pull the user's settings from the database
+		User.find({id: req.user.id}).populate('settings').exec(function(err, defaultUserSettings){
+			if(err){
+				sails.log.error(err);
+			}
+
+			sails.log.info(defaultUserSettings);
+
+			res.view('jobs/add_spot',{
+				settings: defaultUserSettings
+			});
+		});
+
+
+
 	},
 
 	create_spot: function (req, res){

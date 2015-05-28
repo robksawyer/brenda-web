@@ -5,13 +5,15 @@
  * @help        :: See http://sailsjs.org/#!/documentation/concepts/Controllers
  */
 
+var util = require('util');
+
 module.exports = {
 
 	index: function (req, res){
 
 		//Retrieve the settings
-		Settings.findOne({id:1}).exec(
-			function findSettings(err, found){
+		User.findOne({id: req.user.id}).populate('settings').exec(
+			function findSettings(err, userRecord){
 				if(err){
 					sails.log.error(err);
 					res.view('settings/index',{
@@ -19,29 +21,31 @@ module.exports = {
 						});
 				}
 
-				if(!found){
+				if(userRecord.settings.length < 1){
 
 					//Generate a settings record
-					sails.log.info('Settings have not been established. Creating a settings record.');
-					brenda.createSettingsRecord(1).then(
+					sails.log.info('Settings have not been established. Creating a settings record for user '+ req.user.username +' ('+req.user.id+').');
+					brenda.createSettingsRecord(req.user.id).then(
 						function(data){
+							sails.log("SettingsController then()");
+							sails.log(data);
 							res.view('settings/index', {
 								settings: data,
 								info: [{message: "Generated a settings record."}]
 							});
 						},
 						function(reason){
-							res.view('settings/index', {
-								settings: undefined,
-								error: [{message: reason}]
-							});
+							sails.log.error(reason);
+							return res.serverError(err);
 						});
 
 				} else {
+					//Check to see if the user has a settings record
+					//
 
 					res.view({
 						//version: results,
-						settings: found
+						settings: userRecord.settings[0]
 					});
 				}
 
@@ -98,44 +102,28 @@ module.exports = {
 
 		if(req.method == 'POST'){
 
-			User.findOne({id: req.param('id')}, function(err, userRecord){
+			User.findOne({id: req.user.id}, function(err, userRecord){
 				if(err){
 					return res.serverError(err);
 				}
 
-				if(!userRecord){
-
-					//Generate a new user
-					User.create(req.params.all()).exec(function createUser(err, created){
-						if(err){
-							return res.serverError(err);
-						}
-						sails.log.info(savedRecord);
-						res.redirect('settings/');
-					});
-
-				}else {
-
-					var ignoreAttributes = [];
-					var settingAttributes = Object.keys(User.attributes);
-					for(var i=0; i < settingAttributes.length; i++){
-						if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
-							//sails.log(settingAttributes[i]);
-							if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
-								userRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
-							}
+				var ignoreAttributes = ['id', 'createdAt','updatedAt'];
+				var settingAttributes = Object.keys(User.attributes);
+				for(var i=0; i < settingAttributes.length; i++){
+					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
+						//sails.log(settingAttributes[i]);
+						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
+							userRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
 						}
 					}
-
-					userRecord.save(function(err, savedRecord){
-						if(err){
-							return res.serverError(err);
-						}
-						sails.log.info(savedRecord);
-						res.redirect('settings/');
-					});
-
 				}
+
+				userRecord.save(function(err, savedRecord){
+					if(err){
+						return res.serverError(err);
+					}
+					res.redirect('settings/');
+				});
 
 			});
 		}
@@ -149,47 +137,59 @@ module.exports = {
 	amazon: function(req, res){
 
 		if(req.method == 'POST'){
-			Settings.findOne({id: req.param('id')}, function(err, settingRecord){
+
+			//Find the user record with settings
+			User.findOne({id: req.user.id}).populate('settings').exec(function(err, userRecord){
 				if(err){
-					return res.serverError(err);
+					sails.log.error(err);
 				}
 
-				if(!settingRecord){
-					return res.notFound();
-				}
-				var ignoreAttributes = ['id','brenda_version','aws_s3_project_bucket','aws_s3_render_bucket'];
-				var settingAttributes = Object.keys(Settings.attributes);
-				for(var i=0; i < settingAttributes.length; i++){
-					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
-						//sails.log(settingAttributes[i]);
-						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
-							settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
-						}
-					}
-				}
-
-				settingRecord.save(function(err, savedRecord){
+				Settings.findOne({id: userRecord.settings[0].id}, function(err, settingRecord){
 					if(err){
 						return res.serverError(err);
 					}
 
-					res.redirect('settings/');
+					if(!settingRecord){
+						return res.notFound();
+					}
+					var ignoreAttributes = ['id','brenda_version','aws_s3_project_bucket','aws_s3_render_bucket','owner'];
+					var settingAttributes = Object.keys(Settings.attributes);
+					for(var i=0; i < settingAttributes.length; i++){
+						if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
+							//sails.log(settingAttributes[i]);
+							if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
+								settingRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
+							}
+						}
+					}
+
+					//Ensure the id and user id are the same
+					settingRecord.id = userRecord.settings[0].id;
+					settingRecord.owner = userRecord.id;
+					settingRecord.save(function(err, savedRecord){
+						if(err){
+							return res.serverError(err);
+						}
+
+						res.redirect('settings/');
+					});
 				});
+
 			});
 		}
 	},
 
-	getSettings: function(req, res){
-		Settings.findOne({id: req.param('id')}, function(err, settingRecord){
+	getUserSettings: function(req, res){
+		User.findOne({id: req.user.id}).populate('settings').exec(function(err, userRecord){
 			if(err){
 				return res.serverError(err);
 			}
 
-			if(!settingRecord){
+			if(userRecord.settings.length < 1){
 				return res.notFound();
 			}
-			sails.log(settingRecord);
-			return res.json(200, settingRecord);
+			sails.log(userRecord[0].settings);
+			return res.json(200, userRecord[0].settings);
 		});
 	},
 
@@ -208,48 +208,57 @@ module.exports = {
 			return res.notFound();
 		}
 
-		Settings.findOne({ id: req.param('id') }).exec(function(err, found) {
+		User.findOne({id: req.user.id}).populate('settings').exec(function(err, userRecord){
 			if(err){
 				sails.log.error(err);
 				return res.serverError(err);
 			}
 
-			var model_attr = req.param('type');
-			sails.log.info(req.param(req.param('type')));
-			sails.log.info(req.param(model_attr));
-
-			if(req.param(model_attr) == undefined || req.param(model_attr) == ""){
-				sails.log.error("You must provide a bucket name before you can create a bucket.");
-				return res.notFound();
+			if(userRecord.settings.length < 1){
+				sails.log.error('The setting record for the user was not found.');
+				return res.notFound(err);
 			}
 
-			brenda.createS3Bucket(
-				req.param('id'), req.param(model_attr), found.aws_s3_region, req.param('type')
-			).then(
-				function(data){
-					sails.log.info('S3 render bucket ' + data.bucket_name + ' saved successfully!');
-					found[req.param('type')] = req.param(model_attr);
-					found.save( function(err, s){
-						if(err) {
-							sails.log.error('Unable to save the Amazon settings for ' + req.param('type') + '.');
-							return res.serverError(err);
-						}
-
-						/*res.view('settings/index',{
-								success: [
-									{ message: "Bucket " + data.bucket_name + " created." },
-									{ message: "You can find your new bucket at <a href='" + data.location + "' target='_blank'>" + data.location  + "</a>." }
-								]
-							});*/
-						res.redirect('settings/');
-						//return res.ok();
-					});
-				},
-				function(reason){
-					sails.log.error(reason);
-					return res.serverError(reason);
+			Settings.findOne({ id: userRecord.settings[0].id }).exec(function(err, settingRecord) {
+				if(err){
+					sails.log.error(err);
+					return res.serverError(err);
 				}
-			);
+
+				var model_attr = req.param('type');
+				if(req.param(model_attr) == undefined || req.param(model_attr) == ""){
+					sails.log.error("You must provide a bucket name before you can create a bucket.");
+					return res.notFound();
+				}
+
+				brenda.createS3Bucket(
+					settingRecord.id, req.param(model_attr), settingRecord.aws_s3_region, req.param('type')
+				).then(
+					function(data){
+						sails.log.info('S3 render bucket ' + data.bucket_name + ' saved successfully!');
+						settingRecord[req.param('type')] = req.param(model_attr);
+						settingRecord.save( function(err, savedRecord){
+							if(err) {
+								sails.log.error('Unable to save the Amazon settings for ' + req.param('type') + '.');
+								return res.serverError(err);
+							}
+
+							/*res.view('settings/index',{
+									success: [
+										{ message: "Bucket " + data.bucket_name + " created." },
+										{ message: "You can find your new bucket at <a href='" + data.location + "' target='_blank'>" + data.location  + "</a>." }
+									]
+								});*/
+							res.redirect('settings/');
+							//return res.ok();
+						});
+					},
+					function(reason){
+						sails.log.error(reason);
+						return res.serverError(reason);
+					}
+				);
+			});
 		});
 
 	},
@@ -270,33 +279,46 @@ module.exports = {
 			return res.notFound();
 		}
 
-		//Check to ensure the id exists in the database
-		//TODO: Add the logged in user id here to ensure the user has permissions to this id.
-		Settings.findOne({ id: req.param('id') }).exec(function(err, found) {
+		User.findOne({id: req.user.id}).populate('settings').exec(function(err, userRecord){
 			if(err){
 				sails.log.error(err);
-				return res.serverError(reason);
+				return res.serverError(err);
 			}
 
-			brenda.removeS3Bucket(
-				req.param('id'), found[req.param('type')], found.aws_s3_region, req.param('type')
-			)
-			.then(
-				function(data){
-					sails.log('S3 render bucket ' + data + ' removed successfully!');
-					/*res.view('settings/index',{
-								info: [{
-									message: 'Amazon S3 bucket ' + data + ' removed successfully!'
-								}]
-							});*/
-					res.redirect('settings/');
-					//return res.ok();
-				},
-				function(reason){
-					sails.log.error(reason);
+			if(userRecord.settings.length < 1){
+				sails.log.error('The setting record for the user was not found.');
+				return res.notFound(err);
+			}
+
+			//Check to ensure the id exists in the database
+			//TODO: Add the logged in user id here to ensure the user has permissions to this id.
+			Settings.findOne({ id: userRecord.settings[0].id }).exec(function(err, found) {
+				if(err){
+					sails.log.error(err);
 					return res.serverError(reason);
 				}
-			);
+
+				brenda.removeS3Bucket(
+					found.id, found[req.param('type')], found.aws_s3_region, req.param('type')
+				)
+				.then(
+					function(data){
+						sails.log('S3 render bucket ' + data + ' removed successfully!');
+						/*res.view('settings/index',{
+									info: [{
+										message: 'Amazon S3 bucket ' + data + ' removed successfully!'
+									}]
+								});*/
+						res.redirect('settings/');
+						//return res.ok();
+					},
+					function(reason){
+						sails.log.error(reason);
+						return res.serverError(reason);
+					}
+				);
+
+			});
 
 		});
 	}

@@ -275,7 +275,6 @@ module.exports = {
 	* @param type string The database attribute to update with the bucket name
 	* @return RSVP.Promise
 	**/
-
 	createS3Bucket: function(id, bucketName, region, type){
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
@@ -359,7 +358,6 @@ module.exports = {
 	* @param type string (aws_s3_project_bucket | aws_s3_render_bucket)
 	* @return promise
 	**/
-
 	removeS3Bucket: function(id, bucketName, region, type){
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
@@ -414,12 +412,22 @@ module.exports = {
 		return promise;
 	},
 
-	createSettingsRecord: function(id){
-		if(!id) id = 1;
+	/**
+	*
+	* Creates a setting record for a user.
+	* @param user_id The logged in user.
+	* @return promise
+	**/
+	createSettingsRecord: function(user_id){
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(!user_id) {
+				reject('You need to provide a valid user id.');
+			}
+
 			//Start with record id 1
-			Settings.create({id: id}).exec(function(err, created){
+			Settings.create({owner: user_id}).exec(function(err, created){
 				if(err){
 					sails.log.error(err);
 					reject(err);
@@ -431,14 +439,13 @@ module.exports = {
 				brenda.getBrendaVersion().then(
 					function (data){
 						if(data){
-
 							created.brenda_version = data;
-							created.save(function(err, s){
+							created.save(function(err, updatedRecord){
 								if(err){
 									reject("There was an error adding the Brenda version to the settings.");
 								}
-								sails.log.info("Brenda version " + s.brenda_version + " added to settings.");
-								fullfill(s);
+								sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
+								fullfill(updatedRecord);
 							});
 
 						}else{
@@ -449,7 +456,7 @@ module.exports = {
 						sails.log.error(reason);
 						reject(reason);
 					}
-				)
+				);
 				//Debating about keeping this or just having the user add these to the aws file.
 				/*.then(function(){
 					brenda.getAmazonS3ConfigFile().then(
@@ -476,10 +483,6 @@ module.exports = {
 						}
 					);
 				})*/
-				.then(function(data){
-					//Pass along the saved data
-					fullfill(data);
-				});
 
 			});
 		});

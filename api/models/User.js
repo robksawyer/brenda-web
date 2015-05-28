@@ -3,6 +3,12 @@ var User = {
   schema: true,
 
   attributes: {
+    id: {
+      type: 'integer',
+      unique: true,
+      primaryKey: true,
+      required: true
+    },
     username : {
       type: 'string',
       unique: true
@@ -25,6 +31,10 @@ var User = {
     email_on_instance_idle : {
       type: 'boolean',
       defaultsTo: 0
+    },
+    settings: {
+      collection: 'Settings',
+      via: 'owner'
     }
   }
 };

@@ -12,6 +12,7 @@
 1. See the SailsJS [Getting Started](http://sailsjs.org/#!/getStarted). You mostly need to install nodejs.
 1. `git clone https://github.com/robksawyer/brenda-web.git`
 1. `cd brenda-web`
+1. Rename `config/local.sample.js` to `config/local.js`. This contains local configuration variables that the app can use.
 1. Run the command `npm install` to download the node modules used in the project.
 1. Set Amazon keys as environment variables. See setting up [AWS](https://github.com/robksawyer/brenda-web#aws-amazon) below.
 1. Open your Terminal ([iTerm 2](https://www.iterm2.com/))
@@ -22,11 +23,24 @@
 
 ## AWS (Amazon Web Services)
 
-The following environment variables need to be set. The app also uses [dotenv](https://www.npmjs.com/package/dotenv). So you could just make a file named `.env` with these environment variables in it.
+The following environment variables need to be set.
+
+Environment Variables
 ```
 AWS_ACCESS_KEY_ID="YOUR_ACCESS_KEY"
 AWS_SECRET_ACCESS_KEY="YOUR_SECRET_ACCESS_KEY"
 AWS_DEFAULT_REGION="us-west-2"
+```
+
+You could also just add the following to your `config/local.js` file.
+```
+aws: {
+      credentials: {
+        accessKeyId: 'YOUR_ACCESS_KEY',
+        secretAccessKey: 'YOUR_SECRET_ACCESS_KEY',
+        region: 'us-west-2'
+      }
+   }
 ```
 
 # Technology Stack

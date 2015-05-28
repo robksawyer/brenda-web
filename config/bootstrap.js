@@ -13,12 +13,10 @@ module.exports.bootstrap = function(cb) {
 
 	sails.python = require('python-shell');
 	sails.RSVP = require('rsvp');
+	sails.os = require('os');
+	sails.EOL = sails.os.EOL;
 
-	var os = require('os');
-
-	sails.EOL = os.EOL;
 	//sails.localStorage = require('node-localstorage').LocalStorage;
-
 	sails.services.passport.loadStrategies();
 
 	// It's very important to trigger this callback method when you are finished
