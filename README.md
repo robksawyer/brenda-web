@@ -1,7 +1,7 @@
 # Brenda Web Interface
 > The goal of this project is to create a web interface that allows users to easily submit and manage Blender render jobs submitted via [Amazon Web Services](http://aws.amazon.com/). Right now the backend heavily relies on the work done by James Yonan. See the github project, titled Brenda at [jamesyonan/brenda](https://github.com/jamesyonan/brenda).
 
-[![Build Status](https://travis-ci.org/robksawyer/brenda-web.svg)](https://travis-ci.org/robksawyer/brenda-web) [![Code Climate](https://codeclimate.com/github/robksawyer/brenda-web/badges/gpa.svg)](https://codeclimate.com/github/robksawyer/brenda-web) [![Test Coverage](https://codeclimate.com/github/robksawyer/brenda-web/badges/coverage.svg)](https://codeclimate.com/github/robksawyer/brenda-web/coverage)
+[![Build Status](https://travis-ci.org/robksawyer/brenda-web.svg)](https://travis-ci.org/robksawyer/brenda-web) [![Code Climate](https://codeclimate.com/github/robksawyer/brenda-web/badges/gpa.svg)](https://codeclimate.com/github/robksawyer/brenda-web) [![Test Coverage](https://codeclimate.com/github/robksawyer/brenda-web/badges/coverage.svg)](https://codeclimate.com/github/robksawyer/brenda-web/coverage) [![Donate](https://img.shields.io/gratipay/robksawyer.svg)](https://gratipay.com/~robksawyer/)
 
 # Milestones
 
