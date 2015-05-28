@@ -20,6 +20,7 @@
 
 // Ensure we're in the project directory, so relative paths work as expected
 // no matter where we actually lift from.
+
 process.chdir(__dirname);
 
 // Ensure a "sails" can be located:
@@ -53,6 +54,8 @@ process.chdir(__dirname);
     }
   }
 
+  var dotenv = require('dotenv');
+  dotenv.load();
 
   // Start server
   sails.lift(rc('sails'));

@@ -299,7 +299,9 @@ module.exports = {
 			};
 
 			//Load the credentials and build configuration
-			AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
+			//AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+			AWS.config.update(sails.config.aws.credentials);
 
 			var s3 = new AWS.S3({
 				region: region
@@ -359,27 +361,29 @@ module.exports = {
 	**/
 
 	removeS3Bucket: function(id, bucketName, region, type){
-		if(!bucketName){
-			sails.log.error('You must provide a name before you can remove a bucket.');
-			return false;
-		}
-		if(!region){
-			sails.log.error('You must provide a region before you can remove a bucket.');
-			return false;
-		}
-
-		var params = {
-			Bucket: bucketName
-		};
-
-		//Load the credentials and build configuration
-		AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
-
-		var s3 = new AWS.S3({
-			region: region
-		});
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(!bucketName){
+				sails.log.error('You must provide a name before you can remove a bucket.');
+				reject('You must provide a name before you can remove a bucket.');
+			}
+			if(!region){
+				sails.log.error('You must provide a region before you can remove a bucket.');
+				reject('You must provide a region before you can remove a bucket.');
+			}
+
+			var params = {
+				Bucket: bucketName
+			};
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			var s3 = new AWS.S3({
+				region: region
+			});
+
 			s3.deleteBucket(params, function(err, data) {
 				if (err) {
 					sails.log.error(err, err.stack); // an error occurred
