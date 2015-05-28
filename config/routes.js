@@ -36,10 +36,6 @@ module.exports.routes = {
     view: 'homepage'
   },
 
-  '/help/packing': {
-    view: 'help/packing'
-  },
-
   'get /login': 'AuthController.login',
   'get /logout': 'AuthController.logout',
   'get /register': 'AuthController.register',
