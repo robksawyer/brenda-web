@@ -26,7 +26,6 @@
 <script>
 	var examples = [];
 </script>-->
-
 <div class="container">
 	<div class="row-fluid">
 		<div class="header">
@@ -81,7 +80,7 @@
 			</div>
 			<form id="user-settings" name="userSettings" action="/settings/profile" method="POST">
 				<div class="panel-body">
-					<div class="form-group">
+					<!-- <div class="form-group">
 						<div class="input-group">
 							<div class="col-md-5">
 								<img src="holder.js/128x128" alt="user-profile-thumb" />
@@ -93,27 +92,39 @@
 								</span>
 							</div>
 						</div>
-					</div>
+					</div> -->
 					<div class="form-group">
 						<label for="inputName">Full Name</label>
-						<input type="text" class="form-control" id="inputName" name="fullname" placeholder="Groot">
+						<input type="text" class="form-control" id="inputName" name="fullname" placeholder="Groot" value="<%= (user.fullname) || '' %>">
+					</div>
+					<div class="form-group">
+						<label for="inputName">Username</label>
+						<input type="text" class="form-control" id="inputName" name="username" placeholder="numberonegroot" value="<%= (user.username) || '' %>">
 					</div>
 					<div class="form-group">
 						<label for="inputEmail">Email</label>
-						<input type="text" class="form-control" id="inputEmail" name="email" placeholder="funny@aol.com">
-						<span id="helpBlock" class="help-block alert alert-info">User only to send you notifications.</span>
+						<input type="text" class="form-control" id="inputEmail" name="email" placeholder="funny@aol.com" value="<%= (user.email) || '' %>">
+						<span id="helpBlock" class="help-block alert alert-info">Used only to send you notifications.</span>
 					</div>
 					<div class="form-group">
 						<div class="checkbox">
 							<label>
+								<% if( user.email_on_render_complete ){ %>
 								<input type="checkbox" name="email_on_render_complete" checked>
-								Email on render complete.
+								<% } else { %>
+								<input type="checkbox" name="email_on_render_complete">
+								<% } %>
+								Email on render complete. (Coming soon.)
 								</label>
 							</div>
 							<div class="checkbox disabled">
 							<label>
-								<input type="checkbox" name="email_when_instance_up_for_hour" disabled>
-								Email when instance up for more than an hour. (Coming soon.)
+								<% if( user.email_on_instance_idle ){ %>
+								<input type="checkbox" name="email_on_instance_idle" disabled>
+								<% } else { %>
+								<input type="checkbox" name="email_on_instance_idle" disabled>
+								<% } %>
+								Email when instance idles for more than an hour. (Coming soon.)
 							</label>
 						</div>
 					</div>

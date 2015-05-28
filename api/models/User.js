@@ -3,12 +3,29 @@ var User = {
   schema: true,
 
   attributes: {
-    username  : { type: 'string', unique: true },
-    fullname  : { type: 'string' },
-    email     : { type: 'email',  unique: true },
-    passports : { collection: 'Passport', via: 'user' },
-    email_on_render_complete : { type: 'boolean' },
-    email_on_instance_idle : { type: 'boolean' }
+    username : {
+      type: 'string',
+      unique: true
+    },
+    fullname : {
+      type: 'string'
+    },
+    email: {
+      type: 'email',
+      unique: true
+    },
+    passports : {
+      collection: 'Passport',
+      via: 'user'
+    },
+    email_on_render_complete : {
+      type: 'boolean',
+      defaultsTo: 0
+    },
+    email_on_instance_idle : {
+      type: 'boolean',
+      defaultsTo: 0
+    }
   }
 };
 
