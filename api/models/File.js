@@ -7,8 +7,28 @@
 
 module.exports = {
 
-  attributes: {
-
-  }
+	attributes: {
+		fileName: {
+			type: 'string'
+		},
+		extension: {
+			type: 'string'
+		},
+		originalName: {
+			type: 'string'
+		},
+		contentType: {
+			type: 'string'
+		},
+		fileSize: {
+			type: 'integer'
+		},
+		uploadedBy: {
+			model: 'User'
+		},
+		job: {
+			model: 'Jobs'
+		}
+	}
 };
 

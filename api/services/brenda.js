@@ -5,7 +5,9 @@
 var fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
-	AWS = require('aws-sdk');
+	AWS = require('aws-sdk'),
+	AdmZip = require('adm-zip');
+
 
 module.exports = {
 
@@ -390,6 +392,46 @@ module.exports = {
 				})*/
 
 			});
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Converts a file into a zip file.
+	*	More details:
+	*		https://github.com/cthackers/adm-zip/wiki/ADM-ZIP-Introduction
+	*
+	* @param targetFile: string - Must include the file path and name e.g. /home/me/some_picture.png
+	* @param destPath: string - Must include the destination file path and name e.g. /home/me/mynew.zip
+	*
+	**/
+
+	createZip: function (targetFile, destPath, comment){
+		var promise = new sails.RSVP.Promise(function(fullfill, reject) {
+
+			if(!comment) comment = "entry comment goes here";
+			if(!targetFile) reject("createZip: Target file was not provided.");
+			if(!destPath) reject("createZip: Destination file and path was provided.");
+
+			// creating archives
+			var zip = new AdmZip();
+			if(!zip){
+				reject('createZip: Unable to create zip.');
+			}
+
+			// add file directly
+			//zip.addFile(filename, new Buffer("inner content of the file"), comment);
+
+			// add local file
+			zip.addLocalFile(targetFile);
+
+			// get everything as a buffer
+			var willSendthis = zip.toBuffer();
+
+			zip.writeZip(destPath);
+
+			fullfill(destPath);
 		});
 		return promise;
 	},

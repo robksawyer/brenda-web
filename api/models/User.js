@@ -39,6 +39,10 @@ var User = {
     jobs: {
       collection: 'Jobs',
       via: 'owner'
+    },
+    files: {
+      collection: 'File',
+      via: 'uploadedBy'
     }
   }
 };

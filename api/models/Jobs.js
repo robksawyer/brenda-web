@@ -43,6 +43,10 @@ module.exports = {
 		},
 		owner: {
 			model: 'User'
+		},
+		files: {
+			model: 'File',
+			via: 'job'
 		}
 	}
 };
