@@ -1,0 +1,47 @@
+[
+  {
+    "username": "test1",
+    "fullname": "Test One",
+    "email": "test1@test.com",
+    "password": "thepass",
+    "passports": [],
+    "email_on_render_complete": true,
+    "email_on_instance_idle": true
+  },
+  {
+    "username": "test2",
+    "fullname": "Test Two",
+    "email": "test2@test.com",
+    "password": "thepass",
+    "passports": [],
+    "email_on_render_complete": true,
+    "email_on_instance_idle": true
+  },
+  {
+    "username": "test3",
+    "fullname": "Test Three",
+    "email": "test3@test.com",
+    "password": "thepass",
+    "passports": [],
+    "email_on_render_complete": true,
+    "email_on_instance_idle": false
+  },
+  {
+    "username": "test4",
+    "fullname": "Test Four",
+    "email": "test4@test.com",
+    "password": "thepass",
+    "passports": [],
+    "email_on_render_complete": false,
+    "email_on_instance_idle": true
+  },
+  {
+    "username": "test5",
+    "fullname": "Test Five",
+    "email": "test5@test.com",
+    "password": "thepass",
+    "passports": [],
+    "email_on_render_complete": false,
+    "email_on_instance_idle": false
+  }
+]
