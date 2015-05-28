@@ -20,7 +20,7 @@
 
 # Configuration
 
-## AWS (Amazon)
+## AWS (Amazon Web Services)
 
 The following environment variables need to be set. The app also uses [dotenv](https://www.npmjs.com/package/dotenv). So you could just make a file named `.env` with these environment variables in it.
 ```
