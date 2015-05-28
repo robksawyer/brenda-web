@@ -24,42 +24,120 @@ module.exports = {
 
 	add_spot: function (req, res){
 
-		if (req.method == 'POST'){
-
-			//Check to see if a Blender file was uploaded
-			if(req.file('inputProjectFile')){
-				sails.log.info("==== File Found ====");
-				sails.log(req.file('inputProjectFile'));
-				sails.log.info("====================");
-			}
-
-			/*Job.create({
-				project_name: "Test Project",
-				project_filename: "blah.gz.zip",
-				work_queue: 'grootfarm-queue'
-			}).exec(function createJob(err, created){
-				if(err){
-					sails.log.error(err);
-				}
-				sails.log('Created a job with the name ' + created.name);
-			});*/
-
-		}
-
 		//Pull the user's settings from the database
-		User.find({id: req.user.id}).populate('settings').exec(function(err, defaultUserSettings){
-			if(err){
-				sails.log.error(err);
-			}
+		brenda.getUserSettings(req).then(
+			function(settings){
 
-			sails.log.info(defaultUserSettings);
+				var errors = [];
 
-			res.view('jobs/add_spot',{
-				settings: defaultUserSettings
+				if (req.method == 'POST'){
+
+					if(!sails.config.aws.credentials.accessKeyId){
+						errors.push({message: 'You must provide a valid AWS access key.'});
+					}
+					if(!sails.config.aws.credentials.secretAccessKey){
+						errors.push({message: 'You must provide a valid AWS secret access key.'});
+					}
+					if(!settings.aws_s3_project_bucket){
+						errors.push({message: 'You have not configured an AWS S3 project bucket. Do this on the <a href="/settings">settings page</a>.'});
+					}
+
+					if(errors.length < 1){
+						//Check to see if a Blender file was uploaded
+						if(req.file('project_file')){
+							//sails.log.info("==== File Found ====");
+							//sails.log(req.file('project_file'));
+							//sails.log.info("====================");
+
+							var upload = req.file('project_file')._files[0].stream,
+								headers = upload.headers,
+								byteCount = upload.byteCount,
+								validated = true,
+								errorMessages = [],
+								fileParams = {},
+								settings = {
+									allowedTypes: ['application/zip', 'application/octet-stream','application/x-gzip','multipart/x-gzip','multipart/x-zip','application/blender'],
+									maxBytes: 100 * 1024 * 1024
+								};
+
+							sails.log(headers['content-type']);
+
+							// Check file type
+							if (_.indexOf(settings.allowedTypes, headers['content-type']) === -1) {
+								validated = false;
+								errors.push({message: 'Wrong filetype (' + headers['content-type'] + ').'});
+							}
+							// Check file size
+							if (byteCount > settings.maxBytes) {
+								validated = false;
+								errors.push({message: 'Filesize exceeded: ' + byteCount + '/' + settings.maxBytes + '.'});
+							}
+
+							// Upload the file.
+							if (validated) {
+								//Check to see if the file has a .blend, .gz, or .zip extension.
+								req.file('project_file').upload({
+										adapter: require('skipper-s3-alt'),
+										fileACL: 'public-read',
+										key: sails.config.aws.credentials.accessKeyId,
+										secret: sails.config.aws.credentials.secretAccessKey,
+										bucket: settings.aws_s3_project_bucket
+									}, function whenDone(err, uploadedFiles){
+										if(err) return res.negotiate(err);
+
+										fileParams = {
+											fileName: files[0].fd.split('/').pop().split('.').shift(),
+											extension: files[0].fd.split('.').pop(),
+											originalName: upload.filename,
+											contentType: files[0].type,
+											fileSize: files[0].size,
+											uploadedBy: req.userID
+										};
+
+										// Create a File model.
+										File.create(fileParams, function(err, newFile) {
+											if (err) {
+												return res.serverError(err);
+											}
+											res.view('jobs/add_spot',{
+												info: [{message: files.length + ' file(s) uploaded successfully!'}],
+												file: newFile
+											});
+										});
+
+										/*Job.create({
+											project_name: "Test Project",
+											project_filename: "blah.gz.zip",
+											work_queue: 'grootfarm-queue'
+										}).exec(function createJob(err, created){
+											if(err){
+												sails.log.error(err);
+											}
+											sails.log('Created a job with the name ' + created.name);
+										});*/
+									});
+							}
+						}
+					}
+
+				} //method check
+
+				if(errors.length < 1){
+					res.view('jobs/add_spot',{
+						settings: settings
+					});
+				} else {
+					res.view('jobs/add_spot',{
+						settings: settings,
+						errors: errors
+					});
+				}
+
+			},
+			function(error){
+				sails.log.error(error);
+				return res.notFound();
 			});
-		});
-
-
 
 	},
 

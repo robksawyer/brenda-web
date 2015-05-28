@@ -35,6 +35,10 @@ var User = {
     settings: {
       collection: 'Settings',
       via: 'owner'
+    },
+    jobs: {
+      collection: 'Jobs',
+      via: 'owner'
     }
   }
 };

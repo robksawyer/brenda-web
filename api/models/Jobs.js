@@ -40,6 +40,9 @@ module.exports = {
 		},
 		work_queue: {
 			type: 'string', //AMS SQS work queue name
+		},
+		owner: {
+			model: 'User'
 		}
 	}
 };

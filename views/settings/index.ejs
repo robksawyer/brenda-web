@@ -146,7 +146,7 @@
 					<div class="form-group">
 						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
 						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="ami-0529086c" value="<%= settings.ami_id %>">
-						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. See <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
+						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. Or, see <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
 					</div>
 					<div class="form-group">
 						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
@@ -158,15 +158,15 @@
 							<div class="input-group">
 								<div class="col-xs-3">
 									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="<%= settings.aws_sqs_region %>" value="<%= settings.aws_sqs_region %>">
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="us-west-2" value="<%= settings.aws_sqs_region %>">
 								</div>
 								<div class="col-xs-3">
 									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="<%= settings.aws_ec2_region %>" value="<%= settings.aws_ec2_region %>">
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="us-west-2" value="<%= settings.aws_ec2_region %>">
 								</div>
 								<div class="col-xs-3">
 									<label for="inputS3Region">S3 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="<%= settings.aws_s3_region %>" value="<%= settings.aws_s3_region %>">
+									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="us-west-2" value="<%= settings.aws_s3_region %>">
 								</div>
 							</div>
 						</div>

@@ -17,7 +17,8 @@
 1. Set Amazon keys as environment variables. See setting up [AWS](https://github.com/robksawyer/brenda-web#aws-amazon) below.
 1. Open your Terminal ([iTerm 2](https://www.iterm2.com/))
 1. Run the command `sails lift`
-1. Navigate to `http://localhost:1337`
+1. Navigate to `http://localhost:1337/register` and create an account.
+1. Click your `username` in the navigation bar to enter the Settings page.
 
 # Configuration
 

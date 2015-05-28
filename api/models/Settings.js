@@ -45,7 +45,7 @@ module.exports = {
 			defaultsTo: ''
 		},
 		owner:{
-			model: 'user'
+			model: 'User'
 		}
 	}
 };
