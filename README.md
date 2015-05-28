@@ -13,12 +13,12 @@
 1. `git clone https://github.com/robksawyer/brenda-web.git`
 1. `cd brenda-web`
 1. Run the command `npm install` to download the node modules used in the project.
-1. Set Amazon keys as environment variables. See setting up [AWS](#AWS-config) below.
+1. Set Amazon keys as environment variables. See setting up [AWS](https://github.com/robksawyer/brenda-web#aws-amazon) below.
 1. Open your Terminal ([iTerm 2](https://www.iterm2.com/))
 1. Run the command `sails lift`
 1. Navigate to `http://localhost:1337`
 
-# Server Configuration
+# Configuration
 
 ## AWS (Amazon)
 
