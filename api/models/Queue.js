@@ -11,9 +11,11 @@ module.exports = {
 		name:{
 			type: 'string'
 		},
-		job: {
-			model: 'Jobs',
-			via: 'queue'
+		requestId: {
+			type: 'string'
+		},
+		url: {
+			type: 'string'
 		},
 		owner: {
 			model: 'User',

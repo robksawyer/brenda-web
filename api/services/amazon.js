@@ -170,12 +170,13 @@ module.exports = {
 	/**
 	*
 	* Creates an SQS work queue
+	* @param userId: integer Current logged in user.
 	* @param jobName: string Used to build the queue name
 	* @param s3BucketEndpoint: string The endpoint bucket to deliver files to.
 	* @param region: string The region to produce the queue in.
 	* @return promise
 	**/
-	createSQSWorkQueue: function(jobName, s3BucketEndpoint, region){
+	createSQSWorkQueue: function(userId, jobName, s3BucketEndpoint, region){
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 
 			//Load the credentials and build configuration
@@ -233,8 +234,27 @@ module.exports = {
 					sails.log.error(err, err.stack); // an error occurred
 					reject(err);
 				} else {
-					sails.log(data); // successful response
-					fullfill(data);
+					/*
+					Example response:
+					{
+						ResponseMetadata: {
+							RequestId: '8738b6b7-17db-5fd4-900b-fb5536348ace'
+						},
+						QueueUrl: 'https://sqs.us-west-2.amazonaws.com/987044710008/chinchillax-qm7a0h'
+					}*/
+
+					//Create a new Queue database record
+					Queue.create({
+						name: jobName,
+						url: data.QueueUrl,
+						requestId: ResponseMetadata.RequestId,
+						owner: userId
+					}, function(err, queueRecord){
+						if(err){
+							reject(err);
+						}
+						fullfill(queueRecord);
+					});
 				}
 			});
 

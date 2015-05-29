@@ -35,12 +35,8 @@ module.exports = {
 		max_spend_amount: {
 			type: 'float'
 		},
-		work_queue: {
-			type: 'string', //AMS SQS work queue name
-		},
 		queue: {
-			model: 'Queue',
-			via: 'job'
+			model: 'Queue'
 		},
 		files: {
 			model: 'File',

@@ -82,20 +82,10 @@ module.exports = {
 													sails.log(fileRecord.id);
 
 													//Create a work queue and retrieve the name to pass along to the job record.
-													amazon.createSQSWorkQueue(req.param('name'), settings.aws_s3_render_bucket).then(
-														function(queue){
-															/*
-															Example response:
-															{
-																ResponseMetadata: {
-																	RequestId: '8738b6b7-17db-5fd4-900b-fb5536348ace'
-																},
-																QueueUrl: 'https://sqs.us-west-2.amazonaws.com/987044710008/chinchillax-qm7a0h'
-															}*/
+													amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
+														function(queueRecord){
 															sails.log('Amazon SQS work queue created!');
 															sails.log(queue);
-
-															return res.ok();
 
 															//Create and save the job to the database
 															Jobs.create({
@@ -110,7 +100,7 @@ module.exports = {
 																aws_sqs_region: req.param('aws_sqs_region'),
 																aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
 																max_spend_amount: req.param('max_spend_amount'),
-																queue: queue.id
+																queue: queueRecord.id
 															}).exec(function createJob(err, jobData){
 																if(err){
 																	sails.log.error(err);
