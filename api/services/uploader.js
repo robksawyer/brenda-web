@@ -5,7 +5,6 @@
  * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 var path = require('path'),
-	os = require('os'),
 	fs = require('fs'),
 	AWS = require('aws-sdk'),
 	zlib = require('zlib'),
@@ -21,10 +20,11 @@ module.exports = {
 	* @param maxBytes: integer - The maximum number of bytes to allow
 	* @return object
 	**/
-
 	validate: function(fileStream, allowedExtensions, maxBytes){
 
-		if(!allowedExtensions) {
+		sails.log('Validating file...');
+
+		if(typeof allowedExtensions === 'undefined') {
 			allowedExtensions = ['.zip','.gz','.gzip'];
 		}
 
@@ -47,14 +47,14 @@ module.exports = {
 				maxBytes: 100 * 1024 * 1024
 			};
 
-		if(maxBytes){
+		if(typeof maxBytes !== 'undefined'){
 			settings.maxBytes = maxBytes;
 		}
 
 		var errors = [];
 
-		var projectTmpFolder = path.join(process.cwd() , '.tmp', 'uploads');
-		var tmpPath = os.tmpdir();
+		var projectTmpFolder = path.join(process.cwd(), '.tmp', 'uploads');
+		var tmpPath = sails.os.tmpdir();
 
 		var filenameWithoutExt = filename.replace(extension, '');
 		var destPath = path.join(projectTmpFolder);
@@ -85,27 +85,30 @@ module.exports = {
 	*
 	* Creates a zip file and uploads the file to Amazon S3
 	* @param fileStream: object - The upload file stream
+	* @param bucket: string - The Amazon S3 bucket to upload to
 	* @return promise
 	**/
-	createZipAndUploadToS3: function(fileStream){
+	createZipAndUploadToS3: function(fileStream, bucket){
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(typeof fileStream === 'undefined'){
+				reject('fileStream is not defined');
+			}
 
 			var filename = fileStream.filename,
 				extension = path.extname(filename),
 				filenameNoExt = filename.replace(extension, '');
 
-			var readStream = fs.createReadStream(fileStream);
-			sails.log('readStream');
-			sails.log(readStream);
-
-			var s3Stream = require('s3-upload-stream')(new AWS.S3());
+			var readStream = fileStream;
 
 			//Update the credentials with the local ones
 			AWS.config.update(sails.config.aws.credentials);
 
+			var s3Stream = require('s3-upload-stream')(new AWS.S3());
+
 			var s3UploadStream = s3Stream.upload({
-							Bucket: settings.aws_s3_project_bucket,
-							Key: filenameNoExt + '.zip', //filename
+							Bucket: bucket,
+							Key: filenameNoExt + '.gzip', //filename
 							ACL: "authenticated-read",
 							StorageClass: "REDUCED_REDUNDANCY"
 						});
@@ -140,6 +143,17 @@ module.exports = {
 			*/
 			s3UploadStream.on('uploaded', function (details) {
 				sails.log(details);
+
+				//Delete the temporary file
+				/*fs.unlink(targetPathWithFilename, function(err){
+					if(err){
+						sails.log.error(err);
+						reject(err);
+					} else {
+						fullfill( 'Deleted the temporary file after writing ' + archive.pointer() + ' bytes.' );
+					};
+				});*/
+
 				//Fullfill the promise
 				fullfill(details);
 			});
@@ -147,6 +161,57 @@ module.exports = {
 			//Kick off the process
 			readStream.pipe(compress).pipe(s3UploadStream);
 
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Creates a file record in the database
+	* @param files: array The files that were uploaded.
+	* @param aws_data: object The Amazon S3 data object from s3-upload-stream
+	* @return promise
+	**/
+	createFileRecord: function(user_id, file, aws_data){
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			var fileParams = {};
+
+			if(file.fd){
+				fileParams = {
+					fileName: aws_data.Key.split('/').pop().split('.').shift(),
+					extension: path.extname(aws_data.Key),
+					originalName: file.fd.filename,
+					contentType: file.type,
+					fileSize: file.size,
+					aws_s3_location: aws_data.Location,
+					aws_s3_bucket: aws_data.Bucket,
+					aws_s3_etag: aws_data.ETag,
+					uploadedBy: user_id
+				};
+			} else if(file.filename){
+				fileParams = {
+					fileName = aws_data.Key.split('/').pop().split('.').shift(),
+					extension = path.extname(aws_data.Key),
+					originalName = file.filename,
+					contentType: file.type,
+					fileSize = file.byteCount,
+					aws_s3_location: aws_data.Location,
+					aws_s3_bucket: aws_data.Bucket,
+					aws_s3_etag: aws_data.ETag,
+					uploadedBy: user_id
+				};
+			}else {
+				reject('Unable to parse the file.');
+			}
+
+			// Create a File model.
+			File.create(fileParams, function(err, newFile) {
+				if (err) {
+					reject(err);
+				}
+				fullfill(newFile);
+			});
 		});
 		return promise;
 	},

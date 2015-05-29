@@ -74,6 +74,7 @@
     "grunt-remove": "^0.1.0",
     "istanbul": "^0.3.14",
     "mocha": "^2.2.5",
+    "node-inspector": "^0.10.1",
     "sails-generate-auth": "^0.3.1",
     "sinon": "^1.14.1"
   }

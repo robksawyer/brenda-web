@@ -5,8 +5,7 @@
 var fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
-	AWS = require('aws-sdk'),
-	Archiver = require("archiver");
+	AWS = require('aws-sdk');
 
 
 module.exports = {
@@ -138,20 +137,22 @@ module.exports = {
 	**/
 	getUserSettings: function(req){
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			if(!req || !req.user || !req.user.id){
+				reject('User id not found.');
+			}
 			//Retrieve the settings
 			User.findOne({id: req.user.id}).populate('settings').exec(
 				function findSettings(err, userRecord){
 					if(err){
 						sails.log.error(err);
-						reject(error);
+						reject(err);
 					}
 					if(userRecord.settings.length > 0){
 						fullfill(userRecord.settings[0]);
 					} else {
 						reject('Settings not found.');
 					}
-				}
-			);
+				});
 		});
 		return promise;
 	},
@@ -392,68 +393,6 @@ module.exports = {
 				})*/
 
 			});
-		});
-		return promise;
-	},
-
-	/**
-	*
-	* Converts a file into a zip file.
-	*	More details:
-	*		https://github.com/cthackers/adm-zip/wiki/ADM-ZIP-Introduction
-	*
-	* @param res : object - A pointer to the result
-	* @param filenameWithoutExt: string - The target filename without the extension to use for the final zip
-	* @param targetPathWithFilename: string - Must include the file path and name e.g. /home/me/some_picture.png
-	* @param destPathWithFilename: string - Must include the destination file path and name e.g. /home/me/mynew.zip
-	* @param comment: string - Something funny
-	* @return RSVP promise
-	*
-	**/
-
-	createZip: function (res, filenameWithoutExt, targetPathWithFilename, destPathWithFilename, comment){
-		var promise = new sails.RSVP.Promise(function(fullfill, reject) {
-
-			if(!comment) comment = "entry comment goes here";
-			if(!res) reject('createZip: The res pointer was not passed. This is required.')
-			if(!filenameWithoutExt) reject("createZip: Target filename without extension was not provided.");
-			if(!targetPathWithFilename) reject("createZip: Target file was not provided.");
-			if(!destPathWithFilename) reject("createZip: Destination file and path was provided.");
-
-			// creating archives
-			var archive = new Archiver('zip');
-			archive.on('error', function(err) {
-				reject(err.message);
-			});
-
-			//on stream closed we can end the request
-			res.on('close', function() {
-				sails.log.info('Archive wrote %d bytes', archive.pointer());
-
-				//Delete the temporary file
-				fs.unlink(targetPathWithFilename, function(err){
-					if(err){
-						sails.log.error(err);
-						reject(err);
-					} else {
-						fullfill( 'Deleted the temporary file after writing ' + archive.pointer() + ' bytes.' );
-					};
-				});
-			});
-
-			//set the archive name
-			res.attachment(filenameWithoutExt + '.zip');
-
-			//this is the streaming magic
-			archive.pipe(res);
-
-			//Add the local file to the zip file
-			//https://github.com/archiverjs/node-archiver
-			archive.file(targetPathWithFilename, { name: filenameWithoutExt + '.blend' });
-			//archive.append(fs.createReadStream(targetPathWithFilename), { name: filenameWithoutExt + '.blend' })
-
-			//Handle the write.
-			archive.finalize();
 		});
 		return promise;
 	},
