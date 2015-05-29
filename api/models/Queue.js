@@ -12,7 +12,7 @@ module.exports = {
 			type: 'string'
 		},
 		job: {
-			model: 'Job',
+			model: 'Jobs',
 			via: 'queue'
 		},
 		owner: {

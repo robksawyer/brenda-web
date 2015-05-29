@@ -42,13 +42,13 @@ module.exports = {
 			model: 'Queue',
 			via: 'job'
 		},
-		owner: {
-			model: 'User',
-			via: 'jobs'
-		},
 		files: {
 			model: 'File',
 			via: 'job'
+		},
+		owner: {
+			model: 'User',
+			via: 'jobs'
 		}
 	}
 };
