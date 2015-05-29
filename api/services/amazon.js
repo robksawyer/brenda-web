@@ -247,7 +247,7 @@ module.exports = {
 					Queue.create({
 						name: jobName,
 						url: data.QueueUrl,
-						requestId: ResponseMetadata.RequestId,
+						requestId: data.ResponseMetadata.RequestId,
 						owner: userId
 					}, function(err, queueRecord){
 						if(err){
