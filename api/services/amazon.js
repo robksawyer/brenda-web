@@ -117,8 +117,12 @@ module.exports = {
 				reject('You must provide a name before you can remove a bucket.');
 			}
 			if(!region){
-				sails.log.error('You must provide a region before you can remove a bucket.');
-				reject('You must provide a region before you can remove a bucket.');
+				if(typeof sails.config.aws.credentials.region !== 'undefined'){
+					region = sails.config.aws.credentials.region;
+				} else {
+					sails.log.error('You must provide a AWS region.');
+					reject('You must provide a AWS region.');
+				}
 			}
 
 			var params = {
@@ -161,6 +165,78 @@ module.exports = {
 
 		return promise;
 	},
+
+	/**
+	*
+	* Creates an SQS work queue
+	* @param jobName: string Used to build the queue name
+	* @param s3BucketEndpoint: string The endpoint bucket to deliver files to.
+	* @param region: string The region to produce the queue in.
+	* @return promise
+	**/
+	createSQSWorkQueue: function(jobName, s3BucketEndpoint, region){
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			if(!jobName){
+				sails.log.error('You must provide the Job name.');
+				reject('You must provide the Job name.');
+			} else {
+				//Clean up the name and get it ready to become the queue name
+				jobName.replace(/\s+/g, '-').toLowerCase();
+
+				//Generate a random hash and append it to the name.
+				var randString = tools.makeid(6);
+				jobName += '-' + randString.toLowerCase();
+			}
+
+			if(!region){
+				if(typeof sails.config.aws.credentials.region !== 'undefined'){
+					region = sails.config.aws.credentials.region;
+				} else {
+					sails.log.error('You must provide a AWS region.');
+					reject('You must provide a AWS region.');
+				}
+			}
+
+			if(!s3BucketEndpoint){
+				sails.log.error('You must provide a AWS s3BucketEndpoint.');
+				reject('You must provide a AWS s3BucketEndpoint.');
+			}
+
+			var sqs = new AWS.SQS({
+				region: sails.config.aws.credentials.region,
+				s3BucketEndpoint: s3BucketEndpoint
+			});
+			//TODO: Add the brenda permission? How can I create this if it doesn't already exist?
+			/*sqs.addPermission(params, function (err, data) {
+				if (err) {
+					sails.log.error(err, err.stack); // an error occurred
+					reject(err);
+				} else {
+					sails.log(data); // successful response
+					fullfill(data);
+				}
+			});*/
+			var params = {
+				QueueName: jobName, /* required */
+			};
+			sqs.createQueue(params, function(err, data) {
+				if (err) {
+					sails.log.error(err, err.stack); // an error occurred
+					reject(err);
+				} else {
+					sails.log(data); // successful response
+					fullfill(data);
+				}
+			});
+
+		});
+		return promise;
+	},
+
 
 	/**
 	*

@@ -43,6 +43,10 @@ var User = {
     files: {
       collection: 'File',
       via: 'uploadedBy'
+    },
+    queues: {
+      collection: 'Queue',
+      via: 'owner'
     }
   }
 };

@@ -38,8 +38,13 @@ module.exports = {
 		work_queue: {
 			type: 'string', //AMS SQS work queue name
 		},
+		queue: {
+			model: 'Queue',
+			via: 'job'
+		},
 		owner: {
-			model: 'User'
+			model: 'User',
+			via: 'jobs'
 		},
 		files: {
 			model: 'File',

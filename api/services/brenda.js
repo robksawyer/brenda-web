@@ -121,23 +121,6 @@ module.exports = {
 
 	/**
 	*
-	* Create a unique id for the buckets if needed.
-	*
-	**/
-	makeid: function(length) {
-		if(!length) {
-			length = 5;
-		}
-		var text = "";
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-		for( var i=0; i < length; i++ )
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		return text;
-	},
-
-	/**
-	*
 	* Creates a setting record for a user.
 	* @param user_id The logged in user.
 	* @return promise

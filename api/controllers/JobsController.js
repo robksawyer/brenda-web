@@ -82,37 +82,45 @@ module.exports = {
 													sails.log(fileRecord.id);
 
 													//Create a work queue and retrieve the name to pass along to the job record.
+													amazon.createSQSWorkQueue(settings.aws_s3_render_bucket).then(
+														function(queue){
+															sails.log('Amazon SQS work queue created!');
+															sails.log(queue);
 
-													//...
+															return res.ok();
 
-													//Create and save the job to the database
-													Jobs.create({
-														name: req.param('name'),
-														files: [fileRecord.id],
-														owner: req.user.id,
-														animation_start_frame: req.param('animation_start_frame'),
-														animation_end_frame: req.param('animation_end_frame'),
-														ami_id: req.param('ami_id'),
-														instance_type: req.param('instance_type'),
-														aws_ec2_region: req.param('aws_ec2_region'),
-														aws_sqs_region: req.param('aws_sqs_region'),
-														aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
-														max_spend_amount: req.param('max_spend_amount')
-														//work_queue: 'grootfarm-queue'
-													}).exec(function createJob(err, jobData){
-														if(err){
-															sails.log.error(err);
-															return res.negotiate(err);
-														}
-														sails.log('Created a job with the name ' + jobData.name);
-														res.view('jobs/add_spot',{
-															error: errors,
-															success: [{message: 'Created a job with the name ' + jobData.name }],
-															settings: settings,
-															job: jobData,
-															file: fileData
+															//Create and save the job to the database
+															Jobs.create({
+																name: req.param('name'),
+																files: [fileRecord.id],
+																owner: req.user.id,
+																animation_start_frame: req.param('animation_start_frame'),
+																animation_end_frame: req.param('animation_end_frame'),
+																ami_id: req.param('ami_id'),
+																instance_type: req.param('instance_type'),
+																aws_ec2_region: req.param('aws_ec2_region'),
+																aws_sqs_region: req.param('aws_sqs_region'),
+																aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
+																max_spend_amount: req.param('max_spend_amount'),
+																queue: queue.id
+															}).exec(function createJob(err, jobData){
+																if(err){
+																	sails.log.error(err);
+																	return res.negotiate(err);
+																}
+																sails.log('Created a job with the name ' + jobData.name);
+																res.view('jobs/add_spot',{
+																	error: errors,
+																	success: [{message: 'Created a job with the name ' + jobData.name }],
+																	settings: settings,
+																	job: jobData,
+																	file: fileData
+																});
+															});
+														},
+														function(err){
+
 														});
-													});
 
 												},
 												function(err) {
