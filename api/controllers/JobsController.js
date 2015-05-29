@@ -85,7 +85,7 @@ module.exports = {
 													amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
 														function(queueRecord){
 															sails.log('Amazon SQS work queue created!');
-															sails.log(queue);
+															sails.log(queueRecord);
 
 															//Create and save the job to the database
 															Jobs.create({
