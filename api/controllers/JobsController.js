@@ -29,6 +29,8 @@ module.exports = {
 		brenda.getUserSettings(req).then(
 			function(settings) {
 
+				sails.log(req.params.all());
+
 				var errors = [];
 
 				if (req.method == 'POST') {
@@ -69,41 +71,55 @@ module.exports = {
 
 									//Create the zip
 									uploader.createZipAndUploadToS3(fileStream, settings.aws_s3_project_bucket).then(
-										function(data){
+										function(fileData){
 											sails.log('Promised fullfilled.');
-											sails.log.info(data);
-
-											sails.log(fileStream);
+											sails.log.info(fileData);
 
 											//Create the file record to store details about the file
-											/*uploader.createFileRecord(fileStream, data).then(
+											uploader.createFileRecord(req.user.id, fileStream, fileData).then(
 												function(fileRecord){
-													//Create a job
-													Job.create({
-														project_name: "Test Project",
-														project_filename: "blah.gz.zip",
-														work_queue: 'grootfarm-queue'
-													}).exec(function createJob(err, created){
+													sails.log('File record saved.');
+													sails.log(fileRecord.id);
+
+													//Create a work queue and retrieve the name to pass along to the job record.
+
+													//...
+
+													//Create and save the job to the database
+													Jobs.create({
+														name: req.param('name'),
+														files: [fileRecord.id],
+														owner: req.user.id,
+														animation_start_frame: req.param('animation_start_frame'),
+														animation_end_frame: req.param('animation_end_frame'),
+														ami_id: req.param('ami_id'),
+														instance_type: req.param('instance_type'),
+														aws_ec2_region: req.param('aws_ec2_region'),
+														aws_sqs_region: req.param('aws_sqs_region'),
+														aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
+														max_spend_amount: req.param('max_spend_amount')
+														//work_queue: 'grootfarm-queue'
+													}).exec(function createJob(err, jobData){
 														if(err){
 															sails.log.error(err);
 															return res.negotiate(err);
 														}
-
-														sails.log('Created a job with the name ' + created.name);
-															res.view('jobs/add_spot',{
+														sails.log('Created a job with the name ' + jobData.name);
+														res.view('jobs/add_spot',{
 															error: errors,
+															success: [{message: 'Created a job with the name ' + jobData.name }],
 															settings: settings,
-															file: data
+															job: jobData,
+															file: fileData
 														});
 													});
+
 												},
 												function(err) {
 													sails.log.error(err);
 													return res.negotiate(err);
 												}
-											);*/
-
-
+											);
 										},
 										function(err){
 											sails.log.error(err);
@@ -194,6 +210,10 @@ module.exports = {
 				sails.log.error(error);
 				return res.notFound();
 			});
+
+	},
+
+	created: function(req, res){
 
 	},
 

@@ -26,11 +26,14 @@ module.exports = {
 		aws_s3_location: {
 			type: 'string'
 		},
+		aws_s3_bucket: {
+			type: 'string'
+		},
+		aws_s3_etag: {
+			type: 'string'
+		},
 		uploadedBy: {
 			model: 'User'
-		},
-		job: {
-			model: 'Jobs'
 		}
 	}
 };

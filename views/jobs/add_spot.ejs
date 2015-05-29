@@ -56,41 +56,16 @@
 				</div>
 			</form>
 		</div> -->
+		<form id="addSpot" action="/jobs/add_spot" method="POST" enctype="multipart/form-data">
 
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Add a New Job</h1>
-			</div>
-			<form id="addSpot" action="/jobs/add_spot" method="POST" enctype="multipart/form-data">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Job Settings</h1>
+				</div>
 				<div class="panel-body">
 					<div class="form-group">
-						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" value="<%= settings.ami_id %>">
-						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. Or, see <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
-					</div>
-					<div class="form-group">
-						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
-					</div>
-					<div class="form-group">
-						<div class="well">
-							<p class="lead">Amazon Regions</p>
-							<div class="input-group">
-								<div class="col-xs-4">
-									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputSQSRegion" name="sqs_region" placeholder="us-west-2" value="<%= settings.aws_sqs_region %>">
-								</div>
-								<div class="col-xs-4">
-									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
-									<input type="text" class="form-control" id="inputEC2Region" name="ec2_region" placeholder="us-west-2" value="<%= settings.aws_ec2_region %>">
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
-						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
-						<input type="text" class="form-control" id="inputEC2InstanceCount" name="ec2_instance_count" placeholder="20" value="<%= settings.aws_ec2_instance_count %>">
-						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+						<label for="inputJobName">Job Name</label>
+						<input type="text" class="form-control" id="inputJobName" name="name" placeholder="My Blender Job">
 					</div>
 					<div class="form-group">
 						<div class="well">
@@ -108,13 +83,6 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="inputMaxAmount">Max Amount (in dollars)</label>
-						<div class="input-group">
-							<div class="input-group-addon">$</div>
-							<input type="text" class="form-control input-xs" id="inputMaxAmount" name="max_spend_amount" placeholder=".07">
-						</div>
-					</div>
-					<div class="form-group">
 						<div class="input-group">
 							<label for="inputProjectFile">Upload Blender <img src="/images/blender.png" alt="" width="15" height="15" style="margin: -4px 0 0 0" /> Project</label><br>
 							<span class="btn btn-default btn-file">
@@ -122,20 +90,66 @@
 							</span>
 						</div>
 					</div>
-					<br>
-					<!-- <div class="form-group">
-						<label for="inputRenderOutput">Render Output Location</label>
-						<input type="text" class="form-control" id="inputRenderOutput" placeholder="s3://mybucket.blender.frame.bucket">
-					</div> -->
 				</div>
-				<div class="panel-footer clearfix">
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Amazon Settings</h1>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" value="<%= settings.ami_id %>">
+						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. Or, see <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-4">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="us-west-2" value="<%= settings.aws_sqs_region %>">
+								</div>
+								<div class="col-xs-4">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="us-west-2" value="<%= settings.aws_ec2_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20" value="<%= settings.aws_ec2_instance_count %>">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div>
+					<div class="form-group">
+						<label for="inputMaxAmount">Max Amount (in dollars)</label>
+						<div class="input-group">
+							<div class="input-group-addon">$</div>
+							<input type="text" class="form-control input-xs" id="inputMaxAmount" name="max_spend_amount" placeholder=".07">
+						</div>
+					</div>
+					<br>
+				</div>
+				<!-- <div class="panel-footer clearfix">
 					<div class="pull-right">
 						<button type="submit" id="save" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later." value="save">Save</button>
 						<button type="submit" id="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job." value="start">Start</button>
 					</div>
+				</div> -->
+			</div>
+			<div class="form-group clearfix">
+				<div class="pull-right">
+					<button type="submit" id="save" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later." value="save">Save</button>
+					<button type="submit" id="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job." value="start">Start</button>
 				</div>
-			</form>
-		</div>
+			</div>
+		</form>
 
 		<!-- Existing job on S3 -->
 		<!-- TODO: Retrieve a list of jobs in the project bucket. -->

@@ -174,10 +174,15 @@ module.exports = {
 	**/
 	createFileRecord: function(user_id, file, aws_data){
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
-
+			if(!user_id){
+				reject("You must provide a user id.");
+			}
+			if(aws_data.length < 1){
+				reject("Not a valid s3-upload-stream return object.");
+			}
 			var fileParams = {};
 
-			if(file.fd){
+			if(typeof file.fd !== 'undefined'){
 				fileParams = {
 					fileName: aws_data.Key.split('/').pop().split('.').shift(),
 					extension: path.extname(aws_data.Key),
@@ -186,24 +191,26 @@ module.exports = {
 					fileSize: file.size,
 					aws_s3_location: aws_data.Location,
 					aws_s3_bucket: aws_data.Bucket,
-					aws_s3_etag: aws_data.ETag,
+					aws_s3_etag: aws_data.ETag.replace(/['"]+/g, ''),
 					uploadedBy: user_id
 				};
-			} else if(file.filename){
+			} else if(typeof file.filename !== 'undefined'){
 				fileParams = {
-					fileName = aws_data.Key.split('/').pop().split('.').shift(),
-					extension = path.extname(aws_data.Key),
-					originalName = file.filename,
-					contentType: file.type,
-					fileSize = file.byteCount,
+					fileName: aws_data.Key.split('/').pop().split('.').shift(),
+					extension: path.extname(aws_data.Key),
+					originalName: file.filename,
+					contentType: file.headers['content-type'],
+					fileSize: file.byteCount,
 					aws_s3_location: aws_data.Location,
 					aws_s3_bucket: aws_data.Bucket,
-					aws_s3_etag: aws_data.ETag,
+					aws_s3_etag: aws_data.ETag.replace(/['"]+/g, ''),
 					uploadedBy: user_id
 				};
 			}else {
 				reject('Unable to parse the file.');
 			}
+
+			sails.log(fileParams);
 
 			// Create a File model.
 			File.create(fileParams, function(err, newFile) {

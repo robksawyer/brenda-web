@@ -8,14 +8,8 @@
 module.exports = {
 
 	attributes: {
-		ami_id:{
-			type: 'string'
-		},
-		project_name: {
+		name: {
 			type: 'string',
-		},
-		project_filename: {
-			type: 'string'
 		},
 		animation_start_frame:{
 			type: 'integer'
@@ -26,13 +20,16 @@ module.exports = {
 		instance_type:{
 			type: 'string'
 		},
-		ec2_region:{
+		ami_id: {
 			type: 'string'
 		},
-		sqs_region:{
+		aws_ec2_region:{
 			type: 'string'
 		},
-		ec2_instance_count: {
+		aws_sqs_region:{
+			type: 'string'
+		},
+		aws_ec2_instance_count: {
 			type: 'integer'
 		},
 		max_spend_amount: {
