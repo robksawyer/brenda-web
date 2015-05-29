@@ -7,6 +7,7 @@
 
 var util = require('util'),
 	path = require('path'),
+	fs = require('fs'),
 	AWS = require('aws-sdk'),
 	zlib = require('zlib');
 
@@ -87,7 +88,7 @@ module.exports = {
 							sails.log('Project tmp: ' + projectTmpFolder);
 							sails.log('OS tmp: ' + tmpPath);
 							sails.log("Filename w/o ext: " + filenameWithoutExt);
-							sails.log.info("Target path: " + targetPathWithFilename);
+							//sails.log.info("Target path: " + targetPathWithFilename);
 							sails.log.info("Destination path w/Filename: " + destPathWithFilename);
 							sails.log.info("Destination path: " + destPath);
 
@@ -117,17 +118,15 @@ module.exports = {
 									}, function whenDone(err, uploadedFiles){
 										if(err) return res.negotiate(err);
 
-										sails.log(uploadedFiles);
-
-										return res.ok();
+										var uploadedFileLocalPath = uploadedFiles[0].fd;
 										//
 										// Zip the file up and then send to S3
 										//
-										sails.log('AWS Configuration Information');
-										sails.log(sails.config.aws.credentials.accessKeyId);
-										sails.log(sails.config.aws.credentials.secretAccessKey);
-										sails.log(settings.aws_s3_project_bucket);
-										sails.log(settings.aws_s3_region);
+										// sails.log('AWS Configuration Information');
+										// sails.log(sails.config.aws.credentials.accessKeyId);
+										// sails.log(sails.config.aws.credentials.secretAccessKey);
+										// sails.log(settings.aws_s3_project_bucket);
+										// sails.log(settings.aws_s3_region);
 
 										//Setup knox (our Amazon S3 client)
 										//@url https://www.npmjs.com/package/knox
@@ -138,18 +137,16 @@ module.exports = {
 											region: settings.aws_s3_region
 										});*/
 
-										sails.log( req.file('project_file') );
-
 										AWS.config.update(sails.config.aws.credentials);
 
-										var readStream = fs.createReadStream();
+										var readStream = fs.createReadStream(uploadedFileLocalPath);
 										var s3Stream = require('s3-upload-stream')(new AWS.S3());
 										var s3UploadStream = s3Stream.upload({
 														Bucket: settings.aws_s3_project_bucket,
-														Key: sails.config.aws.credentials.accessKeyId,
+														Key: filenameWithoutExt + '.gz', //The filename
 														ACL: "authenticated-read",
 														StorageClass: "REDUCED_REDUNDANCY",
-														ContentType: upload_headers['content-type']
+														//ContentType: upload_headers['content-type']
 													});
 
 										var compress = zlib.createGzip();
@@ -183,7 +180,7 @@ module.exports = {
 											sails.log(details);
 										});
 
-										upload.pipe(compress).pipe(s3UploadStream);
+										readStream.pipe(compress).pipe(s3UploadStream);
 
 										/*var streamReq = streamClient.put(, {
 											'Content-Length': headers['content-length'],
