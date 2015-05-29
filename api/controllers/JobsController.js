@@ -7,9 +7,8 @@
 
 var util = require('util'),
 	path = require('path'),
-	knox = require('knox'),
-	MultiPartUpload = require('knox-mpu'),
-	zipstream = require('zipstream');
+	AWS = require('aws-sdk'),
+	zlib = require('zlib');
 
 module.exports = {
 
@@ -34,6 +33,7 @@ module.exports = {
 
 				var errors = [];
 
+				sails.log(req.method);
 				if (req.method == 'POST'){
 
 					if(!sails.config.aws.credentials.accessKeyId){
@@ -50,6 +50,7 @@ module.exports = {
 					}
 
 					if(errors.length < 1){
+
 						//Check to see if a Blender file was uploaded
 						if(typeof req.file('project_file') !== 'undefined'){
 
@@ -57,12 +58,18 @@ module.exports = {
 								upload_headers = upload.headers,
 								upload_byteCount = upload.byteCount,
 								upload_filename = upload.filename,
-								upload_extension = path.extname(filename),
+								upload_extension = path.extname(upload_filename),
 								upload_validated = true,
-								upload_errorMessages = [],
 								upload_fileParams = {},
 								upload_settings = {
-									allowedTypes: ['application/zip', 'application/octet-stream','application/x-gzip','multipart/x-gzip','multipart/x-zip','application/blender'],
+									allowedTypes: [
+										'application/zip',
+										'application/octet-stream',
+										'application/x-gzip',
+										'multipart/x-gzip',
+										'multipart/x-zip',
+										'application/blender'
+									],
 									maxBytes: 100 * 1024 * 1024
 								};
 
@@ -72,18 +79,21 @@ module.exports = {
 							var tmpPath = sails.os.tmpdir();
 
 							//var targetPathWithFilename = path.resolve( uploadedFiles[0].fd );
-							var filenameWithoutExt = upload_filename.replace(extension, '');
-							var destPathWithFilename = path.resolve( path.join(projectTmpFolder, filenameWithoutExt + '.zip') );
+							var filenameWithoutExt = upload_filename.replace(upload_extension, '');
+							var destPath = path.join(projectTmpFolder);
+							var destPathWithFilename = path.join(projectTmpFolder, filenameWithoutExt + '.zip');
 							var outputZipFilename = filenameWithoutExt + '.zip';
-							//sails.log('Project tmp: ' + projectTmpFolder);
-							//sails.log('OS tmp: ' + tmpPath);
-							//sails.log("Filename w/o ext: " + filenameWithoutExt);
-							//sails.log.info("Target path: " + targetPathWithFilename);
-							//sails.log.info("Destination path: " + destPathWithFilename);
+
+							sails.log('Project tmp: ' + projectTmpFolder);
+							sails.log('OS tmp: ' + tmpPath);
+							sails.log("Filename w/o ext: " + filenameWithoutExt);
+							sails.log.info("Target path: " + targetPathWithFilename);
+							sails.log.info("Destination path w/Filename: " + destPathWithFilename);
+							sails.log.info("Destination path: " + destPath);
 
 							// Check file type
 							if (_.indexOf(upload_settings.allowedTypes, upload_headers['content-type']) === -1) {
-								validated = false;
+								upload_validated = false;
 								errors.push({message: 'Wrong filetype (' + upload_headers['content-type'] + ').'});
 							}
 							// Check file size
@@ -95,113 +105,120 @@ module.exports = {
 							// Upload the file.
 							if (upload_validated) {
 								sails.log.info('File passed validation!');
+
 								//Check to see if the file has a .blend, .gz, or .zip extension.
 								//
-
 								if(upload_extension == '.blend'){
 									sails.log.info('Blender file found. Zipping the file before uploading to S3.');
 
-									//
-									// Zip the file up and then send to S3
-									//
-									sails.log('AWS Configuration Information');
-									sails.log(sails.config.aws.credentials.accessKeyId);
-									sails.log(sails.config.aws.credentials.secretAccessKey);
-									sails.log(settings.aws_s3_project_bucket);
-									sails.log(settings.aws_s3_region);
+									req.file('project_file').upload({
+										dirname: destPath,
+										//saveAs: upload_filename
+									}, function whenDone(err, uploadedFiles){
+										if(err) return res.negotiate(err);
 
-									//Setup knox (our Amazon S3 client)
-									//@url https://www.npmjs.com/package/knox
-									var streamClient = knox.createClient({
-										key: sails.config.aws.credentials.accessKeyId,
-										secret: sails.config.aws.credentials.secretAccessKey,
-										bucket: settings.aws_s3_project_bucket,
-										region: settings.aws_s3_region
-									});
+										sails.log(uploadedFiles);
 
-									//Setup zipstream (Handles zipping the file as it's uploaded/streamed to S3.)
-									//@url https://www.npmjs.com/package/zipstream
-									var outputZipFile = fs.createWriteStream( outputZipFilename );
-									sails.log(outputZipFile);
-									var zip = zipstream.createZip({ level: 1 });
-									sails.log(zip);
+										return res.ok();
+										//
+										// Zip the file up and then send to S3
+										//
+										sails.log('AWS Configuration Information');
+										sails.log(sails.config.aws.credentials.accessKeyId);
+										sails.log(sails.config.aws.credentials.secretAccessKey);
+										sails.log(settings.aws_s3_project_bucket);
+										sails.log(settings.aws_s3_region);
 
-									//Listen to the stream
-									zip.on('data', function(dataStream) {
-										sails.log(dataStream);
-										outputZipFile.write(dataStream);
-									});
+										//Setup knox (our Amazon S3 client)
+										//@url https://www.npmjs.com/package/knox
+										/*var streamClient = knox.createClient({
+											key: sails.config.aws.credentials.accessKeyId,
+											secret: sails.config.aws.credentials.secretAccessKey,
+											bucket: settings.aws_s3_project_bucket,
+											region: settings.aws_s3_region
+										});*/
 
-									//Add the original file (to be zipped)
-									zip.addFile(upload, { name: filename }, function(data) {
-										sails.log("zip.addFile");
-										sails.log(data);
+										sails.log( req.file('project_file') );
 
-										//Let zipstream know that we're finished adding files.
-										zip.finalize(function(bytes){
-											sails.log("Bytes written:");
-											sails.log(bytes);
+										AWS.config.update(sails.config.aws.credentials);
+
+										var readStream = fs.createReadStream();
+										var s3Stream = require('s3-upload-stream')(new AWS.S3());
+										var s3UploadStream = s3Stream.upload({
+														Bucket: settings.aws_s3_project_bucket,
+														Key: sails.config.aws.credentials.accessKeyId,
+														ACL: "authenticated-read",
+														StorageClass: "REDUCED_REDUNDANCY",
+														ContentType: upload_headers['content-type']
+													});
+
+										var compress = zlib.createGzip();
+
+										// Optional configuration
+										//s3UploadStream.maxPartSize(20971520); // 20 MB
+										//s3UploadStream.concurrentParts(5);
+
+										// Handle errors.
+										s3UploadStream.on('error', function (error) {
+											sails.log(error);
 										});
-									});
 
-
-
-									//Create the multipart upload client and pass along the zipstream
-									var uploadClient = new MultiPartUpload({
-										client: streamClient,
-										objectName: outputZipFilename, // Amazon S3 object name
-										stream: outputZipFile,
-										partSize: 1000000 //1mb (default 5mb)
-									}, function (err, body){
-										if(err) {
-											return res.negotiate(err);
-										}
-										// If successful, will return body, containing Location, Bucket, Key, ETag and size of the object
-										/*
-										  {
-										      Location: 'http://Example-Bucket.s3.amazonaws.com/destination.txt',
-										      Bucket: 'Example-Bucket',
-										      Key: 'destination.txt',
-										      ETag: '"3858f62230ac3c915f300c664312c11f-9"',
-										      size: 7242880
-										  }
+										/* Handle progress. Example details object:
+										   { ETag: '"f9ef956c83756a80ad62f54ae5e7d34b"',
+										     PartNumber: 5,
+										     receivedSize: 29671068,
+										     uploadedSize: 29671068 }
 										*/
-										sails.log.info(body);
+										s3UploadStream.on('part', function (details) {
+											sails.log(details);
+										});
+
+										/* Handle upload completion. Example details object:
+										   { Location: 'https://bucketName.s3.amazonaws.com/filename.ext',
+										     Bucket: 'bucketName',
+										     Key: 'filename.ext',
+										     ETag: '"bf2acbedf84207d696c8da7dbb205b9f-5"' }
+										*/
+										s3UploadStream.on('uploaded', function (details) {
+											sails.log(details);
+										});
+
+										upload.pipe(compress).pipe(s3UploadStream);
+
+										/*var streamReq = streamClient.put(, {
+											'Content-Length': headers['content-length'],
+											'Content-Type': headers['content-type'],
+											'x-amz-acl': 'public-read'
+										});*/
+
+										/*streamReq.on('response', function(res){
+											if (200 == res.statusCode) {
+												sails.log('saved to %s', req.url);
+											}
+										});*/
+
+										//Create the zip
+										/*brenda.createZip(res, filenameWithoutExt, targetPathWithFilename, destPathWithFilename,'Created with Brenda web app.').then(
+											function(data){
+												sails.log.info(data);
+
+												res.view('jobs/add_spot',{
+													error: errors,
+													file: data
+												});
+											},
+											function(error){
+												sails.log.error(error);
+												if(err) return res.negotiate(error);
+											}
+										);*/
 									});
-
-									/*var streamReq = streamClient.put(, {
-										'Content-Length': headers['content-length'],
-										'Content-Type': headers['content-type'],
-										'x-amz-acl': 'public-read'
-									});*/
-
-									/*streamReq.on('response', function(res){
-										if (200 == res.statusCode) {
-											sails.log('saved to %s', req.url);
-										}
-									});*/
-
-									//Create the zip
-									/*brenda.createZip(res, filenameWithoutExt, targetPathWithFilename, destPathWithFilename,'Created with Brenda web app.').then(
-										function(data){
-											sails.log.info(data);
-
-											res.view('jobs/add_spot',{
-												error: errors,
-												file: data
-											});
-										},
-										function(error){
-											sails.log.error(error);
-											if(err) return res.negotiate(error);
-										}
-									);*/
 
 								} else if(allowedExtensions.indexOf(extension) > -1) {
 									//
 									//Just upload the zip to S3
 									//
-									req.file('project_file').upload({
+									/*req.file('project_file').upload({
 										adapter: require('skipper-s3-alt'),
 										fileACL: 'public-read',
 										key: sails.config.aws.credentials.accessKeyId,
@@ -224,7 +241,7 @@ module.exports = {
 										};
 
 										// Create a File model.
-										/*File.create(fileParams, function(err, newFile) {
+										File.create(fileParams, function(err, newFile) {
 											if (err) {
 												return res.serverError(err);
 											}
@@ -232,9 +249,9 @@ module.exports = {
 												info: [{message: files.length + ' file(s) uploaded successfully!'}],
 												file: newFile
 											});
-										});*/
+										});
 
-										/*Job.create({
+										Job.create({
 											project_name: "Test Project",
 											project_filename: "blah.gz.zip",
 											work_queue: 'grootfarm-queue'
@@ -243,18 +260,14 @@ module.exports = {
 												sails.log.error(err);
 											}
 											sails.log('Created a job with the name ' + created.name);
-										});*/
+										});
 
-										res.view('jobs/add_spot',{
-													error: errors,
-													file: upload
-												});
-									});
+										return;
+									});*/
+									return res.ok();
 								} else {
 									errors.push([{message: 'Unable to find the extension of the file.'}]);
 								}
-
-
 							} else {
 								errors.push([{message: 'File validation failed.'}]);
 							}

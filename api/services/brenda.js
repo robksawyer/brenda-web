@@ -146,12 +146,7 @@ module.exports = {
 						reject(error);
 					}
 					if(userRecord.settings.length > 0){
-						sails.log(userRecord.settings[0]);
-						if(userRecord.settings[0] !== 'undefined'){
-							fullfill(userRecord.settings[0]);
-						} else {
-							reject('Settings not found.');
-						}
+						fullfill(userRecord.settings[0]);
 					} else {
 						reject('Settings not found.');
 					}
