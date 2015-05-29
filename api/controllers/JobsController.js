@@ -6,7 +6,10 @@
  */
 
 var util = require('util'),
-	path = require('path');
+	path = require('path'),
+	knox = require('knox'),
+	MultiPartUpload = require('knox-mpu'),
+	zipstream = require('zipstream');
 
 module.exports = {
 
@@ -49,80 +52,152 @@ module.exports = {
 					if(errors.length < 1){
 						//Check to see if a Blender file was uploaded
 						if(typeof req.file('project_file') !== 'undefined'){
-							//sails.log.info("==== File Found ====");
-							//sails.log(req.file('project_file'));
-							//sails.log.info("====================");
 
 							var upload = req.file('project_file')._files[0].stream,
-								headers = upload.headers,
-								byteCount = upload.byteCount,
-								filename = upload.filename,
-								extension = path.extname(filename),
-								validated = true,
-								errorMessages = [],
-								fileParams = {},
-								settings = {
+								upload_headers = upload.headers,
+								upload_byteCount = upload.byteCount,
+								upload_filename = upload.filename,
+								upload_extension = path.extname(filename),
+								upload_validated = true,
+								upload_errorMessages = [],
+								upload_fileParams = {},
+								upload_settings = {
 									allowedTypes: ['application/zip', 'application/octet-stream','application/x-gzip','multipart/x-gzip','multipart/x-zip','application/blender'],
 									maxBytes: 100 * 1024 * 1024
 								};
 
+							var allowedExtensions = ['.zip','.gz','.gzip'];
+
+							var projectTmpFolder = path.join(process.cwd() , '.tmp', 'uploads');
+							var tmpPath = sails.os.tmpdir();
+
+							//var targetPathWithFilename = path.resolve( uploadedFiles[0].fd );
+							var filenameWithoutExt = upload_filename.replace(extension, '');
+							var destPathWithFilename = path.resolve( path.join(projectTmpFolder, filenameWithoutExt + '.zip') );
+							var outputZipFilename = filenameWithoutExt + '.zip';
+							//sails.log('Project tmp: ' + projectTmpFolder);
+							//sails.log('OS tmp: ' + tmpPath);
+							//sails.log("Filename w/o ext: " + filenameWithoutExt);
+							//sails.log.info("Target path: " + targetPathWithFilename);
+							//sails.log.info("Destination path: " + destPathWithFilename);
+
 							// Check file type
-							if (_.indexOf(settings.allowedTypes, headers['content-type']) === -1) {
+							if (_.indexOf(upload_settings.allowedTypes, upload_headers['content-type']) === -1) {
 								validated = false;
-								errors.push({message: 'Wrong filetype (' + headers['content-type'] + ').'});
+								errors.push({message: 'Wrong filetype (' + upload_headers['content-type'] + ').'});
 							}
 							// Check file size
-							if (byteCount > settings.maxBytes) {
-								validated = false;
-								errors.push({message: 'Filesize exceeded: ' + byteCount + '/' + settings.maxBytes + '.'});
+							if (upload_byteCount > upload_settings.maxBytes) {
+								upload_validated = false;
+								errors.push({message: 'Filesize exceeded: ' + upload_byteCount + '/' + upload_settings.maxBytes + '.'});
 							}
 
 							// Upload the file.
-							if (validated) {
+							if (upload_validated) {
 								sails.log.info('File passed validation!');
 								//Check to see if the file has a .blend, .gz, or .zip extension.
 								//
 
-								if(extension == '.blend'){
+								if(upload_extension == '.blend'){
+									sails.log.info('Blender file found. Zipping the file before uploading to S3.');
+
 									//
 									// Zip the file up and then send to S3
 									//
-									var tmpPath = sails.os.tmpdir();
-									sails.log(tmpPath);
-									req.file('project_file').upload({
-										dirname: tmpPath //Send to the tmp directory
-									}, function whenDone(err, uploadedFiles){
-										if(err) return res.negotiate(err);
-										/* Example output
-										[ { fd: '/var/folders/95/20c5hsmx7nx2gndxgl8kgng40000gn/T/49286b83-f7ea-427e-8866-26fad3ddbd75.blend',
-										    size: 5140540,
-										    type: 'application/octet-stream',
-										    filename: 'Chinchillax_YellowParticleMesh.blend',
-										    status: 'bufferingOrWriting',
-										    field: 'project_file',
-										    extra: undefined
-										 } ]
-										 */
-										sails.log(util.inspect(uploadedFiles));
-										var destPath = path.join(tmpPath, uploadedFiles[0] + '.zip');
-										brenda.createZip(uploadedFiles[0].fd, destPath,'Created with Brenda web app.').then(
-											function(data){
-												sails.log.error(data);
+									sails.log('AWS Configuration Information');
+									sails.log(sails.config.aws.credentials.accessKeyId);
+									sails.log(sails.config.aws.credentials.secretAccessKey);
+									sails.log(settings.aws_s3_project_bucket);
+									sails.log(settings.aws_s3_region);
 
-												res.view('jobs/add_spot',{
-													error: errors,
-													file: uploadedFiles[0]
-												});
-											},
-											function(error){
-												sails.log.error(error);
-												if(err) return res.negotiate(error);
-											}
-										);
+									//Setup knox (our Amazon S3 client)
+									//@url https://www.npmjs.com/package/knox
+									var streamClient = knox.createClient({
+										key: sails.config.aws.credentials.accessKeyId,
+										secret: sails.config.aws.credentials.secretAccessKey,
+										bucket: settings.aws_s3_project_bucket,
+										region: settings.aws_s3_region
+									});
+
+									//Setup zipstream (Handles zipping the file as it's uploaded/streamed to S3.)
+									//@url https://www.npmjs.com/package/zipstream
+									var outputZipFile = fs.createWriteStream( outputZipFilename );
+									sails.log(outputZipFile);
+									var zip = zipstream.createZip({ level: 1 });
+									sails.log(zip);
+
+									//Listen to the stream
+									zip.on('data', function(dataStream) {
+										sails.log(dataStream);
+										outputZipFile.write(dataStream);
+									});
+
+									//Add the original file (to be zipped)
+									zip.addFile(upload, { name: filename }, function(data) {
+										sails.log("zip.addFile");
+										sails.log(data);
+
+										//Let zipstream know that we're finished adding files.
+										zip.finalize(function(bytes){
+											sails.log("Bytes written:");
+											sails.log(bytes);
+										});
 									});
 
 
-								} else {
+
+									//Create the multipart upload client and pass along the zipstream
+									var uploadClient = new MultiPartUpload({
+										client: streamClient,
+										objectName: outputZipFilename, // Amazon S3 object name
+										stream: outputZipFile,
+										partSize: 1000000 //1mb (default 5mb)
+									}, function (err, body){
+										if(err) {
+											return res.negotiate(err);
+										}
+										// If successful, will return body, containing Location, Bucket, Key, ETag and size of the object
+										/*
+										  {
+										      Location: 'http://Example-Bucket.s3.amazonaws.com/destination.txt',
+										      Bucket: 'Example-Bucket',
+										      Key: 'destination.txt',
+										      ETag: '"3858f62230ac3c915f300c664312c11f-9"',
+										      size: 7242880
+										  }
+										*/
+										sails.log.info(body);
+									});
+
+									/*var streamReq = streamClient.put(, {
+										'Content-Length': headers['content-length'],
+										'Content-Type': headers['content-type'],
+										'x-amz-acl': 'public-read'
+									});*/
+
+									/*streamReq.on('response', function(res){
+										if (200 == res.statusCode) {
+											sails.log('saved to %s', req.url);
+										}
+									});*/
+
+									//Create the zip
+									/*brenda.createZip(res, filenameWithoutExt, targetPathWithFilename, destPathWithFilename,'Created with Brenda web app.').then(
+										function(data){
+											sails.log.info(data);
+
+											res.view('jobs/add_spot',{
+												error: errors,
+												file: data
+											});
+										},
+										function(error){
+											sails.log.error(error);
+											if(err) return res.negotiate(error);
+										}
+									);*/
+
+								} else if(allowedExtensions.indexOf(extension) > -1) {
 									//
 									//Just upload the zip to S3
 									//
@@ -169,26 +244,22 @@ module.exports = {
 											}
 											sails.log('Created a job with the name ' + created.name);
 										});*/
-									});
-									res.view('jobs/add_spot',{
+
+										res.view('jobs/add_spot',{
 													error: errors,
 													file: upload
 												});
+									});
+								} else {
+									errors.push([{message: 'Unable to find the extension of the file.'}]);
 								}
 
 
 							} else {
-								res.view('jobs/add_spot',{
-												error: errors,
-												file: upload
-											});
+								errors.push([{message: 'File validation failed.'}]);
 							}
 						} else {
-							errors.push({message: 'The file could not be found or uploaded.'});
-							res.view('jobs/add_spot',{
-												error: errors,
-												file: upload
-											});
+							errors.push({message: 'The file could not be found or was not uploaded.'});
 						}
 					}
 
@@ -196,12 +267,13 @@ module.exports = {
 
 				if(errors.length < 1){
 					res.view('jobs/add_spot',{
-						settings: settings
+						settings: settings,
+						error: errors
 					});
 				} else {
 					res.view('jobs/add_spot',{
 						settings: settings,
-						errors: errors
+						error: errors
 					});
 				}
 
