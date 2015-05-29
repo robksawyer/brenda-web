@@ -231,7 +231,7 @@ module.exports = {
 					return res.notFound();
 				}
 
-				brenda.createS3Bucket(
+				amazon.createS3Bucket(
 					settingRecord.id, req.param(model_attr), settingRecord.aws_s3_region, req.param('type')
 				).then(
 					function(data){
@@ -298,7 +298,7 @@ module.exports = {
 					return res.serverError(reason);
 				}
 
-				brenda.removeS3Bucket(
+				amazon.removeS3Bucket(
 					found.id, found[req.param('type')], found.aws_s3_region, req.param('type')
 				)
 				.then(
