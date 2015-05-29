@@ -10,7 +10,8 @@
 var path = require('path'),
 	util = require('util'),
 	fs = require('fs'),
-	AWS = require('aws-sdk');
+	AWS = require('aws-sdk'),
+	changeCase = require('change-case');
 
 module.exports = {
 
@@ -185,11 +186,15 @@ module.exports = {
 				reject('You must provide the Job name.');
 			} else {
 				//Clean up the name and get it ready to become the queue name
-				jobName.replace(/\s+/g, '-').toLowerCase();
+				//Add dashes in place of spaces
+				jobName = changeCase.paramCase(jobName);
 
 				//Generate a random hash and append it to the name.
 				var randString = tools.makeid(6);
-				jobName += '-' + randString.toLowerCase();
+				jobName += '-' + randString;
+
+				//Cover to lowercase
+				jobName = changeCase.lowerCase(jobName);
 			}
 
 			if(!region){

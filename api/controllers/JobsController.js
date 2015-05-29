@@ -82,8 +82,16 @@ module.exports = {
 													sails.log(fileRecord.id);
 
 													//Create a work queue and retrieve the name to pass along to the job record.
-													amazon.createSQSWorkQueue(settings.aws_s3_render_bucket).then(
+													amazon.createSQSWorkQueue(req.param('name'), settings.aws_s3_render_bucket).then(
 														function(queue){
+															/*
+															Example response:
+															{
+																ResponseMetadata: {
+																	RequestId: '8738b6b7-17db-5fd4-900b-fb5536348ace'
+																},
+																QueueUrl: 'https://sqs.us-west-2.amazonaws.com/987044710008/chinchillax-qm7a0h'
+															}*/
 															sails.log('Amazon SQS work queue created!');
 															sails.log(queue);
 

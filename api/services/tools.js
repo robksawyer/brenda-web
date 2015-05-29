@@ -11,8 +11,9 @@ module.exports = {
 
 	/**
 	*
-	* Create a unique id for the buckets if needed.
-	*
+	* Creates a unique id
+	* @param length: integer The length to make the id.
+	* @return string
 	**/
 	makeid: function(length) {
 		if(!length) {
