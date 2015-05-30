@@ -6,7 +6,9 @@
  */
 
 var util = require('util'),
-	path = require('path');
+	path = require('path'),
+	fs = require('fs'),
+	busboy = require('connect-busboy');
 
 module.exports = {
 
@@ -53,130 +55,150 @@ module.exports = {
 						//Check to see if a Blender file was uploaded
 						if(typeof req.file('project_file') !== 'undefined') {
 
-							var fileStream = req.file('project_file')._files[0].stream,
-								filename = fileStream.filename,
-								extension = path.extname(filename),
-								allowedExtensions = ['.zip','.gz','.gzip'];
+							//pipe the request to busboy
+							req.pipe(req.busboy);
 
-							errors = uploader.validate(fileStream);
+							req.busboy.on('file', function (fieldname, file, filename) {
 
-							// Upload the file.
-							if (errors.length < 1) {
-								sails.log.info('File passed validation!');
+								console.log("Uploading: " + filename);
 
-								//Check to see if the file has a .blend, .gz, or .zip extension.
-								//
-								if(extension == '.blend'){
-									sails.log.info('Blender file found. Zipping the file before uploading to S3.');
+								var projectTmpFolder = path.join(process.cwd(), '.tmp', 'uploads');
+								var tmpPath = sails.os.tmpdir();
 
-									//Create the zip
-									uploader.createZipAndUploadToS3(fileStream, settings.aws_s3_project_bucket).then(
-										function(fileData){
-											sails.log('Promised fullfilled.');
-											sails.log.info(fileData);
+								var filenameWithoutExt = filename.replace(extension, '');
+								var destPath = path.join(projectTmpFolder);
+								//var destPathWithFilename = path.join(projectTmpFolder, filenameWithoutExt + '.gz');
+								//var outputZipFilename = filenameWithoutExt + '.gz';
 
-											//Create the file record to store details about the file
-											uploader.createFileRecord(req.user.id, fileStream, fileData).then(
-												function(fileRecord){
-													sails.log('File record saved.');
-													sails.log(fileRecord.id);
+								var fileStream = fs.createWriteStream( path.join(projectTmpFolder, filename) ); //req.file('project_file')._files[0].stream,
+									filename = filename,
+									extension = path.extname(filename),
+									allowedExtensions = ['.zip','.gz'];
 
-													//Create a work queue and retrieve the name to pass along to the job record.
-													amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
-														function(queueRecord){
-															sails.log('Amazon SQS work queue created!');
-															sails.log(queueRecord);
+								errors = uploader.validate(fileStream);
 
-															//Create and save the job to the database
-															Jobs.create({
-																name: req.param('name'),
-																files: [fileRecord.id],
-																owner: req.user.id,
-																animation_start_frame: req.param('animation_start_frame'),
-																animation_end_frame: req.param('animation_end_frame'),
-																animation_total_frames: req.param('animation_end_frame') - req.param('animation_start_frame') + 1,
-																ami_id: req.param('ami_id'),
-																instance_type: req.param('instance_type'),
-																aws_ec2_region: req.param('aws_ec2_region'),
-																aws_sqs_region: req.param('aws_sqs_region'),
-																aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
-																max_spend_amount: req.param('max_spend_amount'),
-																queue: queueRecord.id
-															}).exec(function createJob(err, jobData){
-																if(err){
-																	sails.log.error(err);
-																	return res.negotiate(err);
-																}
-																sails.log('Created a job with the name ' + jobData.name);
-																req.flash('success', 'Spot instance job ' + jobData.name + ' created successfully!');
-																res.redirect('jobs/submit/' + jobData.id);
-															});
-														},
-														function(err){
-															sails.log.error(err);
-															return res.negotiate(err);
-														}
-													);
+								// Upload the file.
+								if (errors.length < 1) {
+									sails.log.info('File passed validation!');
 
-												},
-												function(err) {
-													sails.log.error(err);
-													return res.negotiate(err);
-												}
-											);
-										},
-										function(err){
-											sails.log.error(err);
-											return res.negotiate(err);
-										});
-
-								} else if(allowedExtensions.indexOf(extension) > -1) {
+									//Check to see if the file has a .blend, .gz, or .zip extension.
 									//
-									//Just upload the zip to S3
-									//
-									req.file('project_file').upload({
-										adapter: require('skipper-s3-alt'),
-										fileACL: 'public-read',
-										key: sails.config.aws.credentials.accessKeyId,
-										secret: sails.config.aws.credentials.secretAccessKey,
-										bucket: settings.aws_s3_project_bucket,
-										region: settings.aws_s3_region
-									}, function whenDone(err, uploadedFiles){
-										if(err) return res.negotiate(err);
+									if(extension == '.blend'){
+										sails.log.info('Blender file found. Zipping the file before uploading to S3.');
 
-										uploader.createFileRecord(uploadedFiles, settings.aws_s3_project_bucket).then(
-											function(fileRecord){
-												res.view('jobs/add_spot',{
-													error: errors,
-													settings: settings,
-													file: fileRecord
-												});
-											}, function(reason){
-												req.flash('message', reason);
-												return res.negotiate(reason);
+										sails.log(req.files);
+										sails.log(req.params.all());
+
+										//Create the zip
+										uploader.createZipAndUploadToS3(fileStream, settings.aws_s3_project_bucket).then(
+											function(fileData){
+												sails.log('Promised fullfilled.');
+												sails.log.info(fileData);
+
+												//Create the file record to store details about the file
+												uploader.createFileRecord(req.user.id, fileStream, fileData).then(
+													function(fileRecord){
+														sails.log('File record saved.');
+														sails.log(fileRecord.id);
+
+														//Create a work queue and retrieve the name to pass along to the job record.
+														amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
+															function(queueRecord){
+																sails.log('Amazon SQS work queue created!');
+																sails.log(queueRecord);
+
+																//Create and save the job to the database
+																Jobs.create({
+																	name: req.param('name'),
+																	files: [fileRecord.id],
+																	owner: req.user.id,
+																	animation_start_frame: req.param('animation_start_frame'),
+																	animation_end_frame: req.param('animation_end_frame'),
+																	animation_total_frames: req.param('animation_end_frame') - req.param('animation_start_frame') + 1,
+																	ami_id: req.param('ami_id'),
+																	instance_type: req.param('instance_type'),
+																	aws_ec2_region: req.param('aws_ec2_region'),
+																	aws_sqs_region: req.param('aws_sqs_region'),
+																	aws_ec2_instance_count: req.param('aws_ec2_instance_count'),
+																	max_spend_amount: req.param('max_spend_amount'),
+																	queue: queueRecord.id
+																}).exec(function createJob(err, jobData){
+																	if(err){
+																		sails.log.error(err);
+																		return res.negotiate(err);
+																	}
+																	sails.log('Created a job with the name ' + jobData.name);
+																	req.flash('success', 'Spot instance job ' + jobData.name + ' created successfully!');
+																	res.redirect('jobs/submit/' + jobData.id);
+																});
+															},
+															function(err){
+																sails.log.error(err);
+																return res.negotiate(err);
+															}
+														);
+
+													},
+													function(err) {
+														sails.log.error(err);
+														return res.negotiate(err);
+													}
+												);
+											},
+											function(err){
+												sails.log.error(err);
+												return res.negotiate(err);
 											});
 
-										/*Job.create({
-											project_name: "Test Project",
-											project_filename: "blah.gz.zip",
-											work_queue: 'grootfarm-queue'
-										}).exec(function createJob(err, created){
-											if(err){
-												sails.log.error(err);
-											}
-											sails.log('Created a job with the name ' + created.name);
-										});*/
+									} else if(allowedExtensions.indexOf(extension) > -1) {
+										//
+										//Just upload the zip to S3
+										//
+										req.file('project_file').upload({
+											adapter: require('skipper-s3-alt'),
+											fileACL: 'public-read',
+											key: sails.config.aws.credentials.accessKeyId,
+											secret: sails.config.aws.credentials.secretAccessKey,
+											bucket: settings.aws_s3_project_bucket,
+											region: settings.aws_s3_region
+										}, function whenDone(err, uploadedFiles){
+											if(err) return res.negotiate(err);
 
-									});
+											uploader.createFileRecord(uploadedFiles, settings.aws_s3_project_bucket).then(
+												function(fileRecord){
+													res.view('jobs/add_spot',{
+														error: errors,
+														settings: settings,
+														file: fileRecord
+													});
+												}, function(reason){
+													req.flash('message', reason);
+													return res.negotiate(reason);
+												});
 
-								} else {
-									req.flash('message', 'Unable to find the extension of the file.');
-									errors.push([{message: 'Unable to find the extension of the file.'}]);
-									res.view('jobs/add_spot',{
-										settings: settings,
-										error: errors
-									});
-								}
+											/*Job.create({
+												project_name: "Test Project",
+												project_filename: "blah.gz.zip",
+												work_queue: 'grootfarm-queue'
+											}).exec(function createJob(err, created){
+												if(err){
+													sails.log.error(err);
+												}
+												sails.log('Created a job with the name ' + created.name);
+											});*/
+
+										});
+
+									} else {
+										req.flash('message', 'Unable to find the extension of the file.');
+										errors.push([{message: 'Unable to find the extension of the file.'}]);
+										res.view('jobs/add_spot',{
+											settings: settings,
+											error: errors
+										});
+									}
+								}); //end busboy
+
 							} else {
 								req.flash('message', 'File validation failed.');
 								errors.push([{message: 'File validation failed.'}]);

@@ -58,14 +58,14 @@ module.exports = {
 
 		var filenameWithoutExt = filename.replace(extension, '');
 		var destPath = path.join(projectTmpFolder);
-		var destPathWithFilename = path.join(projectTmpFolder, filenameWithoutExt + '.zip');
-		var outputZipFilename = filenameWithoutExt + '.zip';
+		//var destPathWithFilename = path.join(projectTmpFolder, filenameWithoutExt + '.gz');
+		//var outputZipFilename = filenameWithoutExt + '.gz';
 
 		sails.log('Project tmp: ' + projectTmpFolder);
 		sails.log('OS tmp: ' + tmpPath);
 		sails.log("Filename w/o ext: " + filenameWithoutExt);
-		sails.log.info("Destination path w/Filename: " + destPathWithFilename);
-		sails.log.info("Destination path: " + destPath);
+		//sails.log.info("Destination path w/Filename: " + destPathWithFilename);
+		//sails.log.info("Destination path: " + destPath);
 
 		// Check file type
 		if (_.indexOf(settings.allowedTypes, headers['content-type']) === -1) {
@@ -108,7 +108,7 @@ module.exports = {
 
 			var s3UploadStream = s3Stream.upload({
 							Bucket: bucket,
-							Key: filenameNoExt + '.gzip', //filename
+							Key: filenameNoExt + '.gz', //filename
 							ACL: "authenticated-read",
 							StorageClass: "REDUCED_REDUNDANCY"
 						});
