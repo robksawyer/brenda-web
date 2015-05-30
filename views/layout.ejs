@@ -61,54 +61,40 @@
 	<body>
 		<%- partial('./partials/nav.ejs') %>
 
-		<% if(typeof error !== 'undefined' && error.length > 0){ %>
-			<!-- Error Handling -->
-			<% if(typeof error.Errors !== 'undefined' && error.Errors.length > 0) { %>
-				<!-- sails-hook-validation errors -->
-				<% _.forEach(error.Errors, function(n){ %>
-					<div class="alert alert-dismissible alert-danger" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<%= error.Error[n].message %>
-					</div>
-				<% }); %>
-			<% } else { %>
-				<% _.forEach(error, function(n){ %>
-					<div class="alert alert-dismissible alert-danger" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<% if(typeof error[n] !== 'undefined' && typeof error[n].message !== 'undefined'){ %>
-								<%= error[n].message %>
-						<% } %>
-					</div>
-				<% }); %>
-			<% } %>
-			<!-- /Error Handling -->
+		<% if(typeof error !== 'undefined' && typeof error.Errors !== 'undefined' && error.Errors.length > 0) { %>
+			<!-- sails-hook-validation errors -->
+			<% _.forEach(error.Errors, function(n){ %>
+				<div class="alert alert-danger" role="alert">
+					<% error.Error[n].message %>
+				</div>
+			<% }); %>
 		<% } %>
-
-		<% if(typeof info !== 'undefined' && info.length > 0){ %>
-			<!-- Notification Handling -->
-				<% _.forEach(info, function(n){ %>
-					<div class="alert alert-dismissible alert-info" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<%= info[0].message %>
-						<% if(typeof info[n] !== 'undefined' && typeof info[n].message !== 'undefined'){ %>
-							<%= info[n].message %>
-						<% } %>
-					</div>
-				<% }); %>
-			<!-- /Notification Handling -->
+		<% if (typeof messages !== 'undefined' && messages['error'].length > 0) { %>
+			<div class="alert alert-danger" role="alert">
+			<% messages['error'].forEach(function(message) { %>
+				<%= message %>
+				<br>
+			<% }); %>
+			</div>
+			<br>
 		<% } %>
-
-		<% if(typeof success !== 'undefined' && success.length > 0){ %>
-			<!-- Success Handling -->
-				<% _.forEach(success, function(n){ %>
-					<div class="alert alert-dismissible alert-success" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<% if(typeof success[n] !== 'undefined' && typeof success[n].message !== 'undefined'){ %>
-							<%= success[n].message %>
-						<% } %>
-					</div>
-				<% }); %>
-			<!-- /Success Handling -->
+		<% if (typeof messages !== 'undefined' && messages['warning'].length > 0) { %>
+			<div class="alert alert-warning" role="alert">
+			<% messages['warning'].forEach(function(message) { %>
+				<%= message %>
+				<br>
+			<% }); %>
+			</div>
+			<br>
+		<% } %>
+		<% if (typeof messages !== 'undefined' && messages['success'].length > 0) { %>
+			<div class="alert alert-success" role="alert">
+			<% messages['success'].forEach(function(message) { %>
+				<%= message %>
+				<br>
+			<% }); %>
+			</div>
+			<br>
 		<% } %>
 
 		<div class="container-fluid">
@@ -136,7 +122,7 @@
 			-->
 
 			<!--TEMPLATES-->
-			
+
 			<!--TEMPLATES END-->
 
 		</div> <!-- /container -->

@@ -50,7 +50,7 @@ module.exports.policies = {
 	// }
 
 	//https://github.com/kasperisager/sails-generate-auth
-	'*': ['passport', 'sessionAuth'],
+	'*': ['passport', 'sessionAuth', 'flash'],
 
 	'auth': {
 		'*': ['passport']

@@ -107,18 +107,15 @@ module.exports = {
 																	return res.negotiate(err);
 																}
 																sails.log('Created a job with the name ' + jobData.name);
-																res.view('jobs/add_spot',{
-																	error: errors,
-																	success: [{message: 'Created a job with the name ' + jobData.name }],
-																	settings: settings,
-																	job: jobData,
-																	file: fileData
-																});
+																req.flash('message', 'Spot instance job ' + jobData.name + ' created successfully!');
+																res.redirect('jobs/submit_job/' + jobData.id);
 															});
 														},
 														function(err){
-
-														});
+															sails.log.error(err);
+															return res.negotiate(err);
+														}
+													);
 
 												},
 												function(err) {
@@ -154,6 +151,7 @@ module.exports = {
 													file: fileRecord
 												});
 											}, function(reason){
+												req.flash('message', reason);
 												return res.negotiate(reason);
 											});
 
@@ -171,6 +169,7 @@ module.exports = {
 									});
 
 								} else {
+									req.flash('message', 'Unable to find the extension of the file.');
 									errors.push([{message: 'Unable to find the extension of the file.'}]);
 									res.view('jobs/add_spot',{
 										settings: settings,
@@ -178,6 +177,7 @@ module.exports = {
 									});
 								}
 							} else {
+								req.flash('message', 'File validation failed.');
 								errors.push([{message: 'File validation failed.'}]);
 								res.view('jobs/add_spot',{
 									settings: settings,
@@ -185,6 +185,7 @@ module.exports = {
 								});
 							}
 						} else {
+							req.flash('message', 'The file could not be found or was not uploaded.');
 							errors.push({message: 'The file could not be found or was not uploaded.'});
 							res.view('jobs/add_spot',{
 								settings: settings,
