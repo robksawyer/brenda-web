@@ -94,6 +94,7 @@ module.exports = {
 																owner: req.user.id,
 																animation_start_frame: req.param('animation_start_frame'),
 																animation_end_frame: req.param('animation_end_frame'),
+																animation_total_frames: req.param('animation_end_frame') - req.param('animation_start_frame') + 1,
 																ami_id: req.param('ami_id'),
 																instance_type: req.param('instance_type'),
 																aws_ec2_region: req.param('aws_ec2_region'),
@@ -107,8 +108,8 @@ module.exports = {
 																	return res.negotiate(err);
 																}
 																sails.log('Created a job with the name ' + jobData.name);
-																req.flash('message', 'Spot instance job ' + jobData.name + ' created successfully!');
-																res.redirect('jobs/submit_job/' + jobData.id);
+																req.flash('success', 'Spot instance job ' + jobData.name + ' created successfully!');
+																res.redirect('jobs/submit/' + jobData.id);
 															});
 														},
 														function(err){
@@ -220,8 +221,26 @@ module.exports = {
 
 	},
 
-	created: function(req, res){
+	submit: function(req, res){
+		if( typeof req.param('id') !== 'undefined' ){
+			//Search for the job details
+			Jobs.find({id: req.param('id'), owner: req.user.id}).populate('queue').exec( function(err, jobRecords){
+				if(err){
+					req.flash('error', err);
+					res.serverError(err);
+				}
 
+				sails.log(jobRecords);
+
+				res.view('jobs/submit', {
+					job: jobRecords[0],
+					textParams: req.params.all()
+				});
+			});
+
+		} else {
+			return res.notFound();
+		}
 	},
 
 	create_spot: function (req, res){

@@ -33,19 +33,19 @@ var User = {
       defaultsTo: 0
     },
     settings: {
-      collection: 'Settings',
+      collection: 'settings',
       via: 'owner'
     },
     jobs: {
-      collection: 'Jobs',
+      collection: 'jobs',
       via: 'owner'
     },
     files: {
-      collection: 'File',
+      collection: 'file',
       via: 'uploadedBy'
     },
     queues: {
-      collection: 'Queue',
+      collection: 'queue',
       via: 'owner'
     }
   }

@@ -45,7 +45,7 @@ module.exports = {
 			defaultsTo: ''
 		},
 		owner:{
-			model: 'User',
+			model: 'user',
 			via: 'settings'
 		}
 	}

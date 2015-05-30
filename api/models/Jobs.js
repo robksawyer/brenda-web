@@ -17,6 +17,9 @@ module.exports = {
 		animation_end_frame:{
 			type: 'integer'
 		},
+		animation_total_frames:{
+			type: 'integer'
+		},
 		instance_type:{
 			type: 'string'
 		},
@@ -36,14 +39,14 @@ module.exports = {
 			type: 'float'
 		},
 		queue: {
-			model: 'Queue'
+			model: 'queue'
 		},
 		files: {
-			model: 'File',
+			model: 'file',
 			via: 'job'
 		},
 		owner: {
-			model: 'User',
+			model: 'user',
 			via: 'jobs'
 		}
 	}
