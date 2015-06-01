@@ -99,6 +99,81 @@ module.exports = {
 
 	/**
 	*
+	* Handles processing a zip file that is uploaded.
+	* @param req: object The request object
+	* @param settings: Settings A settings record
+	* @return promise
+	*
+	**/
+	processZipFile: function(req, settings){
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			//
+			//Just upload the zip to S3
+			//
+			req.file('project_file').upload({
+
+				adapter: require('skipper-s3-alt'),
+				fileACL: 'authenticated-read',
+				key: sails.config.aws.credentials.accessKeyId,
+				secret: sails.config.aws.credentials.secretAccessKey,
+				bucket: settings.aws_s3_project_bucket,
+				region: settings.aws_s3_region
+
+			}, function whenDone(err, uploadedFiles){
+				if(err) {
+					reject(err);
+				}
+
+				//TODO: Check the uploadedFiles and then ensure that createFileRecord can handle this type of object.
+				sails.log(uploadedFiles);
+				//fileData = the Amazon S3 response data
+
+				return false;
+
+				//Create the file record to store details about the file
+				uploader.createFileRecord(req.user.id, uploadedFiles, fileData).then(
+					function(fileRecord){
+						sails.log('File record ' + fileRecord.id + ' created and saved.');
+						//sails.log(fileRecord);
+
+						//Create a work queue and retrieve the name to pass along to the job record.
+						amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
+							function(queueRecord){
+								sails.log('Amazon SQS work queue and Queue record created and saved.');
+								//sails.log(queueRecord);
+
+								//Finally! Create the Job Record.
+								brenda.createJobRecord(req.user.id, req.params.all(), fileRecord.id, queueRecord.id)
+									.then(function(jobRecord){
+										sails.log('Job record with the name ' + jobRecord.name + ' created.');
+										//sails.log(jobRecord);
+
+										fullfill(jobRecord);
+									},
+									function(err){
+										reject(err);
+									});
+							},
+							function(err){
+								sails.log.error(err);
+								reject(err);
+							}
+						);
+					},
+					function(err) {
+						sails.log.error(err);
+						reject(err);
+					}
+				);
+
+			});
+		});
+		return promise;
+	},
+
+	/**
+	*
 	* Handles creating a job record
 	* @param user_id: integer The logged in user
 	* @param params: object

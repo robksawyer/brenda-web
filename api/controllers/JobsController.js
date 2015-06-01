@@ -68,6 +68,7 @@ module.exports = {
 								if(extension == '.blend'){
 									sails.log.info('Blender file found. Zipping the file before uploading to S3.');
 
+									//Process the file input
 									brenda.processBlenderFile(req, fileStream, settings).then(
 										function(jobRecord){
 											req.flash('success', 'Spot instance job ' + jobRecord.name + ' created successfully!');
@@ -79,43 +80,21 @@ module.exports = {
 									);
 
 								} else if(allowedExtensions.indexOf(extension) > -1) {
-									//
-									//Just upload the zip to S3
-									//
-									req.file('project_file').upload({
-										adapter: require('skipper-s3-alt'),
-										fileACL: 'public-read',
-										key: sails.config.aws.credentials.accessKeyId,
-										secret: sails.config.aws.credentials.secretAccessKey,
-										bucket: settings.aws_s3_project_bucket,
-										region: settings.aws_s3_region
-									}, function whenDone(err, uploadedFiles){
-										if(err) return res.negotiate(err);
 
-										uploader.createFileRecord(uploadedFiles, settings.aws_s3_project_bucket).then(
-											function(fileRecord){
-												res.view('jobs/add_spot',{
-													error: errors,
-													settings: settings,
-													file: fileRecord
-												});
-											}, function(reason){
-												req.flash('message', reason);
-												return res.negotiate(reason);
+									//Process the file input
+									brenda.processZipFile( req, settings ).then(
+										function(fileRecord){
+											res.view('jobs/add_spot',{
+												error: errors,
+												settings: settings,
+												file: fileRecord
 											});
-
-										/*Job.create({
-											project_name: "Test Project",
-											project_filename: "blah.gz.zip",
-											work_queue: 'grootfarm-queue'
-										}).exec(function createJob(err, created){
-											if(err){
-												sails.log.error(err);
-											}
-											sails.log('Created a job with the name ' + created.name);
-										});*/
-
-									});
+										},
+										function(err){
+											req.flash('message', reason);
+											return res.negotiate(err);
+										}
+									);
 
 								} else {
 									req.flash('message', 'Unable to find the extension of the file.');
