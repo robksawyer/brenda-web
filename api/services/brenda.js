@@ -24,6 +24,120 @@ module.exports = {
 
 	/**
 	*
+	* Handles processing a .blend file when it's uploaded.
+	* @param req
+	* @param fileStream
+	* @param settings
+	* @return promise
+	**/
+	processBlenderFile: function(req, fileStream, settings){
+		sails.log("Processing Blender File...");
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(typeof req === 'undefined'){
+				reject("Request value not found");
+			}
+
+			if(typeof settings === 'undefined'){
+				reject("Settings value not found");
+			}
+
+			if(typeof fileStream === 'undefined'){
+				reject("File stream value not found");
+			}
+
+			//Create the zip
+			uploader.createZipAndUploadToS3(fileStream, settings.aws_s3_project_bucket).then(
+				function(fileData){
+					sails.log('Zip created and uploaded to Amazon S3.');
+
+					//Create the file record to store details about the file
+					uploader.createFileRecord(req.user.id, fileStream, fileData).then(
+						function(fileRecord){
+							sails.log('File record ' + fileRecord.id + ' created and saved.');
+							//sails.log(fileRecord);
+
+							//Create a work queue and retrieve the name to pass along to the job record.
+							amazon.createSQSWorkQueue(req.user.id, req.param('name'), settings.aws_s3_render_bucket).then(
+								function(queueRecord){
+									sails.log('Amazon SQS work queue and Queue record created and saved.');
+									//sails.log(queueRecord);
+
+									//Finally! Create the Job Record.
+									brenda.createJobRecord(req.user.id, req.params.all(), fileRecord.id, queueRecord.id)
+										.then(function(jobRecord){
+											sails.log('Job record with the name ' + jobRecord.name + ' created.');
+											//sails.log(jobRecord);
+
+											fullfill(jobRecord);
+										},
+										function(err){
+											reject(err);
+										});
+								},
+								function(err){
+									sails.log.error(err);
+									reject(err);
+								}
+							);
+						},
+						function(err) {
+							sails.log.error(err);
+							reject(err);
+						}
+					);
+				},
+				function(err){
+					sails.log.error(err);
+					reject(err);
+				}
+			);
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Handles creating a job record
+	* @param user_id: integer The logged in user
+	* @param params: object
+	* @param fileRecord_id: File record id
+	* @param queueRecord_id: Queue record id
+	* @return promise
+	**/
+	createJobRecord: function(user_id, params, fileRecord_id, queueRecord_id){
+		sails.log('Creating Job Record...');
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			//Create and save the job to the database
+			Jobs.create({
+				name: params.name,
+				files: [fileRecord_id],
+				owner: user_id,
+				animation_start_frame: params.animation_start_frame,
+				animation_end_frame: params.animation_end_frame,
+				animation_total_frames: params.animation_end_frame - params.animation_start_frame + 1,
+				ami_id: params.ami_id,
+				instance_type: params.instance_type,
+				aws_ec2_region: params.aws_ec2_region,
+				aws_sqs_region: params.aws_sqs_region,
+				aws_ec2_instance_count: params.aws_ec2_instance_count,
+				max_spend_amount: params.max_spend_amount,
+				queue: queueRecord_id
+			}).exec(function createJob(err, jobData){
+				if(err){
+					sails.log.error(err);
+					reject(err);
+				}
+				fullfill(jobData);
+			});
+		});
+		return promise;
+	},
+
+	/**
+	*
 	* Find the Brenda version by pulling the data from the setup.py file.
 	*
 	**/

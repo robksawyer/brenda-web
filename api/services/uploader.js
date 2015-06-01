@@ -175,9 +175,15 @@ module.exports = {
 	createFileRecord: function(user_id, file, aws_data){
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			if(!user_id){
+				sails.log.error("You must provide a user id.");
 				reject("You must provide a user id.");
 			}
+			if(!file){
+				sails.log.error("You must provide a valid file record.");
+				reject("You must provide a valid file record.");
+			}
 			if(aws_data.length < 1){
+				sails.log.error("Not a valid s3-upload-stream return object.");
 				reject("Not a valid s3-upload-stream return object.");
 			}
 			var fileParams = {};
