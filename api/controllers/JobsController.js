@@ -71,12 +71,32 @@ module.exports = {
 								//Process the file input
 								brenda.processBlenderFile(req, fileStream, settings).then(
 									function(jobRecord){
-										req.flash('success', 'Spot instance job ' + jobRecord.name + ' created successfully!');
+										FlashService.success(req, 'Spot instance job ' + jobRecord.name + ' created successfully!');
 										res.redirect('jobs/submit/' + jobRecord.id);
 									},
 									function(err){
-										req.flash('error', err);
-										return res.negotiate(err);
+										if(typeof err.code !== 'undefined'){
+
+											switch(err.code){
+
+												case "UnknownEndpoint":
+													FlashService.error(req, err.message);
+													res.view('jobs/add_spot',{
+														settings: settings,
+														messages: {error: [err.message]}
+													});
+													break;
+
+												default:
+													FlashService.error(req, err);
+													return res.negotiate(err);
+													break;
+											}
+
+										} else {
+											FlashService.error(req, err);
+											return res.negotiate(err);
+										}
 									}
 								);
 
@@ -90,25 +110,25 @@ module.exports = {
 										res.redirect('jobs/submit/' + jobRecord.id);
 									},
 									function(err){
-										req.flash('error', err);
+										FlashService.error(req, err);
 										return res.negotiate(err);
 									}
 								);
 
 							} else {
-								req.flash('error', 'Unable to find the extension of the file.');
+								FlashService.error(req, 'Unable to find the extension of the file.');
 								res.view('jobs/add_spot',{
 									settings: settings
 								});
 							}
 						} else {
-							req.flash('error', 'File validation failed.');
+							FlashService.error(req, 'File validation failed.');
 							res.view('jobs/add_spot',{
 								settings: settings
 							});
 						}
 					} else {
-						req.flash('error', 'The file could not be found or was not uploaded.');
+						FlashService.error(req, 'The file could not be found or was not uploaded.');
 						res.view('jobs/add_spot',{
 							settings: settings
 						});
@@ -133,7 +153,7 @@ module.exports = {
 		},
 		function(err){
 			sails.log.error(err);
-			req.flash('error', err);
+			FlashService.error(req, err);
 			return res.notFound();
 		});
 
@@ -144,7 +164,7 @@ module.exports = {
 			//Search for the job details
 			Jobs.find({id: req.param('id'), owner: req.user.id}).populate('queue').exec( function(err, jobRecords){
 				if(err){
-					req.flash('error', err);
+					FlashService.error(req, err);
 					res.serverError(err);
 				}
 

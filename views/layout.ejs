@@ -69,7 +69,7 @@
 				</div>
 			<% }); %>
 		<% } %>
-		<% if (typeof messages !== 'undefined' && messages['error'].length > 0) { %>
+		<% if (typeof messages !== 'undefined' && typeof messages['error'] !== 'undefined' && messages['error'].length > 0) { %>
 			<div class="alert alert-danger" role="alert">
 			<% messages['error'].forEach(function(message) { %>
 				<%= message %>
@@ -78,7 +78,7 @@
 			</div>
 			<br>
 		<% } %>
-		<% if (typeof messages !== 'undefined' && messages['warning'].length > 0) { %>
+		<% if (typeof messages !== 'undefined' && typeof messages['warning'] !== 'undefined' && messages['warning'].length > 0) { %>
 			<div class="alert alert-warning" role="alert">
 			<% messages['warning'].forEach(function(message) { %>
 				<%= message %>
@@ -87,7 +87,7 @@
 			</div>
 			<br>
 		<% } %>
-		<% if (typeof messages !== 'undefined' && messages['success'].length > 0) { %>
+		<% if (typeof messages !== 'undefined' && typeof messages['success'] !== 'undefined' && messages['success'].length > 0) { %>
 			<div class="alert alert-success" role="alert">
 			<% messages['success'].forEach(function(message) { %>
 				<%= message %>
@@ -122,7 +122,7 @@
 			-->
 
 			<!--TEMPLATES-->
-			
+
 			<!--TEMPLATES END-->
 
 		</div> <!-- /container -->

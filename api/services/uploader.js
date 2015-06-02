@@ -120,9 +120,37 @@ module.exports = {
 			//s3UploadStream.concurrentParts(5);
 
 			// Handle errors.
-			s3UploadStream.on('error', function (error) {
-				sails.log(error);
-				reject(error);
+			// TODO: JSON.parse doesn't seem to be working on this error.
+			//     	 I can't figure out how to get the freaking message from the error.
+			s3UploadStream.on('error', function (err) {
+				err = err.replace(err.substr(0,42), '');
+				err = JSON.parse(err);
+				/*
+				[ 'Failed to create a multipart upload on S3',
+				  ' {"message"',
+			`		  '"Inaccessible host',
+				  ' `s3-us-west-2.amazonaws.com\'. This service may not be available in the `us-west-2\' region.","code"',
+				  '"UnknownEndpoint","region"',
+				  '"us-west-2","hostname"',
+				  '"s3-us-west-2.amazonaws.com","retryable"',
+				  'true,"originalError"',
+				  '{"message"',
+				  '"getaddrinfo ENOTFOUND s3-us-west-2.amazonaws.com","code"',
+				  '"NetworkingError","errno"',
+				  '"ENOTFOUND","syscall"',
+				  '"getaddrinfo","hostname"',
+				  '"s3-us-west-2.amazonaws.com","region"',
+				  '"us-west-2","retryable"',
+				  'true,"time"',
+				  '"2015-06-01T18',
+				  '46',
+				  '20.737Z"},"time"',
+				  '"2015-06-01T18',
+				  '46',
+				  '20.737Z"}' ]
+				  */
+				//sails.log.error(err);
+				reject(err);
 			});
 
 			/* Handle progress. Example details object:
