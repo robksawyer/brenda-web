@@ -17,7 +17,7 @@ module.exports = {
 				if(err){
 					sails.log.error(err);
 					res.view('settings/index',{
-							error: [{ message: err }]
+							messages: { error: [err] }
 						});
 				}
 
@@ -31,7 +31,7 @@ module.exports = {
 							sails.log(data);
 							res.view('settings/index', {
 								settings: data,
-								info: [{message: "Generated a settings record."}]
+								messages: {success: ["Generated a settings record."] }
 							});
 						},
 						function(reason){
