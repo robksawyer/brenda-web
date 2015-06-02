@@ -134,14 +134,11 @@ module.exports = {
 						});
 					}
 				} else {
-
 					res.view('jobs/add_spot',{
 						settings: settings
 					});
-
 				}
 			} else {
-
 				//Other requests
 				res.view('jobs/add_spot',{
 					settings: settings,

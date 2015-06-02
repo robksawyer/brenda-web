@@ -360,7 +360,59 @@ module.exports = {
 	},
 
 	/**
-	* @DEPRACATED
+	*
+	* Builds a JSON object of the price data.
+	* @param results: array The price data
+	* @retun JSON object
+	*
+	**/
+	getPriceJSON: function(results){
+		//Build a JSON array of the price data
+		var jsonData = '{ "prices": {';
+		var cleanTitle;
+		var counter = 0;
+		for(var i=0;i<results.length;i++){
+			counter++;
+			if(results[i].indexOf("Spot price data for instance") > -1){
+				//Found a title
+				var tTitle = results[i];
+				cleanTitleDots = tTitle.replace(/Spot\sprice\sdata\sfor\sinstance\s/gi,'');
+				cleanTitle = cleanTitleDots.replace(/\./gi,'_');
+				if(i == results.length-1){
+					jsonData += ']';
+				}else if(i > 0){
+					jsonData += '],';
+				}
+				jsonData += '"' + cleanTitle + '": [';
+			} else {
+				//Found a price
+				var tPriceData = results[i].split(' ');
+				tPriceData[0] = tPriceData[0].replace(/-/gi,'_');
+				jsonData += '{'; //Add the instance name as the node
+				if(tPriceData.length > 1){
+					jsonData += '"name" : "' + cleanTitleDots + '",';
+					jsonData += '"region" : "' + tPriceData[0] + '",';
+					jsonData += '"timestamp": "' + moment(tPriceData[1]).format("MM-DD-YYYY HH:mm Z") + '",';
+					jsonData += '"price": "' + tPriceData[2] + '"';
+				}
+				if(i == results.length-1 || counter > 3){
+					jsonData += '}';
+					counter = 0;
+				}else{
+					jsonData += '},';
+				}
+			}
+		}
+		jsonData += "]";
+
+		jsonData += "}}"; //close the json block
+
+		return jsonData;
+	},
+
+
+	/**
+	* @DEPRECATED
 	* Writes a new brenda config file with the values from the /settings
 	*
 	**/

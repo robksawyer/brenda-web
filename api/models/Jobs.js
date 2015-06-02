@@ -20,6 +20,9 @@ module.exports = {
 		animation_total_frames:{
 			type: 'integer'
 		},
+		animation_jump_frames:{
+			type: 'integer'
+		},
 		instance_type:{
 			type: 'string'
 		},
