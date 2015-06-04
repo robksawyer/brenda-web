@@ -19,7 +19,7 @@
 					- `brenda-run status`
 
 			-->
-			<p>Upon submission, <label class="label label-info"><%= (job.aws_ec2_instance_count) || 0 %></label> Amazon EC2 instance(s) of the type <label class="label label-info"><%= (job.instance_type) || "unknown" %></label> will be spun up. The app will also start an Amazon SQS work queue <label class="label label-info"><%= job.queue.name %></label> will be filled with a total of <label class="label label-info"><%= (job.animation_total_frames) || 0 %></label> frames.</p>
+			<p>Upon submission, <label class="label label-info"><%= (job.aws_ec2_instance_count) || 0 %></label> Amazon EC2 instance(s) of the type <label class="label label-info"><%= (job.instance_type) || "unknown" %></label> will be spun up. The app will also start the Amazon SQS work queue named <label class="label label-info"><%= job.queue.name %></label>. It will be filled with a total of <label class="label label-info"><%= (job.animation_total_frames) || 0 %></label> frames.</p>
 		</div>
 		<section class="job-details">
 			<form id="submitJob" action="/jobs/start" method="POST" enctype="multipart/form-data">

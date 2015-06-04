@@ -46,7 +46,8 @@ module.exports = {
 	* @return promise
 	*
 	**/
-	start: function(job_record_id, user_id){
+	start: function(job_record_id, user_id)
+	{
 		//
 		//brenda-work -c [config file location] -T './lib/task-scripts/frame' -s [animation_start_frame] -e [animation_end_frame] push
 		//
@@ -93,7 +94,8 @@ module.exports = {
 	* Responsible for clearing all of the tasks in SQS queue.
 	*
 	**/
-	reset: function(){
+	reset: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',

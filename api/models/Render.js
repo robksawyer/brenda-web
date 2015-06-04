@@ -7,8 +7,15 @@
 
 module.exports = {
 
-  attributes: {
+	attributes: {
 
-  }
+		aws_s3_bucket: {
+			type: 'string'
+		},
+
+		job: {
+			model: 'jobs'
+		}
+	}
 };
 

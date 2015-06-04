@@ -17,18 +17,21 @@ module.exports = {
 	**/
 
 	index: function (req, res){
+		Jobs.find({owner: req.user.id })
+			.populate('queue')
+			.exec(
+				function(err, results){
+					if(err){
+						return res.negotiate(err);
+					}
 
-		Jobs.find({owner: req.user.id }).populate('queue').exec(
-			function(err, results){
-				if(err){
-					return res.negotiate(err);
+					sails.log(req.session);
+
+					res.view('jobs/index',{
+						jobs: results
+					});
 				}
-
-				res.view('jobs/index',{
-					jobs: results
-				});
-			}
-		);
+			);
 
 	},
 
@@ -47,7 +50,7 @@ module.exports = {
 		//Check to see if the job exists and the user has permission.
 		Jobs.find({ id: req.param('id'), owner: req.user.id })
 			.populate('queue')
-			.populate('jobs')
+			.populate('files')
 			.exec( function(err, job){
 
 				if (err) {
@@ -113,9 +116,13 @@ module.exports = {
 											FlashService.error(req, array[i].reason);
 										}
 									}
+
+									sails.log(array);
+									//Check the total errors found.
 									if(errors.length > 0){
 										FlashService.error(req, '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
 									} else {
+										sails.log('Job ' + job[0].name + ' destroyed successfully!');
 										FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
 									}
 								},
@@ -201,8 +208,7 @@ module.exports = {
 												case "UnknownEndpoint":
 													FlashService.error(req, err.message);
 													res.view('jobs/add_spot',{
-														settings: settings,
-														messages: {error: [err.message]}
+														settings: settings
 													});
 													break;
 

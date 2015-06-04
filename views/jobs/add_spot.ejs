@@ -100,6 +100,11 @@
 						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
 					</div>
 					<div class="form-group">
+						<label for="inputRenderBucket">Amazon S3 Render Bucket</label>
+						<input type="text" class="form-control" id="inputRenderBucket" name="aws_s3_render_bucket" placeholder="<%= settings.aws_s3_render_bucket %>" value="<%= settings.aws_s3_render_bucket %>">
+						<span id="helpBlock" class="help-block alert alert-info">This will be where the rendered frames will be stored.</span>
+					</div>
+					<div class="form-group">
 						<div class="well">
 							<p class="lead">Amazon Regions</p>
 							<div class="input-group">

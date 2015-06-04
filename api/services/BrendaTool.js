@@ -118,7 +118,8 @@ module.exports = {
 	* @param void
 	* @return promise
 	**/
-	instances: function(){
+	instances: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -143,7 +144,8 @@ module.exports = {
 	* @param void
 	* @return promise
 	**/
-	rsync: function(args){
+	rsync: function(args)
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -168,7 +170,8 @@ module.exports = {
 	* @param void
 	* @return promise
 	**/
-	ssh: function(args){
+	ssh: function(args)
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -192,7 +195,8 @@ module.exports = {
 	* Copy Brenda configuration file to all running instances
 	* brenda-tool rsync ~/.brenda.conf HOST
 	**/
-	copyConfigToAllIstances: function(configFilePath){
+	copyConfigToAllIstances: function(configFilePath)
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -216,7 +220,8 @@ module.exports = {
 	* View the tail of the log file on each instance
 	* brenda-tool ssh tail log
 	**/
-	getTailLogForEachInstance: function(){
+	getTailLogForEachInstance: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -240,7 +245,8 @@ module.exports = {
 	* Run the 'uptime' command on each instance to view CPU utilization
 	* brenda-tool ssh uptime
 	**/
-	getUptime: function(){
+	getUptime: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -264,7 +270,8 @@ module.exports = {
 	* Enumerate active EC2 instances
 	* brenda-tool instances
 	**/
-	getInstances: function(){
+	getInstances: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',
@@ -288,7 +295,8 @@ module.exports = {
 	* Stop the brenda-node script on all instances, but don't shut down the instances.
 	* brenda-tool ssh 'kill $(cat brenda.pid)'
 	**/
-	stopBrendaScripts: function(){
+	stopBrendaScripts: function()
+	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			var options = {
 				mode: 'binary',

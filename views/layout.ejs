@@ -60,24 +60,27 @@
 
 	<body>
 		<%- partial('./partials/nav.ejs') %>
-
 		<% if(typeof error !== 'undefined' && typeof error.Errors !== 'undefined' && error.Errors.length > 0) { %>
 			<!-- sails-hook-validation errors -->
-			<% _.forEach(error.Errors, function(n){ %><div class="alert alert-danger" role="alert"><% error.Error[n].message %></div><% }); %>
+			<% _.forEach(error.Errors, function(n){ %>
+				<div class="alert alert-danger" role="alert"><% error.Error[n].message %></div>
+			<% }); %>
 		<% } %>
-		<% if (typeof messages !== 'undefined' && typeof messages['error'] !== 'undefined' && messages['error'].length > 0) { %>
-			<div class="alert alert-danger" role="alert"><% messages['error'].forEach(function(message) { %><% message %><br><% }); %></div>
-			<br>
+		<% if (typeof req.session.messages !== 'undefined'){ %>
+			<% if(typeof req.session.messages['error'] !== 'undefined' && req.session.messages['error'].length > 0) { %>
+				<div class="alert alert-danger" role="alert"><% _.forEach(req.session.messages['error'], function(message) { %><%= message %><br><% }); %></div>
+				<br>
+			<% } %>
+			<% if (typeof req.session.messages['warning'] !== 'undefined' && req.session.messages['warning'].length > 0) { %>
+				<div class="alert alert-warning" role="alert"><% _.forEach(req.session.messages['warning'], function(message) { %><%= message %><br><% }); %></div>
+				<br>
+			<% } %>
+			<%=  req.session.messages['success'].length %>
+			<% if (typeof req.session.messages['success'] !== 'undefined' && req.session.messages['success'].length > 0) { %>
+				<div class="alert alert-success" role="alert"><% _.forEach(req.session.messages['success'], function(message) { %><%= message %><br><% }); %></div>
+				<br>
+			<% } %>
 		<% } %>
-		<% if (typeof messages !== 'undefined' && typeof messages['warning'] !== 'undefined' && messages['warning'].length > 0) { %>
-			<div class="alert alert-warning" role="alert"><% messages['warning'].forEach(function(message) { %><% message %><br><% }); %></div>
-			<br>
-		<% } %>
-		<% if (typeof messages !== 'undefined' && typeof messages['success'] !== 'undefined' && messages['success'].length > 0) { %>
-			<div class="alert alert-success" role="alert"><% messages['success'].forEach(function(message) { %><% message %><br><% }); %></div>
-			<br>
-		<% } %>
-
 		<div class="container-fluid">
 			<%- body %>
 
