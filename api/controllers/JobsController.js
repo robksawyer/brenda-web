@@ -24,8 +24,6 @@ module.exports = {
 					return res.negotiate(err);
 				}
 
-				sails.log(results);
-
 				res.view('jobs/index',{
 					jobs: results
 				});
@@ -45,83 +43,97 @@ module.exports = {
 		//	Kill the job and destroy any running instances
 		//If not:
 		//	Just remove the job record along with associated file records.
-		Jobs.update({ id: req.param('id'), owner: req.user.id }, { deleted: true }).exec(
-			function (err, job) {
+
+		//Check to see if the job exists and the user has permission.
+		Jobs.find({ id: req.param('id'), owner: req.user.id })
+			.populate('queue')
+			.populate('jobs')
+			.exec( function(err, job){
+
 				if (err) {
 					FlashService.error(req, 'You are not allowed to perform this action.');
 					return res.negotiate(err);
 				}
 
-				var promises = [];
-
-				sails.log('files:');
-				sails.log(job[0].files);
-
-				if(typeof job[0].files !== 'undefined'){
-					//Delete associations
-					var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
-						File.update({ id: job[0].files }, { deleted: true }).exec(
-							function(err, file){
-								if(err){
-									reject(err);
-								}
-
-								fullfill(file);
-							}
-						);
-					});
-					promises.push(deleteFiles);
-				}
-
-				sails.log('queue:');
-				sails.log(job[0].queue);
-
-				if(typeof job[0].queue !== 'undefined'){
-					var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
-						Queue.update({ id: job[0].queue }, { deleted: true }).exec(
-							function(err, queue){
-								if(err){
-									reject(err);
-								}
-
-								fullfill(queue);
-							}
-						);
-					});
-					promises.push(deleteQueue);
-				}
-
-				if(promises.length > 0){
-
-					//Run the promise queue
-					sails.RSVP.allSettled(promises).then(
-						function(array){
-							var errors = [];
-							for(var i=0;i<array.length;i++){
-								if(array[i].state == 'rejected'){
-									errors.push(array[i].reason);
-									FlashService.error(req, array[i].reason);
-								}
-							}
-							if(errors.length > 0){
-								FlashService.error(req, '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
-							} else {
-								FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
-							}
-						},
-						function(err){
-							FlashService.error(req, 'There was an server error.<br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+				Jobs.destroy({ id: req.param('id'), owner: req.user.id }).exec(
+					function (err) {
+						if (err) {
+							FlashService.error(req, 'You are not allowed to perform this action.');
 							return res.negotiate(err);
 						}
-					);
 
-				} else {
-					FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
-				}
+						var promises = [];
 
-				return res.redirect('/jobs');
-			}
-		);
+						sails.log('files:');
+						sails.log(job[0].files);
+
+						if(typeof job[0].files !== 'undefined'){
+							//Delete associations
+							var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
+								File.destroy({ id: job[0].files }).exec(
+									function(err){
+										if(err){
+											reject(err);
+										}
+
+										fullfill();
+									}
+								);
+							});
+							promises.push(deleteFiles);
+						}
+
+						sails.log('queue:');
+						sails.log(job[0].queue);
+
+						if(typeof job[0].queue !== 'undefined'){
+							var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
+								Queue.destroy({ id: job[0].queue }).exec(
+									function(err){
+										if(err){
+											reject(err);
+										}
+
+										fullfill();
+									}
+								);
+							});
+							promises.push(deleteQueue);
+						}
+
+						if(promises.length > 0){
+
+							//Run the promise queue
+							sails.RSVP.allSettled(promises).then(
+								function(array){
+									var errors = [];
+									for(var i=0;i<array.length;i++){
+										if(array[i].state == 'rejected'){
+											errors.push(array[i].reason);
+											FlashService.error(req, array[i].reason);
+										}
+									}
+									if(errors.length > 0){
+										FlashService.error(req, '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+									} else {
+										FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+									}
+								},
+								function(err){
+									FlashService.error(req, 'There was an server error.<br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+									return res.negotiate(err);
+								}
+							);
+
+						} else {
+							FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+						}
+
+						return res.redirect('/jobs');
+					}
+				);
+
+			}); //end exec
 	},
 
 	/**
