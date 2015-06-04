@@ -36,6 +36,72 @@ module.exports = {
 
 	/**
 	*
+	* Responsible for destroying a job along with associated files, queue and renders.
+	*
+	**/
+	destroy: function(req, res){
+		//Check to see if the job is active via the Job.status.
+		//If active:
+		//	Kill the job and destroy any running instances
+		//If not:
+		//	Just remove the job record along with associated file records.
+		Jobs.update({ id: req.param('id'), owner: req.user.id }, { deleted: true }).exec(
+			function (err, job) {
+				if (err) {
+					FlashService.error(req, 'You are not allowed to perform this action.');
+					return res.negotiate(err);
+				}
+
+				//Delete associations
+				var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
+					File.update({ id: job[0].files }, { deleted: true }).exec(
+						function(err, file){
+							if(err){
+								reject(err);
+							}
+
+							fullfill(file);
+						}
+					});
+				});
+
+				var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
+					Queue.update({ id: job[0].queue }, { deleted: true }).exec(
+						function(err, queue){
+							if(err){
+								reject(err);
+							}
+
+							fullfill(queue);
+						}
+					});
+				});
+
+				//Run the promise queue
+				deleteFiles
+				.reject(
+					function(){
+						FlashService.error(req, 'There was an error removing associated files. Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+						return res.negotiate(err);
+					}
+				)
+				.then(deleteQueue)
+				.then(
+					function(queue){
+						FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+						return res.redirect('/jobs');
+					},
+					function(err){
+						FlashService.error(req, 'There was an error removing associated queue. Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+						return res.negotiate(err);
+					}
+				);
+			}
+		);
+	},
+
+	/**
+	*
 	* Handles adding a job to the Amazon SQS Queuing service.
 	*
 	**/
