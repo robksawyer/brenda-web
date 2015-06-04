@@ -40,114 +40,41 @@
 		<h2 class="sub-header">All Jobs</h2>
 		<br>
 		<ul class="media-list">
-			<li class="media divider">
-				<div class="media-left pull-left">
-					<a href="#">
-						<img src="holder.js/242x130/auto/sky" alt="thumb-242x130" width="242" height="130" />
-					</a>
-				</div>
-				<div class="media-body">
-					<h3 class="media-heading"><a href="#">Render_Job_5_21_15</a> <small>$2.11</small> <small class="pull-right label label-success">Completed</small></h3>
-					<div class="row-fluid">
-						<div class="col-md-4 nopadding nomargin">
-							<ul class="nobull">
-								<li>Started: May 18, 2015 00:47 </li>
-								<li>Elapsed: 00:25:59</li>
-								<li>Cycles 2.74</li>
-							</ul>
+			<% for(var i=0; i < jobs.length; i++) { %>
+				<li class="media divider">
+					<div class="media-left pull-left">
+						<a href="#">
+							<img src="holder.js/242x130/auto/sky" alt="thumb-242x130" width="242" height="130" />
+						</a>
+					</div>
+					<div class="media-body">
+						<h3 class="media-heading"><a href="/jobs/detail/<%= jobs[i].id %>"><%= jobs[i].name %></a> <small>$0.00</small> <small class="pull-right label label-success"><%= (jobs[i].status) || 'unknown' %></small></h3>
+						<div class="row-fluid clearfix">
+							<div class="col-md-4 nopadding nomargin">
+								<ul class="nobull">
+									<li>Started: May 18, 2015 00:47 </li>
+									<li>Elapsed: 00:25:59</li>
+									<li>Cycles 2.74</li>
+								</ul>
+							</div>
+							<div class="col-md-4">
+								<ul class="nobull">
+									<li>Instances: <%= jobs[i].aws_ec2_instance_count %></li>
+									<li>Instances Type: <%= jobs[i].instance_type %></li>
+									<li>EC2 Region: <%= jobs[i].aws_ec2_region %></li>
+									<li>SQS Region: <%= jobs[i].aws_sqs_region %></li>
+								</ul>
+							</div>
 						</div>
-						<div class="col-md-4">
-							<ul class="nobull">
-								<li>Instances: 4</li>
-								<li>Instances Type: c3.2xlarge</li>
-								<li>EC2 Region: us-west-2</li>
-								<li>SQS Region: us-west-2</li>
+						<div class="row-fluid">
+							<ul class="pull-right nobull list-inline">
+								<li><a href="/jobs/cancel/<%= jobs[i].id %>" title="Cancel the job."><i class="fa fa-ban fa-lg text-warning"></i></a></li>
+								<li><a href="/jobs/delete/<%= jobs[i].id %>" title="Delete the job."><i class="fa fa-times-circle-o fa-lg text-danger"></i></a></li>
 							</ul>
 						</div>
 					</div>
-				</div>
-			</li>
-			<li class="media divider">
-				<div class="media-left pull-left">
-					<a href="#">
-						<img src="holder.js/242x130/auto/sky" alt="thumb-242x130" width="242" height="130" />
-					</a>
-				</div>
-				<div class="media-body">
-					<h3 class="media-heading"><a href="#">Render_Job_5_06_15</a> <small>$1.11</small> <small class="pull-right label label-info">Processing</small></h3>
-					<div class="row-fluid">
-						<div class="col-md-4 nopadding nomargin">
-							<ul class="nobull">
-								<li>Started: May 18, 2015 00:47 </li>
-								<li>Elapsed: 00:25:59</li>
-								<li>Cycles 2.74</li>
-							</ul>
-						</div>
-						<div class="col-md-4">
-							<ul class="nobull">
-								<li>Instances: 4</li>
-								<li>Instances Type: c3.2xlarge</li>
-								<li>EC2 Region: us-west-2</li>
-								<li>SQS Region: us-west-2</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</li>
-			<li class="media divider">
-				<div class="media-left pull-left">
-					<a href="#">
-						<img src="holder.js/242x130/auto/sky" alt="thumb-242x130" width="242" height="130" />
-					</a>
-				</div>
-				<div class="media-body">
-					<h3 class="media-heading"><a href="#">Render_Job_5_09_15</a> <small>$5.11</small> <small class="pull-right label label-default">Canceled</small></h3>
-					<div class="row-fluid">
-						<div class="col-md-4 nopadding nomargin">
-							<ul class="nobull">
-								<li>Started: May 18, 2015 00:47 </li>
-								<li>Elapsed: 00:25:59</li>
-								<li>Cycles 2.74</li>
-							</ul>
-						</div>
-						<div class="col-md-4">
-							<ul class="nobull">
-								<li>Instances: 4</li>
-								<li>Instances Type: c3.2xlarge</li>
-								<li>EC2 Region: us-west-2</li>
-								<li>SQS Region: us-west-2</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</li>
-			<li class="media divider">
-				<div class="media-left pull-left">
-					<a href="#">
-						<img src="holder.js/242x130/auto/sky" alt="thumb-242x130" width="242" height="130" />
-					</a>
-				</div>
-				<div class="media-body">
-					<h3 class="media-heading"><a href="#">Render_Job_5_11_15</a> <small></small> <small class="pull-right label label-danger">Failed</small></h3>
-					<div class="row-fluid">
-						<div class="col-md-4 nopadding nomargin">
-							<ul class="nobull">
-								<li>Started: May 18, 2015 00:47 </li>
-								<li>Elapsed: 00:25:59</li>
-								<li>Cycles 2.74</li>
-							</ul>
-						</div>
-						<div class="col-md-4">
-							<ul class="nobull">
-								<li>Instances: 4</li>
-								<li>Instances Type: c3.2xlarge</li>
-								<li>EC2 Region: us-west-2</li>
-								<li>SQS Region: us-west-2</li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</li>
+				</li>
+			<% } %>
 		</ul>
 	</div>
 </div>

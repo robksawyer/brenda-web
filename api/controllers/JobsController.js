@@ -10,11 +10,28 @@ var util = require('util'),
 
 module.exports = {
 
+	/**
+	*
+	* Lists all of the current render jobs for a user
+	*
+	**/
+
 	index: function (req, res){
 
-		return res.view({
-			todo: "This needs to be setup."
-		});
+		Jobs.find({owner: req.user.id }).populate('queue').exec(
+			function(err, results){
+				if(err){
+					return res.negotiate(err);
+				}
+
+				sails.log(results);
+
+				res.view('jobs/index',{
+					jobs: results
+				});
+			}
+		);
+
 	},
 
 	/**
@@ -172,6 +189,42 @@ module.exports = {
 					textParams: req.params.all()
 				});
 			});
+
+		} else {
+			return res.notFound();
+		}
+	},
+
+	/**
+	*
+	* Loads up the SQS queue and intiates a Amazon EC2 spot instance request.
+	*
+	**/
+
+	start: function(req, res){
+
+		if( typeof req.param('type') === 'undefined'){
+			FlashService.error(req, 'You must provide a valid job type e.g. spot.');
+			res.notFound();
+		}
+
+		if( typeof req.param('id') !== 'undefined' ){
+
+			//Kick off the brenda work job
+			BrendaWork.start( req.param('id'), req.user.id ).then(
+				function(){
+					//Pass the user to the job overview page.
+					//This will allow them to see the status of the spot instance request.
+					//Spot instance status should show up in the job block
+					//It might be more helpful to send them to a job status page. TBD on that.
+					FlashService.success(req, 'The spot request has been initiated. Please see the job record for the status.');
+					res.redirect('/jobs');
+				},
+				function(err){
+					FlashService.error(req, err);
+					res.serverError(err);
+				}
+			);
 
 		} else {
 			return res.notFound();

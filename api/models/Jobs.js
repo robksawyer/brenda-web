@@ -41,6 +41,12 @@ module.exports = {
 		max_spend_amount: {
 			type: 'float'
 		},
+		type: {
+			type: 'string'
+		},
+		status:{
+			type: 'string'
+		},
 		queue: {
 			model: 'queue'
 		},

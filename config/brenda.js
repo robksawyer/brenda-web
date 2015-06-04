@@ -9,7 +9,8 @@ module.exports.brenda = {
 
 	//TODO: Make it so that this is pulled from a database or read in from a file on the hard drive.
 	settings: {
-		setupFileLocation: 'lib/brenda/setup.py' //Used to get version
+		setupFileLocation: 'lib/brenda/setup.py', //Used to get version
+		jobConfigFolderName: 'jobs' //This must be placed at the root of the app
 	}
 
 }
