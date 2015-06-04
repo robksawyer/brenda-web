@@ -52,50 +52,74 @@ module.exports = {
 					return res.negotiate(err);
 				}
 
-				//Delete associations
-				var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
-					File.update({ id: job[0].files }, { deleted: true }).exec(
-						function(err, file){
-							if(err){
-								reject(err);
+				var promises = [];
+
+				sails.log('files:');
+				sails.log(job[0].files);
+
+				if(typeof job[0].files !== 'undefined'){
+					//Delete associations
+					var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
+						File.update({ id: job[0].files }, { deleted: true }).exec(
+							function(err, file){
+								if(err){
+									reject(err);
+								}
+
+								fullfill(file);
 							}
-
-							fullfill(file);
-						}
+						);
 					});
-				});
+					promises.push(deleteFiles);
+				}
 
-				var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
-					Queue.update({ id: job[0].queue }, { deleted: true }).exec(
-						function(err, queue){
-							if(err){
-								reject(err);
+				sails.log('queue:');
+				sails.log(job[0].queue);
+
+				if(typeof job[0].queue !== 'undefined'){
+					var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
+						Queue.update({ id: job[0].queue }, { deleted: true }).exec(
+							function(err, queue){
+								if(err){
+									reject(err);
+								}
+
+								fullfill(queue);
 							}
-
-							fullfill(queue);
-						}
+						);
 					});
-				});
+					promises.push(deleteQueue);
+				}
 
-				//Run the promise queue
-				deleteFiles
-				.reject(
-					function(){
-						FlashService.error(req, 'There was an error removing associated files. Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
-						return res.negotiate(err);
-					}
-				)
-				.then(deleteQueue)
-				.then(
-					function(queue){
-						FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
-						return res.redirect('/jobs');
-					},
-					function(err){
-						FlashService.error(req, 'There was an error removing associated queue. Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
-						return res.negotiate(err);
-					}
-				);
+				if(promises.length > 0){
+
+					//Run the promise queue
+					sails.RSVP.allSettled(promises).then(
+						function(array){
+							var errors = [];
+							for(var i=0;i<array.length;i++){
+								if(array[i].state == 'rejected'){
+									errors.push(array[i].reason);
+									FlashService.error(req, array[i].reason);
+								}
+							}
+							if(errors.length > 0){
+								FlashService.error(req, '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+							} else {
+								FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+							}
+						},
+						function(err){
+							FlashService.error(req, 'There was an server error.<br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+							return res.negotiate(err);
+						}
+					);
+
+				} else {
+					FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+				}
+
+				return res.redirect('/jobs');
 			}
 		);
 	},
