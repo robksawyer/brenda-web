@@ -47,9 +47,6 @@ module.exports = {
 		type: {
 			type: 'string'
 		},
-		status:{
-			type: 'string'
-		},
 		queue: {
 			model: 'queue'
 		},

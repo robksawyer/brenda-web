@@ -81,7 +81,21 @@
 							</a>
 						</div>
 						<div class="media-body">
-							<h3 class="media-heading"><a href="/jobs/detail/<%= jobs[i].id %>"><%= jobs[i].name %></a> <small>$0.00</small> <small class="pull-right label label-success"><%= (jobs[i].status) || 'unknown' %></small></h3>
+							<h3 class="media-heading"><a href="/jobs/detail/<%= jobs[i].id %>"><%= jobs[i].name %></a> <small>$0.00</small>
+								<% if(typeof jobs[i].renders !== 'undefined') { %>
+									<% if(jobs[i].renders[0].status === "waiting") { %>
+									<small class="pull-right label label-default"><%= jobs[i].renders[0].status %></small>
+									<% } %>
+									<% if(jobs[i].renders[0].status === "completed") { %>
+									<small class="pull-right label label-success"><%= jobs[i].renders[0].status %></small>
+									<% } %>
+									<% if(jobs[i].renders[0].status === "failed") { %>
+									<small class="pull-right label label-danger"><%= jobs[i].renders[0].status %></small>
+									<% } %>
+								<% } else { %>
+									<small class="pull-right label label-default">waiting</small>
+								<% } %>
+							</h3>
 							<div class="row-fluid clearfix">
 								<div class="col-md-4 nopadding nomargin">
 									<ul class="nobull">
@@ -101,6 +115,13 @@
 							</div>
 							<div class="row-fluid">
 								<ul class="pull-right nobull list-inline">
+									<% if(typeof jobs[i].renders !== 'undefined') { %>
+										<% if(jobs[i].renders[0].status === "waiting") { %>
+											<li><a href="/jobs/submit/<%= jobs[i].id %>" title="Start the job."><i class="fa fa-youtube-play fa-lg text-success"></i></i></a></li>
+										<% } %>
+									<% } else { %>
+										<li><a href="/jobs/submit/<%= jobs[i].id %>" title="Start the job."><i class="fa fa-youtube-play fa-lg text-success"></i></i></a></li>
+									<% } %>
 									<li><a href="/jobs/cancel/<%= jobs[i].id %>" title="Cancel the job."><i class="fa fa-ban fa-lg text-warning"></i></a></li>
 									<li><a href="/jobs/destroy/<%= jobs[i].id %>" title="Delete the job."><i class="fa fa-times-circle-o fa-lg text-danger"></i></a></li>
 								</ul>

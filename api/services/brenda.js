@@ -527,7 +527,7 @@ module.exports = {
 	writeBrendaConfigFile: function(user_id, jobRecord_id, renderRecord_id, s3RenderBucket)
 	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
-			if(!sails.config.jobConfigFolderName){
+			if(!sails.config.brenda.settings.jobConfigFolderName){
 				reject("Unable to find the job config folder.");
 			}
 
@@ -552,7 +552,7 @@ module.exports = {
 						brendaConfigFileData += "DONE=shutdown";
 
 						//Folder that all config files live in.
-						var configFile = path.resolve(sails.config.jobConfigFolderName);
+						var configFile = path.resolve(sails.config.brenda.settings.jobConfigFolderName);
 						sails.log.info(configFile);
 
 						//Create the directory if it does not exist

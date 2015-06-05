@@ -19,6 +19,7 @@ module.exports = {
 	index: function (req, res){
 		Jobs.find({owner: req.user.id })
 			.populate('queue')
+			.populate('renders')
 			.exec(
 				function(err, results){
 					if(err){

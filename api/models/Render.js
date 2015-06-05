@@ -29,6 +29,10 @@ module.exports = {
 		end_time: {
 			type: 'datetime'
 		},
+		status:{
+			type: 'string',
+			enum: ['waiting', 'completed', 'failed']
+		},
 		job: {
 			model: 'jobs'
 		},
