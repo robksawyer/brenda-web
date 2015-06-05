@@ -7,6 +7,10 @@
 *
 **/
 
+var fs = require('fs'),
+	path = require('path'),
+	util = require('util'),
+	changeCase = require('change-case');
 
 module.exports = {
 
@@ -85,16 +89,17 @@ module.exports = {
 							.then(
 								function(renderRecord){
 
-									sails.log(renderRecord);
-
 									//Build a unique config file for the render
 									brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
 										.then(
 											function(configFilePath){
 
 												var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+												taskFilePath = path.resolve(taskFilePath);
+
 												sails.log(configFilePath);
 												sails.log(taskFilePath);
+												sails.log(jobs[0]);
 
 												if(typeof taskFilePath === 'undefined'){
 													reject("Unable to find the task file.");
@@ -109,23 +114,28 @@ module.exports = {
 													reject("Unable to find the animation end frame.");
 												}
 
+												var arguments = '-c "' + configFilePath + '" -T "' + taskFilePath + '" -s ' + jobs[0].animation_start_frame + ' -e ' + jobs[0].animation_end_frame + ' push';
+												sails.log('Running `brenda-work` with arguments: ');
+												sails.log(arguments);
+
 												var options = {
 													mode: 'binary',
 													pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
 													pythonOptions: ['-u'],
 													scriptPath: 'lib/brenda/',
-													args: ['-c "' + configFilePath + '" -T "' + taskFilePath + '" -s ' + jobs[0].animation_start_frame + ' -e ' + jobs[0].animation_end_frame + ' push']
+													args: [arguments]
 												};
 												sails.python.run('brenda-work', options,
 													function (err, results) {
-														if (err) reject(err);
+														if (err) {
+															sails.log.error(err);
+															reject(err);
+														}
 														// results is an array consisting of messages collected during execution
 														sails.log('results: %j', results);
 														fulfill(results);
 													}
 												);
-
-												fulfill(results);
 											},
 											function(err){
 												reject(err)

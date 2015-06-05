@@ -548,8 +548,10 @@ module.exports = {
 				.populate('queue')
 				.populate('files')
 				.exec(
-					function(err, jobs){
-						if(err) reject(err);
+					function(err, jobs) {
+						if(err) {
+							reject(err);
+						}
 
 						//Build the config based on the job record information
 						var brendaConfigFileData = "";
@@ -588,28 +590,32 @@ module.exports = {
 						}
 
 						//Retrieve the config file path
-						brenda.getRenderConfigFilePath(renderRecord_id, configFile).then(
-							function(configFilePath){
+						brenda.getRenderConfigFilePath(renderRecord_id, configFile)
+							.then(
+								function(configFilePath){
 
-								sails.log("Writing Brenda config file for the job.");
-								sails.log("Brenda config file location:" + configFilePath);
-								sails.log(brendaConfigFileData);
+									sails.log("Writing Brenda config file for the job.");
+									sails.log("Brenda config file location:" + configFilePath);
+									sails.log(brendaConfigFileData);
 
-								brenda.writeFile(configFilePath, brendaConfigFileData).then(
-									function(result){
-										sails.log("Brenda config file written successfully!");
-										sails.log(result);
-										fulfill(result);
-									},
-									function(err){
-										reject(err);
-									}
-								);
-							},
-							function(err){
-
-							}
-						);
+									brenda.writeFile(configFilePath, brendaConfigFileData)
+										.then(
+											function(result){
+												sails.log("Brenda config file written successfully!");
+												sails.log.info(result);
+												fulfill(result);
+											},
+											function(err){
+												sails.log.error(err);
+												reject(err);
+											}
+										);
+								},
+								function(err){
+									sails.log.error(err);
+									reject(err);
+								}
+							);
 
 					}
 				);

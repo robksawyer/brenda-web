@@ -7,6 +7,10 @@
 *
 **/
 
+var fs = require('fs'),
+	path = require('path'),
+	util = require('util'),
+	changeCase = require('change-case');
 
 module.exports = {
 
