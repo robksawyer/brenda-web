@@ -74,14 +74,14 @@ module.exports = {
 
 						if(typeof job[0].files !== 'undefined'){
 							//Delete associations
-							var deleteFiles = new sails.RSVP.Promise( function(fullfill, reject) {
+							var deleteFiles = new sails.RSVP.Promise( function(fulfill, reject) {
 								File.destroy({ id: job[0].files }).exec(
 									function(err){
 										if(err){
 											reject(err);
 										}
 
-										fullfill();
+										fulfill();
 									}
 								);
 							});
@@ -93,7 +93,7 @@ module.exports = {
 
 						if(typeof job[0].queue !== 'undefined'){
 
-							var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
+							var deleteQueue = new sails.RSVP.Promise( function(fulfill, reject) {
 
 								//Delete the queue on Amazon
 								amazon.deleteSQSWorkQueue(job[0].queue)
@@ -107,7 +107,7 @@ module.exports = {
 														reject(err);
 													}
 
-													fullfill();
+													fulfill();
 												}
 											);
 
@@ -123,7 +123,7 @@ module.exports = {
 
 						/*if(typeof job[0].renders !== 'undefined'){
 
-							var deleteRenders = new sails.RSVP.Promise( function(fullfill, reject) {
+							var deleteRenders = new sails.RSVP.Promise( function(fulfill, reject) {
 
 								//Delete the queue on Amazon
 								brenda.deleteRenderConfigFiles(job[0].renders)
@@ -137,7 +137,7 @@ module.exports = {
 														reject(err);
 													}
 
-													fullfill();
+													fulfill();
 												}
 											);
 

@@ -19,7 +19,7 @@ module.exports = {
 	**/
 	status: function ()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -31,7 +31,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -48,7 +48,7 @@ module.exports = {
 	**/
 	start: function(user_id, jobRecord_id)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//
 			//brenda-work -c [config file location] -T './lib/task-scripts/frame' -s [animation_start_frame] -e [animation_end_frame] push
 			//
@@ -67,14 +67,14 @@ module.exports = {
 						}
 
 						/*if(typeof jobs[0].aws_s3_render_bucket === 'undefined'){
-							var applyDefaultRenderBucket = new sails.RSVP.Promise( function(fullfill, reject) {
+							var applyDefaultRenderBucket = new sails.RSVP.Promise( function(fulfill, reject) {
 								//Add the default from Settings
 								Setting.find({owner: req.user.id}).exec(
 									function(err, settings){
 										if(err){
 											reject(err);
 										}
-										fullfill(settings[0].aws_s3_render_bucket);
+										fulfill(settings[0].aws_s3_render_bucket);
 									}
 								);
 							});
@@ -121,11 +121,11 @@ module.exports = {
 														if (err) reject(err);
 														// results is an array consisting of messages collected during execution
 														sails.log('results: %j', results);
-														fullfill(results);
+														fulfill(results);
 													}
 												);
 
-												fullfill(results);
+												fulfill(results);
 											},
 											function(err){
 												reject(err)
@@ -151,7 +151,7 @@ module.exports = {
 	**/
 	reset: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -163,7 +163,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;

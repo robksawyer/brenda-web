@@ -89,7 +89,7 @@ module.exports = {
 	* @return promise
 	**/
 	createZipAndUploadToS3: function(fileStream, bucket){
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(typeof fileStream === 'undefined'){
 				reject('fileStream is not defined');
@@ -178,12 +178,12 @@ module.exports = {
 						sails.log.error(err);
 						reject(err);
 					} else {
-						fullfill( 'Deleted the temporary file after writing ' + archive.pointer() + ' bytes.' );
+						fulfill( 'Deleted the temporary file after writing ' + archive.pointer() + ' bytes.' );
 					};
 				});*/
 
-				//Fullfill the promise
-				fullfill(details);
+				//fulfill the promise
+				fulfill(details);
 			});
 
 			//Kick off the process
@@ -201,7 +201,7 @@ module.exports = {
 	* @return promise
 	**/
 	createFileRecord: function(user_id, file, aws_data){
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(!user_id){
 				sails.log.error("You must provide a user id.");
 				reject("You must provide a user id.");
@@ -251,7 +251,7 @@ module.exports = {
 				if (err) {
 					reject(err);
 				}
-				fullfill(newFile);
+				fulfill(newFile);
 			});
 		});
 		return promise;
@@ -264,7 +264,7 @@ module.exports = {
 	 */
 	upload: function (req, res) {
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			// e.g.
 			// 0 => infinite
 			// 240000 => 4 minutes (240,000 miliseconds)
@@ -296,7 +296,7 @@ module.exports = {
 				if (err) {
 					reject(err);
 				} else {
-					fullfill(temp);
+					fulfill(temp);
 				}
 			});
 		});
@@ -315,7 +315,7 @@ module.exports = {
 	 */
 	s3upload: function (req, res, bucket, acl) {
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(!acl) acl = 'public-read';
 
 			console.log(req.file('filedata'));
@@ -351,7 +351,7 @@ module.exports = {
 				if (err) {
 					reject(err);
 				} else {
-					fullfill(uploadedFiles);
+					fulfill(uploadedFiles);
 				}
 			});
 		});

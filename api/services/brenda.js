@@ -33,7 +33,7 @@ module.exports = {
 	{
 		sails.log("Processing Blender File...");
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(typeof req === 'undefined'){
 				reject("Request value not found");
@@ -70,7 +70,7 @@ module.exports = {
 											sails.log('Job record with the name ' + jobRecord.name + ' created.');
 											//sails.log(jobRecord);
 
-											fullfill(jobRecord);
+											fulfill(jobRecord);
 										},
 										function(err){
 											reject(err);
@@ -108,7 +108,7 @@ module.exports = {
 	processZipFile: function(req, settings)
 	{
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//
 			//Just upload the zip to S3
 			//
@@ -150,7 +150,7 @@ module.exports = {
 										sails.log('Job record with the name ' + jobRecord.name + ' created.');
 										//sails.log(jobRecord);
 
-										fullfill(jobRecord);
+										fulfill(jobRecord);
 									},
 									function(err){
 										reject(err);
@@ -186,7 +186,7 @@ module.exports = {
 	{
 		sails.log('Creating Job Record...');
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			//Create and save the job to the database
 			Jobs.create(
@@ -213,7 +213,7 @@ module.exports = {
 						reject(err);
 					}
 
-					fullfill(jobData);
+					fulfill(jobData);
 				}
 			);
 		});
@@ -238,7 +238,7 @@ module.exports = {
 	{
 		sails.log('Creating Render Record...');
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			var renderName = "";
 			var configFile = "";
@@ -278,7 +278,7 @@ module.exports = {
 						sails.log.error(err);
 						reject(err);
 					}
-					fullfill(renderData);
+					fulfill(renderData);
 				}
 			);
 		});
@@ -293,7 +293,7 @@ module.exports = {
 	getBrendaVersion: function()
 	{
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			var setupFileLocation = "";
 			if ( !sails.config.brenda.settings.setupFileLocation || sails.config.brenda.settings.setupFileLocation == "" ) {
@@ -308,7 +308,7 @@ module.exports = {
 						if (!err) {
 							var match = data.match(/VERSION="([0-9].*)"/);
 							if(match[1] != undefined && match[1] != ""){
-								fullfill( match[1] );
+								fulfill( match[1] );
 							} else {
 								reject( new Error("Unable to find the version in the file provided.") );
 							}
@@ -340,7 +340,7 @@ module.exports = {
 
 		var configFile = this.brendaConfigFile;
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			var configFilePath = path.resolve('config', configFile);
 
@@ -349,7 +349,7 @@ module.exports = {
 					sails.log.error(err);
 					reject(err);
 				}
-				fullfill(obj);
+				fulfill(obj);
 			});
 
 		});
@@ -364,7 +364,7 @@ module.exports = {
 	**/
 	getUserSettings: function(req)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(!req || !req.user || !req.user.id){
 				reject('User id not found.');
 			}
@@ -376,7 +376,7 @@ module.exports = {
 						reject(err);
 					}
 					if(userRecord.settings.length > 0){
-						fullfill(userRecord.settings[0]);
+						fulfill(userRecord.settings[0]);
 					} else {
 						reject('Settings not found.');
 					}
@@ -394,7 +394,7 @@ module.exports = {
 	createSettingsRecord: function(user_id)
 	{
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(!user_id) {
 				reject('You need to provide a valid user id.');
@@ -419,7 +419,7 @@ module.exports = {
 									reject("There was an error adding the Brenda version to the settings.");
 								}
 								sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
-								fullfill(updatedRecord);
+								fulfill(updatedRecord);
 							});
 
 						}else{
@@ -526,7 +526,7 @@ module.exports = {
 	**/
 	writeBrendaConfigFile: function(user_id, jobRecord_id, renderRecord_id, s3RenderBucket)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(!sails.config.brenda.settings.jobConfigFolderName){
 				reject("Unable to find the job config folder.");
 			}
@@ -598,7 +598,8 @@ module.exports = {
 								brenda.writeFile(configFilePath, brendaConfigFileData).then(
 									function(result){
 										sails.log("Brenda config file written successfully!");
-										fullfill(result);
+										sails.log(result);
+										fulfill(result);
 									},
 									function(err){
 										reject(err);
@@ -626,11 +627,12 @@ module.exports = {
 
 	writeFile: function(filePath, fileData){
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
-			var writeFile = RSVP.denodeify(fs.writeFile);
-			writeFile(filePath, fileName, { encoding: 'utf-8' })
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			var writeFile = sails.RSVP.denodeify(fs.writeFile);
+			writeFile(filePath, fileData, { encoding: 'utf-8' })
 				.then( function() {
-					fullfill(filePath);
+					fulfill(filePath);
 				})
 				.catch( function(err) {
 					sails.log.error(err);
@@ -650,7 +652,7 @@ module.exports = {
 	**/
 	getRenderConfigFilePath: function(renderRecord_id, configFile)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(typeof renderRecord_id === 'undefined') {
 				reject("You must provide a valid render record id.");
 			}
@@ -670,7 +672,7 @@ module.exports = {
 					var configFileName = renderRecord[0].configFileName;
 					var configFilePath = path.join(configFile, configFileName);
 
-					fullfill(configFilePath);
+					fulfill(configFilePath);
 				}
 			);
 		});

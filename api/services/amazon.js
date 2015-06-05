@@ -28,7 +28,7 @@ module.exports = {
 	**/
 	createS3Bucket: function(id, bucketName, region, type){
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(!bucketName){
 				sails.log.error('You must provide a name before you can create a bucket.');
@@ -79,7 +79,7 @@ module.exports = {
 									reject({message: "Unable to save the bucket association."});
 								}
 								sails.log.info('Updated settings property ' + type + ' with ' + bucketName + '.');
-								fullfill({
+								fulfill({
 									bucket_name: bucketName,
 									location: data
 								});
@@ -91,7 +91,7 @@ module.exports = {
 					}
 				} else {
 					//sails.log(data); // successful response
-					fullfill({
+					fulfill({
 							bucket_name: bucketName,
 							location: data.Location
 						});
@@ -111,7 +111,7 @@ module.exports = {
 	**/
 	removeS3Bucket: function(id, bucketName, region, type){
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(!bucketName){
 				sails.log.error('You must provide a name before you can remove a bucket.');
@@ -157,7 +157,7 @@ module.exports = {
 							sails.log.error(err);
 							reject(err);
 						}
-						fullfill(bucketName);
+						fulfill(bucketName);
 					});
 				});
 
@@ -177,7 +177,7 @@ module.exports = {
 	* @return promise
 	**/
 	createSQSWorkQueue: function(userId, jobName, s3BucketEndpoint, region){
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			//Load the credentials and build configuration
 			AWS.config.update(sails.config.aws.credentials);
@@ -223,7 +223,7 @@ module.exports = {
 					reject(err);
 				} else {
 					sails.log(data); // successful response
-					fullfill(data);
+					fulfill(data);
 				}
 			});*/
 			var params = {
@@ -253,7 +253,7 @@ module.exports = {
 						if(err){
 							reject(err);
 						}
-						fullfill(queueRecord);
+						fulfill(queueRecord);
 					});
 				}
 			});
@@ -272,7 +272,7 @@ module.exports = {
 	deleteSQSWorkQueue: function(queue_id){
 		sails.log.info("Deleting the associated Amazon SQS work queue...");
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			if(!queue_id) reject("You must provide a valid queue id value.");
 
@@ -302,7 +302,7 @@ module.exports = {
 
 						sails.log(data); // successful response
 
-						fullfill(data);
+						fulfill(data);
 					});
 				});
 		});
@@ -319,7 +319,7 @@ module.exports = {
 
 		var homedir = (process.platform === 'win32') ? process.env.HOMEPATH : process.env.HOME;
 
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			fs.readFile( path.resolve(homedir, '.aws', 'credentials'), 'utf8', function (err,data) {
 				if (err) {
 					return sails.log(err);
@@ -344,7 +344,7 @@ module.exports = {
 						aws_access_key_id: aws_access_key_id,
 						aws_secret_access_key: aws_secret_access_key
 					};
-					fullfill(results);
+					fulfill(results);
 				}
 			});
 		});
@@ -371,7 +371,7 @@ module.exports = {
 					end: sails.EOL + '\t}' + sails.EOL + '}'
 				};
 
-			var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 				var configFilePath = path.resolve('config', configFile);
 
@@ -407,7 +407,7 @@ module.exports = {
 						sails.log.error(err);
 						reject(err);
 					} else {
-						fullfill({ message: 'Amazon config file saved successfully!'});
+						fulfill({ message: 'Amazon config file saved successfully!'});
 					}
 				});
 

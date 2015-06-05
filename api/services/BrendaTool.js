@@ -29,7 +29,7 @@ module.exports = {
 
 	prune: function (N_remaining)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -41,7 +41,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -69,7 +69,7 @@ module.exports = {
 
 	pruneSpot: function (N_remaining)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -81,7 +81,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -94,7 +94,7 @@ module.exports = {
 	* @return promise
 	**/
 	perf: function(){
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -106,7 +106,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -120,7 +120,7 @@ module.exports = {
 	**/
 	instances: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -132,7 +132,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -146,7 +146,7 @@ module.exports = {
 	**/
 	rsync: function(args)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -158,7 +158,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -172,7 +172,7 @@ module.exports = {
 	**/
 	ssh: function(args)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -184,7 +184,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -197,7 +197,7 @@ module.exports = {
 	**/
 	copyConfigToAllIstances: function(configFilePath)
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -209,7 +209,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -222,7 +222,7 @@ module.exports = {
 	**/
 	getTailLogForEachInstance: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -234,7 +234,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -247,7 +247,7 @@ module.exports = {
 	**/
 	getUptime: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -259,7 +259,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -272,7 +272,7 @@ module.exports = {
 	**/
 	getInstances: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -284,7 +284,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
@@ -297,7 +297,7 @@ module.exports = {
 	**/
 	stopBrendaScripts: function()
 	{
-		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
 				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
@@ -309,7 +309,7 @@ module.exports = {
 				if (err) reject(err);
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
-				fullfill(results);
+				fulfill(results);
 			});
 		});
 		return promise;
