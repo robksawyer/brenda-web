@@ -90,18 +90,16 @@ module.exports = {
 									//Build a unique config file for the render
 									brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
 										.then(
-											function(configFileData){
+											function(configFilePath){
 
-												//var taskFilePath = path.join('lib','brenda','task-scripts','frame');
-												sails.log(configFileData);
-												//sails.log(taskFilePath);
-
-												reject();
+												var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+												sails.log(configFilePath);
+												sails.log(taskFilePath);
 
 												if(typeof taskFilePath === 'undefined'){
 													reject("Unable to find the task file.");
 												}
-												if(typeof configFileData === 'undefined'){
+												if(typeof configFilePath === 'undefined'){
 													reject("Unable to find the Brenda config file.");
 												}
 												if(typeof jobs[0].animation_start_frame === 'undefined'){

@@ -588,7 +588,7 @@ module.exports = {
 						}
 
 						//Retrieve the config file path
-						brenda.getRenderConfigFilePath(renderRecord_id).then(
+						brenda.getRenderConfigFilePath(renderRecord_id, configFile).then(
 							function(configFilePath){
 
 								sails.log("Writing Brenda config file for the job.");
@@ -598,7 +598,7 @@ module.exports = {
 								brenda.writeFile(configFilePath, brendaConfigFileData).then(
 									function(result){
 										sails.log("Brenda config file written successfully!");
-
+										fullfill(result);
 									},
 									function(err){
 										reject(err);
@@ -639,19 +639,27 @@ module.exports = {
 
 		});
 		return promise;
-	}
+	},
 
 	/**
 	*
 	* Helper to retrieve the Render config file path w/ filename.
 	* @param renderRecord_id: integer - The Render record id
+	* @param configFile: string - Config file path in congig/brenda.js
 	* @return promise
 	**/
-	getRenderConfigFilePath: function(renderRecord_id)
+	getRenderConfigFilePath: function(renderRecord_id, configFile)
 	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			if(typeof renderRecord_id === 'undefined') {
 				reject("You must provide a valid render record id.");
+			}
+			if(typeof configFile === 'undefined') {
+				//Try to find it.
+				configFile = path.resolve(sails.config.brenda.settings.jobConfigFolderName);
+				if(typeof configFile === 'undefined') {
+					reject("You must provide a valid config file path. Check the config/brenda.js file.");
+				}
 			}
 
 			//Pull the config file name from the Render record
