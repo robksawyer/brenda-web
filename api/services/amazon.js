@@ -276,27 +276,35 @@ module.exports = {
 
 			if(!queue_id) reject("You must provide a valid queue id value.");
 
-			Queue.findOne({id: queue_id}, function(err, queueRecord){
-				if(err) reject(err);
-
-				//Load the credentials and build configuration
-				AWS.config.update(sails.config.aws.credentials);
-
-				var params = {
-					QueueUrl: queueRecord.url /* required */
-				};
-				sqs.deleteQueue(params, function(err, data) {
-					if (err) {
-						sails.log.error(err, err.stack); // an error occurred
+			Queue.find({ id: queue_id })
+				.exec( function(err, queue) {
+					if(err) {
 						reject(err);
 					}
 
-					sails.log(data); // successful response
+					sails.log(queue);
 
-					fullfill(data);
+					if(typeof queue[0].url === 'undefined') {
+						reject('There was an error finding the queue url.');
+					}
+
+					//Load the credentials and build configuration
+					AWS.config.update(sails.config.aws.credentials);
+
+					var params = {
+						QueueUrl: queue[0].url /* required */
+					};
+					sqs.deleteQueue(params, function(err, data) {
+						if (err) {
+							sails.log.error(err, err.stack); // an error occurred
+							reject(err);
+						}
+
+						sails.log(data); // successful response
+
+						fullfill(data);
+					});
 				});
-			});
-
 		});
 		return promise;
 	},

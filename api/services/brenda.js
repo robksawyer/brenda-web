@@ -189,28 +189,33 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 
 			//Create and save the job to the database
-			Jobs.create({
-				name: params.name,
-				files: [fileRecord_id],
-				owner: user_id,
-				animation_start_frame: params.animation_start_frame,
-				animation_end_frame: params.animation_end_frame,
-				animation_total_frames: params.animation_end_frame - params.animation_start_frame + 1,
-				ami_id: params.ami_id,
-				instance_type: params.instance_type,
-				aws_ec2_region: params.aws_ec2_region,
-				aws_sqs_region: params.aws_sqs_region,
-				aws_ec2_instance_count: params.aws_ec2_instance_count,
-				max_spend_amount: params.max_spend_amount,
-				queue: queueRecord_id
-			}).exec(function createJob(err, jobData){
-				if(err){
-					sails.log.error(err);
-					reject(err);
+			Jobs.create(
+				{
+					name: params.name,
+					files: [fileRecord_id],
+					owner: user_id,
+					animation_start_frame: params.animation_start_frame,
+					animation_end_frame: params.animation_end_frame,
+					animation_total_frames: params.animation_end_frame - params.animation_start_frame + 1,
+					ami_id: params.ami_id,
+					instance_type: params.instance_type,
+					aws_ec2_region: params.aws_ec2_region,
+					aws_s3_render_bucket: params.aws_s3_render_bucket,
+					aws_sqs_region: params.aws_sqs_region,
+					aws_ec2_instance_count: params.aws_ec2_instance_count,
+					max_spend_amount: params.max_spend_amount,
+					queue: queueRecord_id
 				}
+			).exec(
+				function createJob(err, jobData){
+					if(err){
+						sails.log.error(err);
+						reject(err);
+					}
 
-				fullfill(jobData);
-			});
+					fullfill(jobData);
+				}
+			);
 		});
 		return promise;
 	},
