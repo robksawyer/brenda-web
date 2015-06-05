@@ -228,7 +228,7 @@ module.exports = {
 	* may be allowed to push a render. Or, maybe the AWS S3 render frame bucket needs to change. These
 	* should also be duplicated. And will hold time and cost information for a particular run.
 	* @param user_id: integer
-	* @param job_record_id: integer
+	* @param jobRecord_id: integer
 	* @param jobName: The name of the job. A unique render name is produced from this.
 	* @param s3RenderBucket: S3 bucket that frames will be rendered to.
 	* @return promise
@@ -532,7 +532,7 @@ module.exports = {
 			}
 
 			//Check the owner here?
-			Jobs.find({ id: job_record_id })
+			Jobs.find({ id: jobRecord_id })
 				.populate('queue')
 				.populate('files')
 				.exec(
