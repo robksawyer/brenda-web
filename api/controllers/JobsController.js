@@ -54,14 +54,14 @@ module.exports = {
 			.exec( function(err, job){
 
 				if (err) {
-					FlashService.error(req, 'You are not allowed to perform this action.');
+					req.flash('error', 'You are not allowed to perform this action.');
 					return res.negotiate(err);
 				}
 
 				Jobs.destroy({ id: req.param('id'), owner: req.user.id }).exec(
 					function (err) {
 						if (err) {
-							FlashService.error(req, 'You are not allowed to perform this action.');
+							req.flash('error', 'You are not allowed to perform this action.');
 							return res.negotiate(err);
 						}
 
@@ -90,16 +90,31 @@ module.exports = {
 						sails.log(job[0].queue);
 
 						if(typeof job[0].queue !== 'undefined'){
+
 							var deleteQueue = new sails.RSVP.Promise( function(fullfill, reject) {
-								Queue.destroy({ id: job[0].queue }).exec(
-									function(err){
-										if(err){
+
+								//Delete the queue on Amazon
+								amazon.deleteSQSWorkQueue(job[0].queue)
+									.then(
+										function(result){
+
+											//Delete the queue record
+											Queue.destroy({ id: job[0].queue }).exec(
+												function(err){
+													if(err){
+														reject(err);
+													}
+
+													fullfill();
+												}
+											);
+
+										},
+										function(err){
 											reject(err);
 										}
+									);
 
-										fullfill();
-									}
-								);
 							});
 							promises.push(deleteQueue);
 						}
@@ -113,27 +128,27 @@ module.exports = {
 									for(var i=0;i<array.length;i++){
 										if(array[i].state == 'rejected'){
 											errors.push(array[i].reason);
-											FlashService.error(req, array[i].reason);
+											req.flash('error', array[i].reason);
 										}
 									}
 
 									sails.log(array);
 									//Check the total errors found.
 									if(errors.length > 0){
-										FlashService.error(req, '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+										req.flash('error', '<br><br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
 									} else {
 										sails.log('Job ' + job[0].name + ' destroyed successfully!');
-										FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+										req.flash('success', 'Job ' + job[0].name + ' destroyed successfully!');
 									}
 								},
 								function(err){
-									FlashService.error(req, 'There was an server error.<br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
+									req.flash('error', 'There was an server error.<br>Please file a bug report at <a href="https://github.com/robksawyer/brenda-web/issues/new?labels=bug">github.com/robksawyer/brenda-web/issues/new?labels=bug</a>.');
 									return res.negotiate(err);
 								}
 							);
 
 						} else {
-							FlashService.success(req, 'Job ' + job[0].name + ' destroyed successfully!');
+							req.flash('success', 'Job ' + job[0].name + ' destroyed successfully!');
 						}
 
 						return res.redirect('/jobs');
@@ -153,8 +168,6 @@ module.exports = {
 
 		//Pull the user's settings from the database
 		brenda.getUserSettings(req).then( function(settings) {
-
-			sails.log(req.params.all());
 
 			var errors = [];
 
@@ -197,7 +210,7 @@ module.exports = {
 								//Process the file input
 								brenda.processBlenderFile(req, fileStream, settings).then(
 									function(jobRecord){
-										FlashService.success(req, 'Spot instance job ' + jobRecord.name + ' created successfully!');
+										req.flash('success', 'Spot instance job ' + jobRecord.name + ' created successfully!');
 										res.redirect('jobs/submit/' + jobRecord.id);
 									},
 									function(err){
@@ -206,20 +219,20 @@ module.exports = {
 											switch(err.code){
 
 												case "UnknownEndpoint":
-													FlashService.error(req, err.message);
+													req.flash('error', err.message);
 													res.view('jobs/add_spot',{
 														settings: settings
 													});
 													break;
 
 												default:
-													FlashService.error(req, err);
+													req.flash('error', err);
 													return res.negotiate(err);
 													break;
 											}
 
 										} else {
-											FlashService.error(req, err);
+											req.flash('error', err);
 											return res.negotiate(err);
 										}
 									}
@@ -235,25 +248,25 @@ module.exports = {
 										res.redirect('jobs/submit/' + jobRecord.id);
 									},
 									function(err){
-										FlashService.error(req, err);
+										req.flash('error', err);
 										return res.negotiate(err);
 									}
 								);
 
 							} else {
-								FlashService.error(req, 'Unable to find the extension of the file.');
+								req.flash('error', 'Unable to find the extension of the file.');
 								res.view('jobs/add_spot',{
 									settings: settings
 								});
 							}
 						} else {
-							FlashService.error(req, 'File validation failed.');
+							req.flash('error', 'File validation failed.');
 							res.view('jobs/add_spot',{
 								settings: settings
 							});
 						}
 					} else {
-						FlashService.error(req, 'The file could not be found or was not uploaded.');
+						req.flash('error', 'The file could not be found or was not uploaded.');
 						res.view('jobs/add_spot',{
 							settings: settings
 						});
@@ -275,7 +288,7 @@ module.exports = {
 		},
 		function(err){
 			sails.log.error(err);
-			FlashService.error(req, err);
+			req.flash('error', err);
 			return res.notFound();
 		});
 
@@ -283,10 +296,11 @@ module.exports = {
 
 	submit: function(req, res){
 		if( typeof req.param('id') !== 'undefined' ){
+
 			//Search for the job details
 			Jobs.find({id: req.param('id'), owner: req.user.id}).populate('queue').exec( function(err, jobRecords){
 				if(err){
-					FlashService.error(req, err);
+					req.flash('error', err);
 					res.serverError(err);
 				}
 
@@ -312,27 +326,28 @@ module.exports = {
 	start: function(req, res){
 
 		if( typeof req.param('type') === 'undefined'){
-			FlashService.error(req, 'You must provide a valid job type e.g. spot.');
+			req.flash('error', 'You must provide a valid job type e.g. spot.');
 			res.notFound();
 		}
 
 		if( typeof req.param('id') !== 'undefined' ){
 
 			//Kick off the brenda work job
-			BrendaWork.start( req.param('id'), req.user.id ).then(
-				function(){
-					//Pass the user to the job overview page.
-					//This will allow them to see the status of the spot instance request.
-					//Spot instance status should show up in the job block
-					//It might be more helpful to send them to a job status page. TBD on that.
-					FlashService.success(req, 'The spot request has been initiated. Please see the job record for the status.');
-					res.redirect('/jobs');
-				},
-				function(err){
-					FlashService.error(req, err);
-					res.serverError(err);
-				}
-			);
+			BrendaWork.start( req.user.id, req.param('id') )
+				.then(
+					function(){
+						//Pass the user to the job overview page.
+						//This will allow them to see the status of the spot instance request.
+						//Spot instance status should show up in the job block
+						//It might be more helpful to send them to a job status page. TBD on that.
+						req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
+						res.redirect('/jobs');
+					},
+					function(err){
+						req.flash('error', err);
+						res.serverError(err);
+					}
+				);
 
 		} else {
 			return res.notFound();

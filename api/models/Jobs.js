@@ -38,7 +38,7 @@ module.exports = {
 		aws_ec2_instance_count: {
 			type: 'integer'
 		},
-		aws_s3_render_bucket:{
+		aws_s3_render_bucket: {
 			type: 'string'
 		},
 		max_spend_amount: {
@@ -48,9 +48,6 @@ module.exports = {
 			type: 'string'
 		},
 		status:{
-			type: 'string'
-		},
-		configurationFile: {
 			type: 'string'
 		},
 		queue: {

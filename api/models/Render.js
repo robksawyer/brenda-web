@@ -8,13 +8,32 @@
 module.exports = {
 
 	attributes: {
-
+		name: {
+			type: 'string'
+		},
 		aws_s3_bucket: {
 			type: 'string'
 		},
-
+		configFileName: {
+			type: 'string'
+		},
+		price_per_instance: {
+			type: 'float'
+		},
+		total_price: {
+			type: 'float'
+		},
+		start_time:{
+			type: 'datetime'
+		},
+		end_time: {
+			type: 'datetime'
+		},
 		job: {
 			model: 'jobs'
+		},
+		owner:{
+			model: 'user'
 		}
 	}
 };

@@ -262,6 +262,45 @@ module.exports = {
 		return promise;
 	},
 
+	/**
+	*
+	* Helper to remove SQS work queues
+	* @parma queue_id: integer
+	* @return promise
+	*
+	**/
+	deleteSQSWorkQueue: function(queue_id){
+		sails.log.info("Deleting the associated Amazon SQS work queue...");
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			if(!queue_id) reject("You must provide a valid queue id value.");
+
+			Queue.findOne({id: queue_id}, function(err, queueRecord){
+				if(err) reject(err);
+
+				//Load the credentials and build configuration
+				AWS.config.update(sails.config.aws.credentials);
+
+				var params = {
+					QueueUrl: queueRecord.url /* required */
+				};
+				sqs.deleteQueue(params, function(err, data) {
+					if (err) {
+						sails.log.error(err, err.stack); // an error occurred
+						reject(err);
+					}
+
+					sails.log(data); // successful response
+
+					fullfill(data);
+				});
+			});
+
+		});
+		return promise;
+	},
+
 
 	/**
 	*

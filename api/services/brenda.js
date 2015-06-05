@@ -188,20 +188,6 @@ module.exports = {
 
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 
-			var configFile = "";
-
-			//Clean up the name and get it ready to become the queue name
-			//Add dashes in place of spaces
-			configFile = changeCase.snakeCase(params.name);
-
-			//Generate a random hash and append it to the name.
-			var randString = tools.makeid(6);
-			configFile += '_' + randString;
-
-			//Cover to lowercase
-			configFile = changeCase.lowerCase(configFile);
-			configFile += configFile + ".conf";
-
 			//Create and save the job to the database
 			Jobs.create({
 				name: params.name,
@@ -216,15 +202,80 @@ module.exports = {
 				aws_sqs_region: params.aws_sqs_region,
 				aws_ec2_instance_count: params.aws_ec2_instance_count,
 				max_spend_amount: params.max_spend_amount,
-				queue: queueRecord_id,
-				configurationFile: configFile
+				queue: queueRecord_id
 			}).exec(function createJob(err, jobData){
 				if(err){
 					sails.log.error(err);
 					reject(err);
 				}
+
 				fullfill(jobData);
 			});
+		});
+		return promise;
+	},
+
+
+	/**
+	*
+	* Creates a Render record.
+	* Render records handle specifics for an individual render. In the future, others beside the job owner
+	* may be allowed to push a render. Or, maybe the AWS S3 render frame bucket needs to change. These
+	* should also be duplicated. And will hold time and cost information for a particular run.
+	* @param user_id: integer
+	* @param job_record_id: integer
+	* @param jobName: The name of the job. A unique render name is produced from this.
+	* @param s3RenderBucket: S3 bucket that frames will be rendered to.
+	* @return promise
+	*
+	**/
+	createRenderRecord: function(user_id, jobRecord_id, jobName, s3RenderBucket)
+	{
+		sails.log('Creating Render Record...');
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+
+			var renderName = "";
+			var configFile = "";
+
+			//Clean up the name and get it ready to become the queue name
+			//Add dashes in place of spaces
+			configFile = changeCase.snakeCase(jobName);
+			renderName = changeCase.paramCase(jobName);
+
+
+			//Generate a random hash and append it to the name.
+			var randString = tools.makeid(6);
+			configFile += '_' + randString;
+			renderName += '-' + randString;
+
+			//Cover to lowercase
+			configFile = changeCase.lowerCase(configFile);
+			renderName = changeCase.lowerCase(renderName);
+
+			//Append file extension
+			configFile += configFile + ".conf";
+
+			sails.log(configFile);
+
+			//Create and save the job to the database
+			Render.create(
+				{
+					name: renderName,
+					aws_s3_bucket: s3RenderBucket,
+					configFileName: configFile,
+					job: jobRecord_id
+				}
+			)
+			.exec(
+				function createRender(err, renderData){
+					if(err){
+						sails.log.error(err);
+						reject(err);
+					}
+					fullfill(renderData);
+				}
+			);
 		});
 		return promise;
 	},
@@ -438,7 +489,9 @@ module.exports = {
 	*
 	* Writes a new brenda job config file with the values from the Job record.
 	* @param user_id: integer - The user that owns the job
-	* @param job_record_id: integer - The Job record id to pull config data from.
+	* @param jobRecord_id: integer - The Job record id to pull config data from.
+	* @param renderRecord_id: integer - The Render record id to pull config data from.
+	* @param s3RenderBucket: string
 	* @return promise
 	*
 	* INSTANCE_TYPE=m3.xlarge
@@ -466,7 +519,7 @@ module.exports = {
 	* automatically shut themselves down after the render is complete.
 	*
 	**/
-	writeBrendaConfigFile: function(user_id, job_record_id)
+	writeBrendaConfigFile: function(user_id, jobRecord_id, renderRecord_id, s3RenderBucket)
 	{
 		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
 			if(!sails.config.jobConfigFolderName){
@@ -487,31 +540,43 @@ module.exports = {
 
 						var blenderProjectFile = jobs[0].files[0];
 						var blenderProjectQueue = jobs[0].queue;
-						brendaConfigFileData += "BLENDER_PROJECT=" + blenderProjectFile.aws_s3_location + sails.EOL: //PROJECT_BUCKET/myproject.tar.gz
+						brendaConfigFileData += "BLENDER_PROJECT=" + blenderProjectFile.aws_s3_location + sails.EOL; //PROJECT_BUCKET/myproject.tar.gz
 						brendaConfigFileData += "WORK_QUEUE=" + blenderProjectQueue.url + sails.EOL;
 						//Right now pull this from settings. But in the future tie it to Render model.
-						brendaConfigFileData += "RENDER_OUTPUT=" + "s3://" + jobs[0].aws_s3_render_bucket + sails.EOL; //s3://FRAME_BUCKET
+						brendaConfigFileData += "RENDER_OUTPUT=" + "s3://" + s3RenderBucket + sails.EOL; //s3://FRAME_BUCKET
 						brendaConfigFileData += "DONE=shutdown";
 
 						//Folder that all config files live in.
-						var configFile = sails.config.jobConfigFolderName;
+						var configFile = path.resolve(sails.config.jobConfigFolderName);
+						sails.log.info(configFile);
 
-						//Build a name for the config file. A reference to this needs to be added to the Job record.
-						var configFileName = jobs[0].configurationFile + '.conf';
-						var configFilePath = path.join(configFile, configFileName);
+						//Create the directory if it does not exist
+						if (!fs.existsSync(configFile)){
+							fs.mkdirSync(configFile);
+						}
 
-						sails.log("Writing Brenda config file for the job.");
-						sails.log("Brenda config file location:" + configFilePath);
-						sails.log(brendaConfigFileData);
+						//Pull the config file name from the Render record
+						Render.find({id: renderRecord_id}).exec(
+							function(err, renderRecords){
+								if(err) reject(err);
 
-						fs.writeFile(configFilePath, brendaConfigFileData, { encoding: 'utf-8' }, function(err, obj) {
-							if(err){
-								sails.log.error(err);
-								reject(err);
+								var configFileName = renderRecords[0].configFileName;
+								var configFilePath = path.join(configFile, configFileName);
+
+								sails.log("Writing Brenda config file for the job.");
+								sails.log("Brenda config file location:" + configFilePath);
+								sails.log(brendaConfigFileData);
+
+								fs.writeFile(configFilePath, brendaConfigFileData, { encoding: 'utf-8' }, function(err, obj) {
+									if(err){
+										sails.log.error(err);
+										reject(err);
+									}
+									sails.log("Brenda config file written successfully!");
+									fullfill(brendaConfigFileData);
+								});
 							}
-							sails.log("Brenda config file written successfully!");
-							fullfill(brendaConfigFileData);
-						});
+						);
 
 					}
 				);

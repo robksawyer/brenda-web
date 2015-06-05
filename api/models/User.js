@@ -47,6 +47,10 @@ var User = {
     queues: {
       collection: 'queue',
       via: 'owner'
+    },
+    renders: {
+      collection: 'render',
+      via: 'owner'
     }
   }
 };
