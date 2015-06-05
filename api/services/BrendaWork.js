@@ -66,6 +66,20 @@ module.exports = {
 							reject(err);
 						}
 
+						/*if(typeof jobs[0].aws_s3_render_bucket === 'undefined'){
+							var applyDefaultRenderBucket = new sails.RSVP.Promise( function(fullfill, reject) {
+								//Add the default from Settings
+								Setting.find({owner: req.user.id}).exec(
+									function(err, settings){
+										if(err){
+											reject(err);
+										}
+										fullfill(settings[0].aws_s3_render_bucket);
+									}
+								);
+							});
+						}*/
+
 						//Create a Render record.
 						brenda.createRenderRecord( user_id, jobs[0].id, jobs[0].name, jobs[0].aws_s3_render_bucket )
 							.then(
@@ -76,12 +90,26 @@ module.exports = {
 									//Build a unique config file for the render
 									brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
 										.then(
-											function(configFilePath){
+											function(configFileData){
 
-												var taskFilePath = path.join('lib','task-scripts','frame');
-												sails.log(configFilePath);
-												sails.log(taskFilePath);
-												sails.log(jobs[0]);
+												//var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+												sails.log(configFileData);
+												//sails.log(taskFilePath);
+
+												reject();
+
+												if(typeof taskFilePath === 'undefined'){
+													reject("Unable to find the task file.");
+												}
+												if(typeof configFileData === 'undefined'){
+													reject("Unable to find the Brenda config file.");
+												}
+												if(typeof jobs[0].animation_start_frame === 'undefined'){
+													reject("Unable to find the animation start frame.");
+												}
+												if(typeof jobs[0].animation_end_frame === 'undefined'){
+													reject("Unable to find the animation end frame.");
+												}
 
 												var options = {
 													mode: 'binary',
@@ -90,7 +118,6 @@ module.exports = {
 													scriptPath: 'lib/brenda/',
 													args: ['-c "' + configFilePath + '" -T "' + taskFilePath + '" -s ' + jobs[0].animation_start_frame + ' -e ' + jobs[0].animation_end_frame + ' push']
 												};
-
 												sails.python.run('brenda-work', options,
 													function (err, results) {
 														if (err) reject(err);

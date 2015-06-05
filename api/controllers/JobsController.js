@@ -52,6 +52,7 @@ module.exports = {
 		Jobs.find({ id: req.param('id'), owner: req.user.id })
 			.populate('queue')
 			.populate('files')
+			.populate('renders')
 			.exec( function(err, job){
 
 				if (err) {
@@ -119,6 +120,36 @@ module.exports = {
 							});
 							promises.push(deleteQueue);
 						}
+
+						/*if(typeof job[0].renders !== 'undefined'){
+
+							var deleteRenders = new sails.RSVP.Promise( function(fullfill, reject) {
+
+								//Delete the queue on Amazon
+								brenda.deleteRenderConfigFiles(job[0].renders)
+									.then(
+										function(result){
+
+											//Delete the queue record
+											Render.destroy({ id: job[0].renders }).exec(
+												function(err){
+													if(err){
+														reject(err);
+													}
+
+													fullfill();
+												}
+											);
+
+										},
+										function(err){
+											reject(err);
+										}
+									);
+
+							});
+							promises.push(deleteQueue);
+						}*/
 
 						if(promises.length > 0){
 

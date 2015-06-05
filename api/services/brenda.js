@@ -530,6 +530,18 @@ module.exports = {
 			if(!sails.config.brenda.settings.jobConfigFolderName){
 				reject("Unable to find the job config folder.");
 			}
+			if(!user_id){
+				reject("Unable to find the User id.");
+			}
+			if(!jobRecord_id){
+				reject("Unable to find the Job record id.");
+			}
+			if(!renderRecord_id){
+				reject("Unable to find the Render record id.");
+			}
+			if(!s3RenderBucket){
+				reject("Unable to find the Amazon S3 frame render bucket.");
+			}
 
 			//Check the owner here?
 			Jobs.find({ id: jobRecord_id })
@@ -543,8 +555,23 @@ module.exports = {
 						var brendaConfigFileData = "";
 						brendaConfigFileData += "INSTANCE_TYPE=" + jobs[0].instance_type + sails.EOL; //m3.xlarge
 
-						var blenderProjectFile = jobs[0].files[0];
+						sails.log(jobs[0].files);
+
+						if(typeof jobs[0].files === 'undefined'){
+							reject("Unable to find an associated Blender file for the job.");
+						} else if(typeof jobs[0].files.aws_s3_location === 'undefined'){
+							reject("Unable to find the Amazon S3 location of the file for the job.");
+						}
+
+						if(typeof jobs[0].queue === 'undefined'){
+							reject("Unable to find an associated SQS queue for the job.");
+						} else if(typeof jobs[0].queue.url === 'undefined'){
+							reject("Unable to find the Amazon SQS queue location for the job.");
+						}
+
+						var blenderProjectFile = jobs[0].files;
 						var blenderProjectQueue = jobs[0].queue;
+
 						brendaConfigFileData += "BLENDER_PROJECT=" + blenderProjectFile.aws_s3_location + sails.EOL; //PROJECT_BUCKET/myproject.tar.gz
 						brendaConfigFileData += "WORK_QUEUE=" + blenderProjectQueue.url + sails.EOL;
 						//Right now pull this from settings. But in the future tie it to Render model.
@@ -560,31 +587,84 @@ module.exports = {
 							fs.mkdirSync(configFile);
 						}
 
-						//Pull the config file name from the Render record
-						Render.find({id: renderRecord_id}).exec(
-							function(err, renderRecords){
-								if(err) reject(err);
-
-								var configFileName = renderRecords[0].configFileName;
-								var configFilePath = path.join(configFile, configFileName);
+						//Retrieve the config file path
+						brenda.getRenderConfigFilePath(renderRecord_id).then(
+							function(configFilePath){
 
 								sails.log("Writing Brenda config file for the job.");
 								sails.log("Brenda config file location:" + configFilePath);
 								sails.log(brendaConfigFileData);
 
-								fs.writeFile(configFilePath, brendaConfigFileData, { encoding: 'utf-8' }, function(err, obj) {
-									if(err){
-										sails.log.error(err);
+								brenda.writeFile(configFilePath, brendaConfigFileData).then(
+									function(result){
+										sails.log("Brenda config file written successfully!");
+
+									},
+									function(err){
 										reject(err);
 									}
-									sails.log("Brenda config file written successfully!");
-									fullfill(brendaConfigFileData);
-								});
+								);
+							},
+							function(err){
+
 							}
 						);
 
 					}
 				);
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Helper to write files to the disk.
+	* @param filePath: string - This must include the file name.
+	* @param fileData: string
+	* @return promise
+	**/
+
+	writeFile: function(filePath, fileData){
+
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			var writeFile = RSVP.denodeify(fs.writeFile);
+			writeFile(filePath, fileName, { encoding: 'utf-8' })
+				.then( function() {
+					fullfill(filePath);
+				})
+				.catch( function(err) {
+					sails.log.error(err);
+					reject(err);
+				});
+
+		});
+		return promise;
+	}
+
+	/**
+	*
+	* Helper to retrieve the Render config file path w/ filename.
+	* @param renderRecord_id: integer - The Render record id
+	* @return promise
+	**/
+	getRenderConfigFilePath: function(renderRecord_id)
+	{
+		var promise = new sails.RSVP.Promise( function(fullfill, reject) {
+			if(typeof renderRecord_id === 'undefined') {
+				reject("You must provide a valid render record id.");
+			}
+
+			//Pull the config file name from the Render record
+			Render.find({id: renderRecord_id}).exec(
+				function(err, renderRecord){
+					if(err) reject(err);
+
+					var configFileName = renderRecord[0].configFileName;
+					var configFilePath = path.join(configFile, configFileName);
+
+					fullfill(configFilePath);
+				}
+			);
 		});
 		return promise;
 	}

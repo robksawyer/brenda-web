@@ -284,7 +284,7 @@ module.exports = {
 
 					sails.log(queue);
 
-					if(typeof queue[0].url === 'undefined') {
+					if(typeof queue.url === 'undefined') {
 						reject('There was an error finding the queue url.');
 					}
 
@@ -292,7 +292,7 @@ module.exports = {
 					AWS.config.update(sails.config.aws.credentials);
 
 					var params = {
-						QueueUrl: queue[0].url /* required */
+						QueueUrl: queue.url /* required */
 					};
 					sqs.deleteQueue(params, function(err, data) {
 						if (err) {

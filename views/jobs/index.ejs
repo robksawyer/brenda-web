@@ -99,7 +99,18 @@
 							<div class="row-fluid clearfix">
 								<div class="col-md-4 nopadding nomargin">
 									<ul class="nobull">
-										<li>Started: May 18, 2015 00:47 </li>
+										<% if(typeof jobs[i].renders !== 'undefined') { %>
+											<% if(jobs[i].renders[0].start_time !== 'undefined') { %>
+												<li>Start Time: <%= jobs[i].renders[0].start_time %></li>
+											<% } else { %>
+												<li>Start Time: n/a</li>
+											<% } %>
+											<% if(jobs[i].renders[0].end_time !== 'undefined') { %>
+												<li>End Time: <%= jobs[i].renders[0].end_time %></li>
+											<% } else { %>
+												<li>End Time: n/a</li>
+											<% } %>
+										<% } %>
 										<li>Elapsed: 00:25:59</li>
 										<li>Cycles 2.74</li>
 									</ul>
@@ -110,6 +121,7 @@
 										<li>Instances Type: <%= jobs[i].instance_type %></li>
 										<li>EC2 Region: <%= jobs[i].aws_ec2_region %></li>
 										<li>SQS Region: <%= jobs[i].aws_sqs_region %></li>
+										<li>Amazon S3 Frame Bucket: <%= (jobs[i].aws_s3_render_bucket) || 'n/a' %></li>
 									</ul>
 								</div>
 							</div>
