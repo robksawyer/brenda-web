@@ -575,7 +575,9 @@ module.exports = {
 						var blenderProjectQueue = jobs[0].queue;
 
 						brendaConfigFileData += "BLENDER_PROJECT=" + blenderProjectFile.aws_s3_location + sails.EOL; //PROJECT_BUCKET/myproject.tar.gz
-						brendaConfigFileData += "WORK_QUEUE=" + blenderProjectQueue.url + sails.EOL;
+						//TODO: This was changed from blenderProjectQueue.url to blenderProjectQueue.name because the Python brenda-work script doesn't
+						//		seem to like https:// URLs. This needs to be updated in the future.
+						brendaConfigFileData += "WORK_QUEUE=sqs://" + blenderProjectQueue.name + sails.EOL;
 						//Right now pull this from settings. But in the future tie it to Render model.
 						brendaConfigFileData += "RENDER_OUTPUT=" + "s3://" + s3RenderBucket + sails.EOL; //s3://FRAME_BUCKET
 						brendaConfigFileData += "DONE=shutdown";
