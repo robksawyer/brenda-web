@@ -114,7 +114,12 @@ module.exports = {
 													reject("Unable to find the animation end frame.");
 												}
 
-												var arguments = '-c "' + configFilePath + '" -T "' + taskFilePath + '" -s ' + jobs[0].animation_start_frame + ' -e ' + jobs[0].animation_end_frame + ' push';
+												var arguments = [];
+												arguments.push('-c "' + configFilePath + '"');
+												arguments.push('-T "' + taskFilePath + '"');
+												arguments.push('-s ' + jobs[0].animation_start_frame);
+												arguments.push('-e ' + jobs[0].animation_end_frame);
+												arguments.push('push');
 												sails.log('Running `brenda-work` with arguments: ');
 												sails.log(arguments);
 
