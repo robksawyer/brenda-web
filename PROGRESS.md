@@ -21,7 +21,7 @@ Brenda Web Progress Report
 	- This page is a work in progress. I'm not to happy with the current look and feel.
 	- The idea of this is to allow someone to start the job. By starting the job you will (see api/services/BrendaWork.js):
 		- Create a Render record. Keeps up with details about a Job's actual Render.
-		- Writes a brenda config file that the Python Brenda work and run scripts will use. (Need to get away from this.)
+		- Writes a brenda config file (by default to jobs/) that the Python Brenda work and run scripts will use. I need to figure out a away to get away from this. Writing a file to the hard drive is dirty. Currently, this is a requirement of the Python brenda scripts.
 		- Run the command `brenda-work` with the Job specific settings. This is where it's currently failing.
 
 
