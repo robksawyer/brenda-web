@@ -128,7 +128,7 @@ module.exports = {
 													pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
 													pythonOptions: ['-u'],
 													scriptPath: 'lib/brenda/',
-													args: [arguments]
+													args: arguments
 												};
 												sails.python.run('brenda-work', options,
 													function (err, results) {
