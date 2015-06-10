@@ -1,4 +1,4 @@
-# Brenda Web Progress Report
+Brenda Web Progress Report
 ------------------------------------------------------------
 
 ## June 9, 2015

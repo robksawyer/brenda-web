@@ -3,9 +3,11 @@
 
 [![Build Status](https://travis-ci.org/robksawyer/brenda-web.svg)](https://travis-ci.org/robksawyer/brenda-web) [![Code Climate](https://codeclimate.com/github/robksawyer/brenda-web/badges/gpa.svg)](https://codeclimate.com/github/robksawyer/brenda-web) [![Test Coverage](https://codeclimate.com/github/robksawyer/brenda-web/badges/coverage.svg)](https://codeclimate.com/github/robksawyer/brenda-web/coverage) [![Donate](https://img.shields.io/gratipay/robksawyer.svg)](https://gratipay.com/~robksawyer/)
 
-# Milestones
+# Milestones and Progress
 
 [Beta 1.0 - Coming Late July](https://github.com/robksawyer/brenda-web/milestones/Beta%20Version%201.0)
+
+Be sure to check out the progress report at [PROGRESS.md](https://github.com/robksawyer/brenda-web/blob/master/PROGRESS.md) for the latest feature list and status.
 
 # Getting Started
 
