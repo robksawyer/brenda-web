@@ -461,21 +461,22 @@ module.exports = {
 				for (fnum in xrange(start, end+1, task_size) ){
 					script = task_script;
 					start = fnum;
-					end = min(fnum + task_size - 1, end);
+					end = Math.min(fnum + task_size - 1, end);
 
-					for (key as value in (
-											("$FRAME", "-s %d -e %d -j %d" % (start, end, step)),
-											("$START", "%d" % (start,)),
-											("$END", "%d" % (end,)),
-											("$STEP", "%d" % (step,))
-										)
-					{
-
-						sails.log("Key: " + key);
-						sails.log("Value: " + value);
-						script = script.replace(key, value);
-						sails.log.info(script);
-					}
+					var taskFileReplacements = [
+											{ "$FRAME": "-s " + start + " -e " + end + " -j " + step },
+											{ "$START": start },
+											{ "$END": end },
+											{ "$STEP": step }
+										];
+					taskFileReplacements.forEach(
+						function(key, value){
+							sails.log("Key: " + key);
+							sails.log("Value: " + value);
+							script = script.replace(key, value);
+							sails.log.info(script);
+						}
+					);
 
 					//Handle subframe task script
 					//TODO: Figure this out later.

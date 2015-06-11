@@ -92,23 +92,43 @@ module.exports = {
 									var step = 1; //brenda default
 									var task_size = 1; //brenda default
 
+									var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+									taskFilePath = path.resolve(taskFilePath);
+
+									if(typeof taskFilePath === 'undefined'){
+										reject("Unable to find the task file.");
+									}
+									if(typeof jobs[0].animation_start_frame === 'undefined'){
+										reject("Unable to find the animation start frame.");
+									}
+									if(typeof jobs[0].animation_end_frame === 'undefined'){
+										reject("Unable to find the animation end frame.");
+									}
+
+									sails.log(taskFilePath);
+
 									//Build a task list and push the messages to the Amazon SQS queue
 									amazon.buildTaskList(taskFilePath, jobs[0].animation_start_frame, jobs[0].animation_end_frame, step, task_size)
 										.then(
 											function(tasklist){
-												amazon.pushSQSQueueTasklist(tasklist, jobs[0].queue.url)
-													.then(
-														function(results){
-															sails.log("Pushed the tasklist to the SQS queue sucessfully!");
-															sails.log(results);
-															fulfill(results);
-														},
-														function(err){
-															sails.log.error("Error pushing to SQS queue.");
-															sails.log.error(err);
-															reject(err);
-														}
-													);
+												if(tasklist){
+													amazon.pushSQSQueueTasklist(tasklist, jobs[0].queue.url)
+														.then(
+															function(results){
+																sails.log("Pushed the tasklist to the SQS queue sucessfully!");
+																sails.log(results);
+																fulfill(results);
+															},
+															function(err){
+																sails.log.error("Error pushing to SQS queue.");
+																sails.log.error(err);
+																reject(err);
+															}
+														);
+												} else {
+													sails.log.error("Error with returned tasklist.");
+													reject("Error with returned tasklist.");
+												}
 											},
 											function(err){
 												sails.log.error("Error building SQS queue tasklist.");
@@ -185,13 +205,13 @@ module.exports = {
 											function(err){
 												reject(err)
 											}
-										);
+										);*/
 
 								},
 								function(err){
 									reject(err);
 								}
-							);*/
+							);
 					}
 				);
 		});
