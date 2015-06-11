@@ -26,7 +26,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['status']
@@ -89,15 +89,35 @@ module.exports = {
 							.then(
 								function(renderRecord){
 
+
+									var step = 1; //brenda default
+									var task_size = 1; //brenda default
+
+									//Build a task list and push the messages to the Amazon SQS queue
+									amazon.buildTaskList(taskFilePath, jobs[0].animation_start_frame, jobs[0].animation_end_frame, step, task_size)
+										.then(
+											function(tasklist){
+												amazon.buildTaskList
+											}
+										)
+										.catch(
+											function(err){
+												sails.log.error(err);
+												reject(err);
+											}
+										);
+
+									//DEPRECATED: Ended up just writing a node script that does what brenda-work did.
 									//Build a unique config file for the render
-									brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
+									//
+									/*brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
 										.then(
 											function(configFilePath){
 
 												var taskFilePath = path.join('lib','brenda','task-scripts','frame');
 												taskFilePath = path.resolve(taskFilePath);
 
-												sails.log(configFilePath);
+												//sails.log(configFilePath);
 												sails.log(taskFilePath);
 												sails.log(jobs[0]);
 
@@ -119,6 +139,7 @@ module.exports = {
 													'-T', taskFilePath,
 													'-s', jobs[0].animation_start_frame,
 													'-e', jobs[0].animation_end_frame,
+													//'-d', //dry run
 													'push'
 												];
 												sails.log('Running `brenda-work` with arguments: ');
@@ -126,7 +147,7 @@ module.exports = {
 
 												var options = {
 													mode: 'binary',
-													pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+													pythonPath: sails.config.brenda.settings.pythonPath,
 													pythonOptions: ['-u'],
 													scriptPath: 'lib/brenda/',
 													args: arguments
@@ -142,6 +163,14 @@ module.exports = {
 														fulfill(results);
 													}
 												);
+												sails.python.on('message', function (message) {
+													sails.log.info(message);
+												});
+												sails.python.on('error', function(err){
+													//Handle error
+													sails.log.error(err);
+													reject(err);
+												});
 											},
 											function(err){
 												reject(err)
@@ -152,7 +181,7 @@ module.exports = {
 								function(err){
 									reject(err);
 								}
-							);
+							);*/
 					}
 				);
 		});
@@ -170,13 +199,16 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['reset']
 			};
 			sails.python.run('brenda-work', options, function (err, results) {
-				if (err) reject(err);
+				if (err) {
+					sails.log.error(err);
+					reject(err);
+				}
 				// results is an array consisting of messages collected during execution
 				sails.log('results: %j', results);
 				fulfill(results);

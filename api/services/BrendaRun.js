@@ -26,7 +26,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['status']
@@ -50,7 +50,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['stop']
@@ -74,7 +74,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['cancel']

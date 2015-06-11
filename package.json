@@ -52,6 +52,7 @@
     "skipper-s3-alt": "^0.1.0",
     "toastr": "^2.0.4",
     "validator": "^3.40.0",
+    "xrange": "^1.0.1",
     "zipstream": "^0.2.1"
   },
   "scripts": {

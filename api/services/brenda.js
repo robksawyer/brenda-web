@@ -573,13 +573,22 @@ module.exports = {
 
 						var blenderProjectFile = jobs[0].files;
 						var blenderProjectQueue = jobs[0].queue;
+						var blenderProjectFileName = blenderProjectFile.fileName + blenderProjectFile.extension; //dot is included in the extension
+						var s3Protocol = "s3://";
+						var sqsProtocol = "sqs://";
 
-						brendaConfigFileData += "BLENDER_PROJECT=" + blenderProjectFile.aws_s3_location + sails.EOL; //PROJECT_BUCKET/myproject.tar.gz
+						brendaConfigFileData += "BLENDER_PROJECT=" + s3Protocol + blenderProjectFile.aws_s3_bucket + '/' + blenderProjectFileName + sails.EOL; //PROJECT_BUCKET/myproject.tar.gz
+
 						//TODO: This was changed from blenderProjectQueue.url to blenderProjectQueue.name because the Python brenda-work script doesn't
-						//		seem to like https:// URLs. This needs to be updated in the future.
-						brendaConfigFileData += "WORK_QUEUE=sqs://" + blenderProjectQueue.name + sails.EOL;
+						//		seem to like https:// URLs. This needs to be updated in the future. Right now the brenda Python script is just reading
+						//  	SQS_REGION via the user's environment variables. And so the configured values via the Settings aren't really respected.
+						//Hacky way to have Brenda respect the Job's SQS region
+						process.env['SQS_REGION'] = jobs[0].aws_sqs_region;
+						sails.log.info("Set SQS_REGION to " + process.env.SQS_REGION);
+						brendaConfigFileData += "WORK_QUEUE=" + sqsProtocol + blenderProjectQueue.name + sails.EOL;
+
 						//Right now pull this from settings. But in the future tie it to Render model.
-						brendaConfigFileData += "RENDER_OUTPUT=" + "s3://" + s3RenderBucket + sails.EOL; //s3://FRAME_BUCKET
+						brendaConfigFileData += "RENDER_OUTPUT=" + s3Protocol + s3RenderBucket + sails.EOL; //s3://FRAME_BUCKET
 						brendaConfigFileData += "DONE=shutdown";
 
 						//Folder that all config files live in.

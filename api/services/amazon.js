@@ -11,6 +11,7 @@ var path = require('path'),
 	util = require('util'),
 	fs = require('fs'),
 	AWS = require('aws-sdk'),
+	xrange = require('xrange'),
 	changeCase = require('change-case');
 
 module.exports = {
@@ -309,6 +310,210 @@ module.exports = {
 		return promise;
 	},
 
+	/**
+	*
+	* Processes a tasklist array and pushes individual tasks to an SQS queue.
+	* @param tasklist: array
+	* @return promise
+	**/
+	pushSQSQueueTasklist: function(tasklist, queueURL){
+		/*
+		# push work queue to sqs
+		for task in tasklist:
+			print task,
+			if q is not None:
+				aws.write_sqs_queue(task, q)
+		*/
+
+	},
+
+
+	/**
+	*
+	* Handles writing messages to the Amazon SQS queue.
+	* This will basically replace the need to call brenda-work push via the Python script
+	* @url http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
+	* @param message: string
+	* @param queueURL: string - The URL to the SQS queue
+	* @return promise
+	**/
+	writeSQSQueue: function(message, queueURL){
+		/*
+		# get work queue
+		q = None
+		if not opts.dry_run:
+			q = aws.create_sqs_queue(conf)
+
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			var params = {
+							MessageBody: message, /* required */
+							QueueUrl: queueURL, /* required */
+							DelaySeconds: 0
+						};
+			sqs.sendMessage(params, function(err, data) {
+				if (err){
+					sails.log.error(err, err.stack); // an error occurred
+					reject(err);
+				}
+				sails.log(data); // successful response
+				fulfill(data);
+			});
+		});
+		return promise;
+	},
+
+	/**
+	* WARNING: This doesn't work yet.
+	* Handles building a task list of messages for the Amazon SQS Queue
+	* @param task_script: string - Full path to the task script. These are by default located in lib/task-scripts
+	* @param start: integer
+	* @param end: integer
+	* @param step: integer (default=1)
+	* @param task_size: integer (default=1)
+	* @return promise
+	**/
+	buildTaskList: function(task_script, start, end, step, task_size){
+		/*
+		* From lib/brenda/brenda/work.py def push
+		# get task script
+		with open(opts.task_script) as f:
+			task_script = f.read()
+
+		# build tasklist
+			tasklist = []
+			for fnum in xrange(opts.start, opts.end+1, opts.task_size):
+				script = task_script
+				start = fnum
+				end = min(fnum + opts.task_size - 1, opts.end)
+				step = 1
+				for key, value in (
+					  ("$FRAME", "-s %d -e %d -j %d" % (start, end, step)),
+					  ("$START", "%d" % (start,)),
+					  ("$END", "%d" % (end,)),
+					  ("$STEP", "%d" % (step,))
+					  ):
+					script = script.replace(key, value)
+
+				#Handle subframe task script
+				if subframe_iterator_defined(opts):
+					for macro_list in subframe_iterator(opts):
+						sf_script = script
+						for key, value in macro_list:
+							sf_script = sf_script.replace(key, value)
+						tasklist.append(sf_script)
+				else:
+					tasklist.append(script)
+		*/
+		/*
+		Output should look something like...
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 1 -e 1 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 2 -e 2 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 3 -e 3 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 4 -e 4 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 5 -e 5 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 6 -e 6 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 7 -e 7 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 8 -e 8 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 9 -e 9 -j 1 -t 0 -a
+		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 10 -e 10 -j 1 -t 0 -a
+		*/
+
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			var tasklist = [];
+			if(!step) step = 1;
+			if(!task_size) task_size = 1;
+
+			fs.readFile(task_script, 'utf8', function (err, data) {
+				if (err) {
+					reject(err);
+				}
+
+				sails.log.info(data);
+				var taskFile = data;
+
+				sails.log.info( xrange(start, end+1, task_size) );
+
+				for (fnum in xrange(start, end+1, task_size) ){
+					script = task_script;
+					start = fnum;
+					end = min(fnum + task_size - 1, end);
+
+					for (key as value in (
+											("$FRAME", "-s %d -e %d -j %d" % (start, end, step)),
+											("$START", "%d" % (start,)),
+											("$END", "%d" % (end,)),
+											("$STEP", "%d" % (step,))
+										)
+					{
+
+						sails.log("Key: " + key);
+						sails.log("Value: " + value);
+						script = script.replace(key, value);
+						sails.log.info(script);
+					}
+
+					//Handle subframe task script
+					//TODO: Figure this out later.
+					var subframe_iterator_defined = false;
+					//if subframe_iterator_defined(opts){
+					if(subframe_iterator_defined){
+						//Probably going to need to use the for ( let n of function()) here.
+						//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+						/*for macro_list in subframe_iterator(opts){
+							sf_script = script;
+							for key, value in macro_list{
+								sf_script = sf_script.replace(key, value);
+							}
+							tasklist.push(sf_script);
+						}*/
+						reject("Subframe rendering not supported at this time.");
+					}else{
+						tasklist.push(script)
+					}
+				}
+
+				fulfill(tasklist);
+			});
+
+		});
+		return promise;
+	},
+
+	/**
+	* WARNING: This doesn't work yet.
+	* TODO: Convert this method to nodejs. Not sure what currently exists is going to work.
+	*
+	**/
+	/*subframe_iterator_defined: function(opts){
+		return opts.subdiv_x > 0 and opts.subdiv_y > 0;
+	},*/
+
+	/**
+	* WARNING: This doesn't work yet.
+	* TODO: Convert this method to nodejs. Not sure what currently exists is going to work.
+	*
+	**/
+	/*subframe_iterator: function(opts){
+		if subframe_iterator_defined(opts){
+			xfrac = 1.0 / opts.subdiv_x;
+			yfrac = 1.0 / opts.subdiv_y;
+			for x in xrange(opts.subdiv_x){
+				min_x = x * xfrac;
+				max_x = (x+1) * xfrac;
+				for y in xrange(opts.subdiv_y){
+					min_y = y * yfrac;
+					max_y = (y+1) * yfrac;
+					yield (
+						('$SF_MIN_X', str(min_x)),
+						('$SF_MAX_X', str(max_x)),
+						('$SF_MIN_Y', str(min_y)),
+						('$SF_MAX_Y', str(max_y)),
+						);
+				}
+			}
+		}
+	},*/
 
 	/**
 	*

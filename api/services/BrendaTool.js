@@ -32,7 +32,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['prune ' + N_remaining]
@@ -72,7 +72,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['prune -T ' + N_remaining]
@@ -97,7 +97,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['perf']
@@ -123,7 +123,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['instances']
@@ -149,7 +149,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['rsync ' + args]
@@ -175,7 +175,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['ssh ' + args]
@@ -200,7 +200,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['rsync ' + configFilePath + ' HOST']
@@ -225,7 +225,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['ssh tail log']
@@ -250,7 +250,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['ssh uptime']
@@ -275,7 +275,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['instances']
@@ -300,7 +300,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var options = {
 				mode: 'binary',
-				pythonPath: '/usr/local/bin/python', /* If installed with 'brew install python' */
+				pythonPath: sails.config.brenda.settings.pythonPath,
 				pythonOptions: ['-u'],
 				scriptPath: 'lib/brenda/',
 				args: ['instances']
