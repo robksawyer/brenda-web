@@ -316,7 +316,8 @@ module.exports = {
 	* @param tasklist: array
 	* @return promise
 	**/
-	pushSQSQueueTasklist: function(tasklist, queueURL){
+	pushSQSQueueTasklist: function(tasklist, queueURL, dry){
+		if(!dry) dry = false;
 		/*
 		# push work queue to sqs
 		for task in tasklist:
@@ -324,7 +325,28 @@ module.exports = {
 			if q is not None:
 				aws.write_sqs_queue(task, q)
 		*/
-
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			for (task in tasklist){
+				sails.log(task);
+				if(typeof queueURL !== 'undefined'){
+					//Send the task/message
+					amazon.writeSQSQueue(task, queueURL, dry)
+						.then(
+							function(results){
+								sails.log.info(results);
+							},
+							function(err){
+								sails.log.error(err);
+								reject(err);
+							}
+						);
+				} else {
+					reject("SQS queue URL not found.");
+				}
+			}
+			fulfill(tasklist)
+		});
+		return promise;
 	},
 
 
@@ -335,15 +357,17 @@ module.exports = {
 	* @url http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/SQS.html#sendMessage-property
 	* @param message: string
 	* @param queueURL: string - The URL to the SQS queue
+	* @param dry: bool - Dry run. Don't actually send the messages to the queue.
 	* @return promise
 	**/
-	writeSQSQueue: function(message, queueURL){
+	writeSQSQueue: function(message, queueURL, dry){
 		/*
 		# get work queue
 		q = None
 		if not opts.dry_run:
 			q = aws.create_sqs_queue(conf)
-
+		*/
+		if(!dry) dry = false;
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var params = {
 							MessageBody: message, /* required */

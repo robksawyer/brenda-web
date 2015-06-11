@@ -241,34 +241,34 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			var renderName = "";
-			var configFile = "";
+			//var configFile = "";
 
 			//Clean up the name and get it ready to become the queue name
 			//Add dashes in place of spaces
-			configFile = changeCase.snakeCase(jobName);
+			//configFile = changeCase.snakeCase(jobName);
 			renderName = changeCase.paramCase(jobName);
 
 
 			//Generate a random hash and append it to the name.
 			var randString = tools.makeid(6);
-			configFile += '_' + randString;
+			//configFile += '_' + randString;
 			renderName += '-' + randString;
 
 			//Cover to lowercase
-			configFile = changeCase.lowerCase(configFile);
+			//configFile = changeCase.lowerCase(configFile);
 			renderName = changeCase.lowerCase(renderName);
 
 			//Append file extension
-			configFile += configFile + ".conf";
+			//configFile += configFile + ".conf";
 
-			sails.log(configFile);
+			//sails.log(configFile);
 
 			//Create and save the job to the database
 			Render.create(
 				{
 					name: renderName,
 					aws_s3_bucket: s3RenderBucket,
-					configFileName: configFile,
+					//configFileName: configFile,
 					job: jobRecord_id
 				}
 			)

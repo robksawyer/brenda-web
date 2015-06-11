@@ -89,7 +89,6 @@ module.exports = {
 							.then(
 								function(renderRecord){
 
-
 									var step = 1; //brenda default
 									var task_size = 1; //brenda default
 
@@ -97,11 +96,22 @@ module.exports = {
 									amazon.buildTaskList(taskFilePath, jobs[0].animation_start_frame, jobs[0].animation_end_frame, step, task_size)
 										.then(
 											function(tasklist){
-												amazon.buildTaskList
-											}
-										)
-										.catch(
+												amazon.pushSQSQueueTasklist(tasklist, jobs[0].queue.url)
+													.then(
+														function(results){
+															sails.log("Pushed the tasklist to the SQS queue sucessfully!");
+															sails.log(results);
+															fulfill(results);
+														},
+														function(err){
+															sails.log.error("Error pushing to SQS queue.");
+															sails.log.error(err);
+															reject(err);
+														}
+													);
+											},
 											function(err){
+												sails.log.error("Error building SQS queue tasklist.");
 												sails.log.error(err);
 												reject(err);
 											}
