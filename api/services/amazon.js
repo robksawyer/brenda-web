@@ -326,25 +326,32 @@ module.exports = {
 				aws.write_sqs_queue(task, q)
 		*/
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			var errors = [];
 			for (task in tasklist){
-				sails.log(task);
+				sails.log(tasklist[task]);
 				if(typeof queueURL !== 'undefined'){
 					//Send the task/message
-					amazon.writeSQSQueue(task, queueURL, dry)
+					amazon.writeSQSQueue(tasklist[task], queueURL, dry)
 						.then(
 							function(results){
-								sails.log.info(results);
+								//sails.log.info(results);
 							},
 							function(err){
 								sails.log.error(err);
+								errors.push(err);
 								reject(err);
 							}
 						);
 				} else {
 					reject("SQS queue URL not found.");
+					errors.push("SQS queue URL not found.");
 				}
 			}
-			fulfill(tasklist)
+			if(errors.length < 1){
+				fulfill(tasklist);
+			} else {
+				reject(errors);
+			}
 		});
 		return promise;
 	},
@@ -369,6 +376,14 @@ module.exports = {
 		*/
 		if(!dry) dry = false;
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			var sqs = new AWS.SQS({
+				region: sails.config.aws.credentials.region
+			});
+
 			var params = {
 							MessageBody: message, /* required */
 							QueueUrl: queueURL, /* required */
@@ -379,7 +394,7 @@ module.exports = {
 					sails.log.error(err, err.stack); // an error occurred
 					reject(err);
 				}
-				sails.log(data); // successful response
+				sails.log.info(data); // successful response
 				fulfill(data);
 			});
 		});
@@ -448,59 +463,65 @@ module.exports = {
 			if(!step) step = 1;
 			if(!task_size) task_size = 1;
 
-			fs.readFile(task_script, 'utf8', function (err, data) {
-				if (err) {
-					reject(err);
-				}
+			fs.readFile(task_script, 'utf8',
+				function (err, data) {
+					if (err) {
+						reject(err);
+					}
 
-				sails.log.info(data);
-				var taskFile = data;
+					sails.log.info(data);
+					var taskFileData = data;
 
-				sails.log.info( xrange(start, end+1, task_size) );
+					//sails.log.info( xrange(start, end+1, task_size) );
 
-				for (fnum in xrange(start, end+1, task_size) ){
-					script = task_script;
-					start = fnum;
-					end = Math.min(fnum + task_size - 1, end);
+					xrange(start, end+1, task_size).forEach(
+						function(fnum) {
 
-					var taskFileReplacements = [
-											{ "$FRAME": "-s " + start + " -e " + end + " -j " + step },
-											{ "$START": start },
-											{ "$END": end },
-											{ "$STEP": step }
-										];
-					taskFileReplacements.forEach(
-						function(key, value){
-							sails.log("Key: " + key);
-							sails.log("Value: " + value);
-							script = script.replace(key, value);
+							script = taskFileData;
+							start = fnum;
+							end = Math.min(fnum + task_size - 1, end);
+
+							var taskFileReplacements = {
+														"$FRAME": "-s " + fnum + " -e " + fnum + " -j " + step,
+														"$START": fnum,
+														"$END": fnum,
+														"$STEP": step
+													};
+							for (var key in taskFileReplacements){
+								if (!taskFileReplacements.hasOwnProperty(key)) {
+									continue;
+								}
+								sails.log("Key: " + key);
+								script = script.replace(key, taskFileReplacements[key]);
+							};
+
 							sails.log.info(script);
+
+							//Handle subframe task script
+							//TODO: Figure this out later.
+							var subframe_iterator_defined = false;
+							//if subframe_iterator_defined(opts){
+							if(subframe_iterator_defined) {
+								//Probably going to need to use the for ( let n of function()) here.
+								//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
+								/*for macro_list in subframe_iterator(opts){
+									sf_script = script;
+									for key, value in macro_list{
+										sf_script = sf_script.replace(key, value);
+									}
+									tasklist.push(sf_script);
+								}*/
+								reject("Subframe rendering not supported at this time.");
+							} else {
+								tasklist.push(script)
+							}
 						}
 					);
 
-					//Handle subframe task script
-					//TODO: Figure this out later.
-					var subframe_iterator_defined = false;
-					//if subframe_iterator_defined(opts){
-					if(subframe_iterator_defined){
-						//Probably going to need to use the for ( let n of function()) here.
-						//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for...of
-						/*for macro_list in subframe_iterator(opts){
-							sf_script = script;
-							for key, value in macro_list{
-								sf_script = sf_script.replace(key, value);
-							}
-							tasklist.push(sf_script);
-						}*/
-						reject("Subframe rendering not supported at this time.");
-					}else{
-						tasklist.push(script)
-					}
+					sails.log.info(tasklist);
+					fulfill(tasklist);
 				}
-
-				fulfill(tasklist);
-			});
-
+			);
 		});
 		return promise;
 	},
