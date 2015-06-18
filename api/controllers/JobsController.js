@@ -354,8 +354,7 @@ module.exports = {
 	* Loads up the SQS queue and intiates a Amazon EC2 spot instance request.
 	*
 	**/
-
-	start: function(req, res){
+	startSpot: function(req, res){
 
 		if( typeof req.param('type') === 'undefined'){
 			req.flash('error', 'You must provide a valid job type e.g. spot.');
@@ -372,6 +371,9 @@ module.exports = {
 						//This will allow them to see the status of the spot instance request.
 						//Spot instance status should show up in the job block
 						//It might be more helpful to send them to a job status page. TBD on that.
+
+
+						//Now run the job with the desired spot instance price.
 						req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
 						res.redirect('/jobs');
 					},
@@ -386,7 +388,7 @@ module.exports = {
 		}
 	},
 
-	create_spot: function (req, res){
+	createSpot: function (req, res){
 		sails.log(req.params);
 	},
 

@@ -20,6 +20,24 @@ module.exports = {
 
 	/**
 	*
+	* Handles making an Amazon EC2 spot instance request.
+	* @param
+	* @return
+	**/
+	makeSpotInstanceRequest: function(){
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			//Load the credentials and build configuration
+			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
+			//AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+			AWS.config.update(sails.config.aws.credentials);
+
+
+		});
+		return promise;
+	},
+
+	/**
+	*
 	* Creates a bucket on Amazon S3.
 	* @param id integer The setting id to update
 	* @param bucketName string A name for the bucket
@@ -318,13 +336,7 @@ module.exports = {
 	**/
 	pushSQSQueueTasklist: function(tasklist, queueURL, dry){
 		if(!dry) dry = false;
-		/*
-		# push work queue to sqs
-		for task in tasklist:
-			print task,
-			if q is not None:
-				aws.write_sqs_queue(task, q)
-		*/
+
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var errors = [];
 			for (task in tasklist){
@@ -402,7 +414,6 @@ module.exports = {
 	},
 
 	/**
-	* WARNING: This doesn't work yet.
 	* Handles building a task list of messages for the Amazon SQS Queue
 	* @param task_script: string - Full path to the task script. These are by default located in lib/task-scripts
 	* @param start: integer
@@ -412,51 +423,6 @@ module.exports = {
 	* @return promise
 	**/
 	buildTaskList: function(task_script, start, end, step, task_size){
-		/*
-		* From lib/brenda/brenda/work.py def push
-		# get task script
-		with open(opts.task_script) as f:
-			task_script = f.read()
-
-		# build tasklist
-			tasklist = []
-			for fnum in xrange(opts.start, opts.end+1, opts.task_size):
-				script = task_script
-				start = fnum
-				end = min(fnum + opts.task_size - 1, opts.end)
-				step = 1
-				for key, value in (
-					  ("$FRAME", "-s %d -e %d -j %d" % (start, end, step)),
-					  ("$START", "%d" % (start,)),
-					  ("$END", "%d" % (end,)),
-					  ("$STEP", "%d" % (step,))
-					  ):
-					script = script.replace(key, value)
-
-				#Handle subframe task script
-				if subframe_iterator_defined(opts):
-					for macro_list in subframe_iterator(opts):
-						sf_script = script
-						for key, value in macro_list:
-							sf_script = sf_script.replace(key, value)
-						tasklist.append(sf_script)
-				else:
-					tasklist.append(script)
-		*/
-		/*
-		Output should look something like...
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 1 -e 1 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 2 -e 2 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 3 -e 3 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 4 -e 4 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 5 -e 5 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 6 -e 6 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 7 -e 7 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 8 -e 8 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 9 -e 9 -j 1 -t 0 -a
-		blender -b *.blend -F PNG -o $OUTDIR/frame_###### -s 10 -e 10 -j 1 -t 0 -a
-		*/
-
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			var tasklist = [];
