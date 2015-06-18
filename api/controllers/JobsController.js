@@ -400,9 +400,10 @@ module.exports = {
 															sails.log.info("Hooray! The spot instance request was successfully initiated.");
 															sails.log(results);
 
-															//Update the status of the Render to running
-															renderRecord.status = 'running';
-															renderRecord.instances = results; //Add the requests to Render record for later usage
+															//Ensure the status of the Render is at waiting
+															//This should be updated once the spot instance request status changes
+															renderRecord.status = 'waiting';
+															renderRecord.requests = results; //Add the requests to Render record for later usage
 															renderRecord.save(function(err){
 																if(err){
 																	req.flash('error', 'There was an error updating the status of the render. Contact the support team.');
@@ -465,15 +466,17 @@ module.exports = {
 					for(var i = 0; i<renderRecords.length; i++){
 						//Only terminate running instances
 						if(renderRecords[i].status === 'running'){
-							BrendaRun.terminate(renderRecords[i])
-								.then(
-									function(results){
-										sails.log(results);
-									},
-									function(err){
-										errors.push('Unable to terminate the instances for Render ' + renderRecords[i].name + '.');
-									}
-								);
+							if(typeof renderRecords[i].instances !== 'undefined'){
+								BrendaRun.terminate(renderRecords[i].instances)
+									.then(
+										function(results){
+											sails.log(results);
+										},
+										function(err){
+											errors.push('Unable to terminate the instances for Render ' + renderRecords[i].name + '.');
+										}
+									);
+							}
 						}
 					}
 					if(errors.length > 0){
@@ -510,22 +513,71 @@ module.exports = {
 					for(var i = 0; i<renderRecords.length; i++){
 						//Only terminate running instances
 						if(renderRecords[i].status === 'running'){
-							BrendaRun.stop(renderRecords[i])
-								.then(
-									function(results){
-										sails.log(results);
-									},
-									function(err){
-										errors.push('Unable to terminate the instances for Render ' + renderRecords[i].name + '.');
-									}
-								);
+							if(typeof renderRecords[i].instances !== 'undefined'){
+								BrendaRun.stop(renderRecords[i].instances)
+									.then(
+										function(results){
+											sails.log(results);
+										},
+										function(err){
+											errors.push('Unable to stop the instances for Render ' + renderRecords[i].name + '.');
+										}
+									);
+							}
 						}
 					}
 					if(errors.length > 0){
-						req.flash('error', 'Unable to terminate instances. You will need to log in to the instance service provider to solve the issue.');
+						req.flash('error', 'Unable to stop instances. You will need to log in to the instance service provider to solve the issue.');
 						res.serverError(err);
 					} else {
-						req.flash('success', 'Instances terminated successfully.');
+						req.flash('success', 'Instances stopped successfully.');
+						res.redirect('/jobs');
+					}
+				}
+			);
+	},
+
+	/**
+	*
+	* Cancels all of the spot instance requests for a particulate Job and all of its Renders
+	* @param id: integer - The Job record id.
+	* @return void
+	*
+	**/
+	cancel_instance_requests: function(req, res){
+
+		if(typeof req.param('id') === 'undefined'){
+			return res.notFound();
+		}
+
+		Jobs.find( { id: req.param('id') })
+			.populate('renders')
+			.exec(
+				function(err, renderRecords){
+					sails.log('Found a total of ' + renderRecords.length + ' renders for this job.');
+
+					var errors = [];
+					for(var i = 0; i<renderRecords.length; i++){
+						//Only terminate running instances
+						if(renderRecords[i].status === 'waiting'){
+							if(typeof renderRecords[i].requests !== 'undefined'){
+								BrendaRun.cancel(renderRecords[i].requests)
+									.then(
+										function(results){
+											sails.log(results);
+										},
+										function(err){
+											errors.push('Unable to cancel the spot instance requests for Render ' + renderRecords[i].name + '.');
+										}
+									);
+							}
+						}
+					}
+					if(errors.length > 0){
+						req.flash('error', 'Unable to terminate spot instance requests. You will need to log in to the instance service provider to solve the issue.');
+						res.serverError(err);
+					} else {
+						req.flash('success', 'Spot instance requests cancelled successfully.');
 						res.redirect('/jobs');
 					}
 				}

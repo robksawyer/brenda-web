@@ -30,7 +30,7 @@ module.exports = {
 	* @param monitoring: boolean - Describes the monitoring for the instance. (TODO: Learn more about this.)
 	* @return
 	**/
-	makeSpotInstanceRequest: function(jobRecord, spotPrice, keepAlive, dry, monitoring){
+	requestSpotInstances: function(jobRecord, spotPrice, keepAlive, dry, monitoring){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//Load the credentials and build configuration
 			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
@@ -636,6 +636,91 @@ module.exports = {
 					fulfill(tasklist);
 				}
 			);
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Handles stopping EC2 instances.
+	* @param instances: array - The instances to stop
+	* @param force
+	* @return promise
+	**/
+	stopInstances: function(instances, force){
+
+		if(typeof force === 'undefined') force = false;
+
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			var params = {
+				InstanceIds: renderRecord.instances,
+				DryRun: false,
+				Force: force
+			};
+			ec2.stopInstances(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
+			});
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Handles terminating EC2 instances.
+	* @param instances: array - Instances to terminate
+	* @return promise
+	**/
+	terminateInstances: function(instances){
+
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			var params = {
+				InstanceIds: renderRecord.instances,
+				DryRun: false
+			};
+			ec2.terminateInstances(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
+			});
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Handles cancelling EC2 spot instance requests.
+	* @param requests: array - Array of spot instance request ids of which to cancel
+	* @return promise
+	**/
+	cancelSpotInstanceRequests: function(requests){
+
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			//Load the credentials and build configuration
+			AWS.config.update(sails.config.aws.credentials);
+
+			var params = {
+				SpotInstanceRequestIds: requests,
+				DryRun: false
+			};
+			ec2.cancelSpotInstanceRequests(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
+			});
 		});
 		return promise;
 	},

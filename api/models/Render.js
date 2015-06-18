@@ -33,6 +33,9 @@ module.exports = {
 			type: 'string',
 			enum: ['waiting', 'running', 'completed', 'failed']
 		},
+		requests: {
+			type: 'object'
+		},
 		instances: {
 			type: 'object'
 		},

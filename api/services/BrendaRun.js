@@ -26,7 +26,7 @@ module.exports = {
 	spot: function(jobRecord, price){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//brenda-run -N 4 -p 0.07 spot
-			amazon.makeSpotInstanceRequest(jobRecord, price)
+			amazon.requestSpotInstances(jobRecord, price)
 				.then(
 					function(results){
 						fulfill(results);
@@ -100,59 +100,50 @@ module.exports = {
 	*						  This option is not recommended for Windows instances.
 	* @return promise
 	**/
-	stop: function(renderRecord, force){
+	stop: function(instances, force){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
-			if(typeof renderRecord.instances === 'undefined'){
+			if(typeof instances === 'undefined'){
 				reject('Unable to find any instances for the Render.');
 			}
 			if(typeof force === 'undefined'){
 				force = false;
 			}
-			var params = {
-				InstanceIds: renderRecord.instances,
-				DryRun: false,
-				Force: force
-			};
-			ec2.stopInstances(params, function(err, data) {
-				if (err) {
-					reject(err, err.stack); // an error occurred
-				}
-				fulfill(data); // successful response
-			});
+
+			amazon.stopInstances(instances, force)
+				.then(
+					function(results){
+						fulfill(results);
+					},
+					function(err){
+						reject(err);
+					}
+				);
 		});
 		return promise;
 	},
 
 	/**
 	*
-	* Handles stopping all of the instances for a particular Render.
-	* @param renderRecord: object
-	* @param force: boolean - Forces the instances to stop. The instances do not have an opportunity to flush file system caches or file system metadata.
-	*						  If you use this option, you must perform file system check and repair procedures.
-	*						  This option is not recommended for Windows instances.
+	* Handles cancelling all of the spot instance requests for a particular Render.
+	* @param requests: array - Spot instance requests to cancel
 	* @return promise
 	**/
-	cancel: function(renderRecord, force){
+	cancel: function(requests){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
-			if(typeof renderRecord.instances === 'undefined'){
-				reject('Unable to find any instances for the Render.');
+			if(typeof requests === 'undefined'){
+				reject('Unable to find any spot instance requests for the Render.');
 			}
-			if(typeof force === 'undefined'){
-				force = false;
-			}
-			var params = {
-				InstanceIds: renderRecord.instances,
-				DryRun: false,
-				Force: force
-			};
-			ec2.stopInstances(params, function(err, data) {
-				if (err) {
-					reject(err, err.stack); // an error occurred
-				}
-				fulfill(data); // successful response
-			});
+			amazon.cancelSpotInstanceRequests(requests)
+				.then(
+					function(results){
+						fulfill(results);
+					},
+					function(err){
+						reject(err);
+					}
+				);
 		});
 		return promise;
 	}
