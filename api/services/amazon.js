@@ -186,6 +186,35 @@ module.exports = {
 
 	/**
 	*
+	* Returns information about a spot instance data feed.
+	* @param
+	* @return promise
+	**/
+	spotInstanceRequestStatus: function(){
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			//Load the credentials and build configuration
+			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
+			//AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
+			AWS.config.update(sails.config.aws.credentials);
+
+			var params = {
+			  DryRun: false
+			};
+			var ec2 = new AWS.EC2();
+			ec2.describeSpotDatafeedSubscription(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				} else {
+					fulfill(data); // successful response
+				}
+			});
+		});
+		return promise;
+	},
+
+
+	/**
+	*
 	* Creates a bucket on Amazon S3.
 	* @param id integer The setting id to update
 	* @param bucketName string A name for the bucket
@@ -661,6 +690,7 @@ module.exports = {
 				DryRun: false,
 				Force: force
 			};
+			var ec2 = new AWS.EC2();
 			ec2.stopInstances(params, function(err, data) {
 				if (err) {
 					reject(err, err.stack); // an error occurred
@@ -688,6 +718,7 @@ module.exports = {
 				InstanceIds: renderRecord.instances,
 				DryRun: false
 			};
+			var ec2 = new AWS.EC2();
 			ec2.terminateInstances(params, function(err, data) {
 				if (err) {
 					reject(err, err.stack); // an error occurred
@@ -715,6 +746,7 @@ module.exports = {
 				SpotInstanceRequestIds: requests,
 				DryRun: false
 			};
+			var ec2 = new AWS.EC2();
 			ec2.cancelSpotInstanceRequests(params, function(err, data) {
 				if (err) {
 					reject(err, err.stack); // an error occurred

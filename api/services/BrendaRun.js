@@ -68,6 +68,25 @@ module.exports = {
 
 	/**
 	*
+	* Requires a data feed to be created via S3. You then have to check the data feed.
+	* @param
+	* @return
+	**/
+
+	spotInstanceRequestStatus: function(){
+		amazon.spotInstanceRequestStatus()
+			.then(
+				function(data){
+
+				},
+				function(err){
+					reject(err);
+				}
+			);
+	},
+
+	/**
+	*
 	* Handles terminating all of the instances for a particular Render.
 	* @param renderRecord: object
 	* @return promise
