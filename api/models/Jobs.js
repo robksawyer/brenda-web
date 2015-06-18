@@ -44,6 +44,12 @@ module.exports = {
 		max_spend_amount: {
 			type: 'float'
 		},
+		ssh_key_name: {
+			type: 'string'
+		},
+		sec_groups: {
+			type: 'string'
+		},
 		type: {
 			type: 'string'
 		},

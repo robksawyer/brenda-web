@@ -397,10 +397,12 @@ module.exports = {
 												BrendaRun.spot(jobs[0], renderRecord.price_per_instance)
 													.then(
 														function(results){
+															sails.log.info("Hooray! The spot instance request was successfully initiated.");
 															sails.log(results);
 
 															//Update the status of the Render to running
 															renderRecord.status = 'running';
+															renderRecord.instances = results; //Add the requests to Render record for later usage
 															renderRecord.save(function(err){
 																if(err){
 																	req.flash('error', 'There was an error updating the status of the render. Contact the support team.');
@@ -440,7 +442,97 @@ module.exports = {
 		}
 	},
 
-	createSpot: function (req, res){
+	/**
+	*
+	* Terminates all of the running instances for a particulate Job and all of its Renders
+	* @param id: integer - The Job record id.
+	* @return void
+	*
+	**/
+	terminate_instances: function(req, res){
+
+		if(typeof req.param('id') === 'undefined'){
+			return res.notFound();
+		}
+
+		Jobs.find( { id: req.param('id') })
+			.populate('renders')
+			.exec(
+				function(err, renderRecords){
+					sails.log('Found a total of ' + renderRecords.length + ' renders for this job.');
+
+					var errors = [];
+					for(var i = 0; i<renderRecords.length; i++){
+						//Only terminate running instances
+						if(renderRecords[i].status === 'running'){
+							BrendaRun.terminate(renderRecords[i])
+								.then(
+									function(results){
+										sails.log(results);
+									},
+									function(err){
+										errors.push('Unable to terminate the instances for Render ' + renderRecords[i].name + '.');
+									}
+								);
+						}
+					}
+					if(errors.length > 0){
+						req.flash('error', 'Unable to terminate instances. You will need to log in to the instance service provider to solve the issue.');
+						res.serverError(err);
+					} else {
+						req.flash('success', 'Instances terminated successfully.');
+						res.redirect('/jobs');
+					}
+				}
+			);
+	},
+
+	/**
+	*
+	* Stops all of the running instances for a particulate Job and all of its Renders
+	* @param id: integer - The Job record id.
+	* @return void
+	*
+	**/
+	stop_instances: function(req, res){
+
+		if(typeof req.param('id') === 'undefined'){
+			return res.notFound();
+		}
+
+		Jobs.find( { id: req.param('id') })
+			.populate('renders')
+			.exec(
+				function(err, renderRecords){
+					sails.log('Found a total of ' + renderRecords.length + ' renders for this job.');
+
+					var errors = [];
+					for(var i = 0; i<renderRecords.length; i++){
+						//Only terminate running instances
+						if(renderRecords[i].status === 'running'){
+							BrendaRun.stop(renderRecords[i])
+								.then(
+									function(results){
+										sails.log(results);
+									},
+									function(err){
+										errors.push('Unable to terminate the instances for Render ' + renderRecords[i].name + '.');
+									}
+								);
+						}
+					}
+					if(errors.length > 0){
+						req.flash('error', 'Unable to terminate instances. You will need to log in to the instance service provider to solve the issue.');
+						res.serverError(err);
+					} else {
+						req.flash('success', 'Instances terminated successfully.');
+						res.redirect('/jobs');
+					}
+				}
+			);
+	},
+
+	create_spot: function (req, res){
 		sails.log(req.params);
 	},
 

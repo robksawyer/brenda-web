@@ -25,50 +25,6 @@ module.exports = {
 	**/
 	spot: function(jobRecord, price){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
-			/*
-			 ami_id = utils.get_opt(opts.ami, conf, 'AMI_ID', default=AMI_ID, must_exist=True)
-		    price = utils.get_opt(opts.price, conf, 'BID_PRICE', must_exist=True)
-		    reqtype = 'persistent' if opts.persistent else 'one-time'
-		    itype = brenda_instance_type(opts, conf)
-		    snapshots = aws.get_snapshots(conf)
-		    bdm, snap_description, istore_dev = aws.blk_dev_map(opts, conf, itype, snapshots)
-		    script = startup_script(opts, conf, istore_dev)
-		    user_data = None
-		    if not opts.idle:
-		        user_data = script
-		    ssh_key_name = conf.get("SSH_KEY_NAME", "brenda")
-		    sec_groups = (conf.get("SECURITY_GROUP", "brenda"),)
-		    run_args = {
-		        'image_id'      : ami_id,
-		        'price'         : price,
-		        'type'          : reqtype,
-		        'count'         : opts.n_instances,
-		        'instance_type' : itype,
-		        'user_data'     : user_data,
-		        'key_name'      : ssh_key_name,
-		        'security_groups' : sec_groups,
-		        'block_device_map' : bdm,
-		        }
-
-		    print "----------------------------"
-		    print "AMI ID:", ami_id
-		    print "Max bid price", price
-		    print "Request type:", reqtype
-		    print "Instance type:", itype
-		    print "Instance count:", opts.n_instances
-		    if snap_description:
-		        print "Project EBS snapshot:", snap_description
-		    if istore_dev:
-		        print "Instance store device:", istore_dev
-		    print "SSH key name:", ssh_key_name
-		    print "Security groups:", sec_groups
-		    print_script(opts, conf, script)
-		    aws.get_done(opts, conf) # sanity check on DONE var
-		    if not opts.dry_run:
-		        ec2 = aws.get_ec2_conn(conf)
-		        reservation = ec2.request_spot_instances(**run_args)
-		        print reservation
-	        */
 			//brenda-run -N 4 -p 0.07 spot
 			amazon.makeSpotInstanceRequest(jobRecord, price)
 				.then(
@@ -112,23 +68,24 @@ module.exports = {
 
 	/**
 	*
-	* Stops all running EC2 instances (less fine-grained than "brenda-tool prune").
-	*
+	* Handles terminating all of the instances for a particular Render.
+	* @param renderRecord: object
+	* @return promise
 	**/
-	stop: function(){
+	terminate: function(renderRecord){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
-			var options = {
-				mode: 'binary',
-				pythonPath: sails.config.brenda.settings.pythonPath,
-				pythonOptions: ['-u'],
-				scriptPath: 'lib/brenda/',
-				args: ['stop']
+			if(typeof renderRecord.instances === 'undefined'){
+				reject('Unable to find any instances for the Render.');
+			}
+			var params = {
+				InstanceIds: renderRecord.instances,
+				DryRun: false
 			};
-			sails.python.run('brenda-run', options, function (err, results) {
-				if (err) reject(err);
-				// results is an array consisting of messages collected during execution
-				sails.log('results: %j', results);
-				fulfill(results);
+			ec2.terminateInstances(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
 			});
 		});
 		return promise;
@@ -136,23 +93,65 @@ module.exports = {
 
 	/**
 	*
-	* Handles cancel all spot requests.
-	*
+	* Stops all running EC2 instances (less fine-grained than "brenda-tool prune").
+	* @param renderRecord: object
+	* @param force: boolean - Forces the instances to stop. The instances do not have an opportunity to flush file system caches or file system metadata.
+	*						  If you use this option, you must perform file system check and repair procedures.
+	*						  This option is not recommended for Windows instances.
+	* @return promise
 	**/
-	cancel: function(){
+	stop: function(renderRecord, force){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
-			var options = {
-				mode: 'binary',
-				pythonPath: sails.config.brenda.settings.pythonPath,
-				pythonOptions: ['-u'],
-				scriptPath: 'lib/brenda/',
-				args: ['cancel']
+
+			if(typeof renderRecord.instances === 'undefined'){
+				reject('Unable to find any instances for the Render.');
+			}
+			if(typeof force === 'undefined'){
+				force = false;
+			}
+			var params = {
+				InstanceIds: renderRecord.instances,
+				DryRun: false,
+				Force: force
 			};
-			sails.python.run('brenda-run', options, function (err, results) {
-				if (err) reject(err);
-				// results is an array consisting of messages collected during execution
-				sails.log('results: %j', results);
-				fulfill(results);
+			ec2.stopInstances(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
+			});
+		});
+		return promise;
+	},
+
+	/**
+	*
+	* Handles stopping all of the instances for a particular Render.
+	* @param renderRecord: object
+	* @param force: boolean - Forces the instances to stop. The instances do not have an opportunity to flush file system caches or file system metadata.
+	*						  If you use this option, you must perform file system check and repair procedures.
+	*						  This option is not recommended for Windows instances.
+	* @return promise
+	**/
+	cancel: function(renderRecord, force){
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+
+			if(typeof renderRecord.instances === 'undefined'){
+				reject('Unable to find any instances for the Render.');
+			}
+			if(typeof force === 'undefined'){
+				force = false;
+			}
+			var params = {
+				InstanceIds: renderRecord.instances,
+				DryRun: false,
+				Force: force
+			};
+			ec2.stopInstances(params, function(err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
 			});
 		});
 		return promise;

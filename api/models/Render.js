@@ -33,6 +33,9 @@ module.exports = {
 			type: 'string',
 			enum: ['waiting', 'running', 'completed', 'failed']
 		},
+		instances: {
+			type: 'object'
+		},
 		job: {
 			model: 'jobs'
 		},
