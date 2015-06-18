@@ -373,7 +373,7 @@ module.exports = {
 						}
 
 						//Create a Render record.
-						brenda.createRenderRecord( req.user.id, jobs[0].id, jobs[0].name, jobs[0].aws_s3_render_bucket )
+						brenda.createRenderRecord( req.user.id, jobs[0] )
 							.then(
 								function(renderRecord){
 
@@ -398,9 +398,20 @@ module.exports = {
 													.then(
 														function(results){
 															sails.log(results);
-															//Now run the job with the desired spot instance price.
-															req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
-															res.redirect('/jobs');
+
+															//Update the status of the Render to running
+															renderRecord.status = 'running';
+															renderRecord.save(function(err){
+																if(err){
+																	req.flash('error', 'There was an error updating the status of the render. Contact the support team.');
+																	res.redirect('/jobs');
+																} else {
+																	//Now run the job with the desired spot instance price.
+																	req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
+																	res.redirect('/jobs');
+																}
+															});
+
 														},
 														function(err){
 															req.flash('error', err);

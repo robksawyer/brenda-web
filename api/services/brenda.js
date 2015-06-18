@@ -227,14 +227,12 @@ module.exports = {
 	* Render records handle specifics for an individual render. In the future, others beside the job owner
 	* may be allowed to push a render. Or, maybe the AWS S3 render frame bucket needs to change. These
 	* should also be duplicated. And will hold time and cost information for a particular run.
-	* @param user_id: integer
-	* @param jobRecord_id: integer
-	* @param jobName: The name of the job. A unique render name is produced from this.
-	* @param s3RenderBucket: S3 bucket that frames will be rendered to.
+	* @param userId: integer
+	* @param jobRecord: object
 	* @return promise
 	*
 	**/
-	createRenderRecord: function(user_id, jobRecord_id, jobName, s3RenderBucket)
+	createRenderRecord: function(userId, jobRecord)
 	{
 		sails.log('Creating Render Record...');
 
@@ -246,7 +244,7 @@ module.exports = {
 			//Clean up the name and get it ready to become the queue name
 			//Add dashes in place of spaces
 			//configFile = changeCase.snakeCase(jobName);
-			renderName = changeCase.paramCase(jobName);
+			renderName = changeCase.paramCase(jobRecord.name);
 
 
 			//Generate a random hash and append it to the name.
@@ -267,9 +265,13 @@ module.exports = {
 			Render.create(
 				{
 					name: renderName,
-					aws_s3_bucket: s3RenderBucket,
+					aws_s3_bucket: jobRecord.aws_s3_render_bucket,
+					price_per_instance: jobRecord.max_spend_amount,
+					status: 'waiting' //['waiting', 'running', 'completed', 'failed']
+					//start_time: '',
+					//end_time: '',
 					//configFileName: configFile,
-					job: jobRecord_id
+					job: jobRecord.id
 				}
 			)
 			.exec(

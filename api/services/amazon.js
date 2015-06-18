@@ -124,11 +124,11 @@ module.exports = {
 			*/
 
 			sails.log.info("|| SPOT INSTANCE REQUEST DETAILS ||");
-			sails.log.info("| Price\t | " + spotPrice);
-			sails.log.info("| AMI\t | " + jobRecord.ami_id);
-			sails.log.info("| EC2 Instance Count\t | " + jobRecord.aws_ec2_instance_count);
-			sails.log.info("| EC2 Instance Type\t | " + jobRecord.instance_type);
-			sails.log.info("| Request Valid Unit\t | " + moment.duration().add(5, 'm') );
+			sails.log.info("| Price: " + spotPrice);
+			sails.log.info("| AMI: " + jobRecord.ami_id);
+			sails.log.info("| EC2 Instance Count: " + jobRecord.aws_ec2_instance_count);
+			sails.log.info("| EC2 Instance Type: " + jobRecord.instance_type);
+			sails.log.info("| Request Valid Unit: " + moment.duration().add(5, 'm') );
 
 			var params = {
 				SpotPrice: spotPrice, //required

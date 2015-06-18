@@ -31,7 +31,7 @@ module.exports = {
 		},
 		status:{
 			type: 'string',
-			enum: ['waiting', 'completed', 'failed']
+			enum: ['waiting', 'running', 'completed', 'failed']
 		},
 		job: {
 			model: 'jobs'
