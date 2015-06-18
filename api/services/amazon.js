@@ -57,17 +57,17 @@ module.exports = {
 				AddressingType: 'STRING_VALUE',
 				BlockDeviceMappings: [
 				  {
-				    DeviceName: 'STRING_VALUE',
-				    Ebs: {
-				      DeleteOnTermination: true || false,
-				      Encrypted: true || false,
-				      Iops: 0,
-				      SnapshotId: 'STRING_VALUE',
-				      VolumeSize: 0,
-				      VolumeType: 'standard | io1 | gp2'
-				    },
-				    NoDevice: 'STRING_VALUE',
-				    VirtualName: 'STRING_VALUE'
+					DeviceName: 'STRING_VALUE',
+					Ebs: {
+					  DeleteOnTermination: true || false,
+					  Encrypted: true || false,
+					  Iops: 0,
+					  SnapshotId: 'STRING_VALUE',
+					  VolumeSize: 0,
+					  VolumeType: 'standard | io1 | gp2'
+					},
+					NoDevice: 'STRING_VALUE',
+					VirtualName: 'STRING_VALUE'
 				  },
 				],
 				EbsOptimized: true || false,
@@ -84,23 +84,23 @@ module.exports = {
 				},
 				NetworkInterfaces: [
 				  {
-				    AssociatePublicIpAddress: true || false,
-				    DeleteOnTermination: true || false,
-				    Description: 'STRING_VALUE',
-				    DeviceIndex: 0,
-				    Groups: [
-				      'STRING_VALUE',
-				    ],
-				    NetworkInterfaceId: 'STRING_VALUE',
-				    PrivateIpAddress: 'STRING_VALUE',
-				    PrivateIpAddresses: [
-				      {
-				        PrivateIpAddress: 'STRING_VALUE', //required
-				        Primary: true || false
-				      },
-				    ],
-				    SecondaryPrivateIpAddressCount: 0,
-				    SubnetId: 'STRING_VALUE'
+					AssociatePublicIpAddress: true || false,
+					DeleteOnTermination: true || false,
+					Description: 'STRING_VALUE',
+					DeviceIndex: 0,
+					Groups: [
+					  'STRING_VALUE',
+					],
+					NetworkInterfaceId: 'STRING_VALUE',
+					PrivateIpAddress: 'STRING_VALUE',
+					PrivateIpAddresses: [
+					  {
+						PrivateIpAddress: 'STRING_VALUE', //required
+						Primary: true || false
+					  },
+					],
+					SecondaryPrivateIpAddressCount: 0,
+					SubnetId: 'STRING_VALUE'
 				  },
 				],
 				Placement: {
@@ -163,13 +163,14 @@ module.exports = {
 					SecurityGroups: [
 						jobRecord.sec_groups
 					],
+					UserData: '' //The startup script that runs the SQS queue goes here
 				},
 				Type: keepAlive, //'one-time | persistent'
 				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
 																								 //If the request is persistent, the request becomes active at this date and time and remains active until it expires or is canceled.
 				//Make the request valid for 5 minutes
 				//ValidUntil: validUntil //The end date of the request. If this is a one-time request, the request remains active until all instances launch, the request is canceled, or this date is reached.
-				                                                                               //If the request is persistent, it remains active until it is canceled or this date and time is reached.
+																							   //If the request is persistent, it remains active until it is canceled or this date and time is reached.
 				};
 
 			var ec2 = new AWS.EC2();
@@ -182,6 +183,80 @@ module.exports = {
 
 		});
 		return promise;
+	},
+
+	startupScript: function(){
+		//def startup_script(opts, conf, istore_dev):
+		var login_dir = "/root";
+
+		var head = "#!/bin/bash\n";
+		var script = "";
+
+		// use EC2 instance store on render farm instance?
+		//var use_istore = int(conf.get('USE_ISTORE', '1' if istore_dev else '0'))
+
+		/*if use_istore{
+				# script to start brenda-node running
+				# on the EC2 instance store
+				iswd = conf.get('WORK_DIR', '/mnt/brenda')
+				if iswd != login_dir:
+					head += """\
+		# run Brenda on the EC2 instance store volume
+		B="%s"
+		if ! [ -d "$B" ]; then
+		  for f in brenda.pid log task_count task_last DONE ; do
+			ln -s "$B/$f" "%s/$f"
+		  done
+		fi
+		export BRENDA_WORK_DIR="."
+		mkdir -p "$B"
+		cd "$B"
+		""" % (iswd, login_dir)
+				else:
+					head += 'cd "%s"\n' % (login_dir,)
+			else:
+				head += 'cd "%s"\n' % (login_dir,)
+
+			head += "/usr/local/bin/brenda-node --daemon <<EOF\n"
+			tail = "EOF\n"
+			keys = [
+				'AWS_ACCESS_KEY',
+				'AWS_SECRET_KEY',
+				'BLENDER_PROJECT',
+				'WORK_QUEUE',
+				'RENDER_OUTPUT'
+				]
+			optional_keys = [
+				"S3_REGION",
+				"SQS_REGION",
+				"CURL_MAX_THREADS",
+				"CURL_N_RETRIES",
+				"CURL_DEBUG",
+				"VISIBILITY_TIMEOUT",
+				"VISIBILITY_TIMEOUT_REASSERT",
+				"N_RETRIES",
+				"ERROR_PAUSE",
+				"RESET_PERIOD",
+				"BLENDER_PROJECT_ALWAYS_REFETCH",
+				"WORK_DIR",
+				"SHUTDOWN",
+				"DONE"
+				] + list(aws.additional_ebs_iterator(conf))
+
+			script = head
+			for k in keys:
+				v = conf.get(k)
+				if not v:
+					raise ValueError("config key %r must be defined" % (k,))
+				script += "%s=%s\n" % (k, v)
+			for k in optional_keys:
+				if k == "WORK_DIR" and use_istore:
+					continue
+				v = conf.get(k)
+				if v:
+					script += "%s=%s\n" % (k, v)
+			script += tail*/
+		return script
 	},
 
 	/**
