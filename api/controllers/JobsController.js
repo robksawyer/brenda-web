@@ -372,40 +372,55 @@ module.exports = {
 							reject(err);
 						}
 
-						//Kick off the brenda work job
-						BrendaWork.start( req.user.id, jobs[0] )
+						//Create a Render record.
+						brenda.createRenderRecord( req.user.id, jobs[0].id, jobs[0].name, jobs[0].aws_s3_render_bucket )
 							.then(
-								function(results){
-									//Pass the user to the job overview page.
-									//This will allow them to see the status of the spot instance request.
-									//Spot instance status should show up in the job block
-									//It might be more helpful to send them to a job status page. TBD on that.
+								function(renderRecord){
 
-									sails.log(results);
-									sails.log.info(jobs[0].renders);
-
-									//The queue of tasks have been created
-									BrendaRun.spot(jobs[0], jobs[0].renders[0].price_per_instance)
+									//Kick off the brenda work job
+									BrendaWork.start( req.user.id, jobs[0] )
 										.then(
 											function(results){
-												sails.log(results);
-												//Now run the job with the desired spot instance price.
-												req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
-												res.redirect('/jobs');
+												//Pass the user to the job overview page.
+												//This will allow them to see the status of the spot instance request.
+												//Spot instance status should show up in the job block
+												//It might be more helpful to send them to a job status page. TBD on that.
+
+												sails.log.info(renderRecord);
+
+												if(typeof renderRecord === 'undefined'){
+													req.flash('error', 'There are no renders associated with this job.');
+													return res.notFound('There are no renders associated with this job.');
+												}
+
+												//The queue of tasks have been created
+												BrendaRun.spot(jobs[0], renderRecord.price_per_instance)
+													.then(
+														function(results){
+															sails.log(results);
+															//Now run the job with the desired spot instance price.
+															req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
+															res.redirect('/jobs');
+														},
+														function(err){
+															req.flash('error', err);
+															return res.negotiate(err);
+														}
+													);
+
+
 											},
 											function(err){
 												req.flash('error', err);
-												return res.negotiate(err);
+												res.serverError(err);
 											}
 										);
-
-
 								},
 								function(err){
-									req.flash('error', err);
+									req.flash('error', 'There was an error creating the render record.');
 									res.serverError(err);
 								}
-							);
+						);
 					}
 				);
 

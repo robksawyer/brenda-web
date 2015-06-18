@@ -77,64 +77,56 @@ module.exports = {
 				});
 			}*/
 
-			//Create a Render record.
-			brenda.createRenderRecord( userId, jobRecord.id, jobRecord.name, jobRecord.aws_s3_render_bucket )
+			var step = 1; //brenda default
+			var task_size = 1; //brenda default
+
+			var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+			taskFilePath = path.resolve(taskFilePath);
+
+			if(typeof taskFilePath === 'undefined'){
+				reject("Unable to find the task file.");
+			}
+			if(typeof jobRecord.animation_start_frame === 'undefined'){
+				reject("Unable to find the animation start frame.");
+			}
+			if(typeof jobRecord.animation_end_frame === 'undefined'){
+				reject("Unable to find the animation end frame.");
+			}
+
+			sails.log(taskFilePath);
+
+			//Build a task list and push the messages to the Amazon SQS queue
+			amazon.buildTaskList(taskFilePath, jobRecord.animation_start_frame, jobRecord.animation_end_frame, step, task_size)
 				.then(
-					function(renderRecord){
-
-						var step = 1; //brenda default
-						var task_size = 1; //brenda default
-
-						var taskFilePath = path.join('lib','brenda','task-scripts','frame');
-						taskFilePath = path.resolve(taskFilePath);
-
-						if(typeof taskFilePath === 'undefined'){
-							reject("Unable to find the task file.");
-						}
-						if(typeof jobRecord.animation_start_frame === 'undefined'){
-							reject("Unable to find the animation start frame.");
-						}
-						if(typeof jobRecord.animation_end_frame === 'undefined'){
-							reject("Unable to find the animation end frame.");
-						}
-
-						sails.log(taskFilePath);
-
-						//Build a task list and push the messages to the Amazon SQS queue
-						amazon.buildTaskList(taskFilePath, jobRecord.animation_start_frame, jobRecord.animation_end_frame, step, task_size)
-							.then(
-								function(tasklist){
-									if(tasklist){
-										amazon.pushSQSQueueTasklist(tasklist, jobRecord.queue.url)
-											.then(
-												function(results){
-													sails.log("Pushed the tasklist to the SQS queue sucessfully!");
-													sails.log(results);
-													fulfill(results);
-												},
-												function(err){
-													sails.log.error("Error pushing to SQS queue.");
-													sails.log.error(err);
-													reject(err);
-												}
-											);
-									} else {
-										sails.log.error("Error with returned tasklist.");
-										reject("Error with returned tasklist.");
+					function(tasklist){
+						if(tasklist){
+							amazon.pushSQSQueueTasklist(tasklist, jobRecord.queue.url)
+								.then(
+									function(results){
+										sails.log("Pushed the tasklist to the SQS queue sucessfully!");
+										sails.log(results);
+										//Return the render record that was created
+										fulfill(results);
+									},
+									function(err){
+										sails.log.error("Error pushing to SQS queue.");
+										sails.log.error(err);
+										reject(err);
 									}
-								},
-								function(err){
-									sails.log.error("Error building SQS queue tasklist.");
-									sails.log.error(err);
-									reject(err);
-								}
-							);
-
+								);
+						} else {
+							sails.log.error("Error with returned tasklist.");
+							reject("Error with returned tasklist.");
+						}
 					},
 					function(err){
+						sails.log.error("Error building SQS queue tasklist.");
+						sails.log.error(err);
 						reject(err);
 					}
 				);
+
+
 		});
 
 		return promise;

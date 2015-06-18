@@ -123,6 +123,13 @@ module.exports = {
 				};
 			*/
 
+			sails.log.info("|| SPOT INSTANCE REQUEST DETAILS ||");
+			sails.log.info("| Price\t | " + spotPrice);
+			sails.log.info("| AMI\t | " + jobRecord.ami_id);
+			sails.log.info("| EC2 Instance Count\t | " + jobRecord.aws_ec2_instance_count);
+			sails.log.info("| EC2 Instance Type\t | " + jobRecord.instance_type);
+			sails.log.info("| Request Valid Unit\t | " + moment.duration().add(5, 'm') );
+
 			var params = {
 				SpotPrice: spotPrice, //required
 				//AvailabilityZoneGroup: 'STRING_VALUE', //The user-specified name for a logical grouping of bids.
@@ -144,7 +151,7 @@ module.exports = {
 						'STRING_VALUE',
 					],*/
 				},
-				Type: 'one-time' //'one-time | persistent',
+				Type: keepAlive, //'one-time | persistent'
 				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
 																								 //If the request is persistent, the request becomes active at this date and time and remains active until it expires or is canceled.
 				//Make the request valid for 5 minutes
