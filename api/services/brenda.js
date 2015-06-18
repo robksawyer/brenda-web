@@ -267,7 +267,7 @@ module.exports = {
 					name: renderName,
 					aws_s3_bucket: jobRecord.aws_s3_render_bucket,
 					price_per_instance: jobRecord.max_spend_amount,
-					status: 'waiting' //['waiting', 'running', 'completed', 'failed']
+					status: 'waiting', //['waiting', 'running', 'completed', 'failed']
 					//start_time: '',
 					//end_time: '',
 					//configFileName: configFile,
