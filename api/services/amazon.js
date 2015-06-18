@@ -185,6 +185,13 @@ module.exports = {
 		return promise;
 	},
 
+	/**
+	*
+	* The commands sent to EC2 instances when they start up.
+	* @param
+	* @return string
+	**/
+
 	startupScript: function(){
 		//def startup_script(opts, conf, istore_dev):
 		var login_dir = "/root";
