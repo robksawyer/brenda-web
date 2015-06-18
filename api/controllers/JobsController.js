@@ -354,7 +354,7 @@ module.exports = {
 	* Loads up the SQS queue and intiates a Amazon EC2 spot instance request.
 	*
 	**/
-	startSpot: function(req, res){
+	start_spot: function(req, res){
 
 		if( typeof req.param('type') === 'undefined'){
 			req.flash('error', 'You must provide a valid job type e.g. spot.');
@@ -363,23 +363,49 @@ module.exports = {
 
 		if( typeof req.param('id') !== 'undefined' ){
 
-			//Kick off the brenda work job
-			BrendaWork.start( req.user.id, req.param('id') )
-				.then(
-					function(){
-						//Pass the user to the job overview page.
-						//This will allow them to see the status of the spot instance request.
-						//Spot instance status should show up in the job block
-						//It might be more helpful to send them to a job status page. TBD on that.
+			Jobs.find({id: req.param('id'), owner: req.user.id})
+				.populate('queue')
+				.populate('renders')
+				.exec(
+					function(err, jobs){
+						if(err){
+							reject(err);
+						}
+
+						//Kick off the brenda work job
+						BrendaWork.start( req.user.id, jobs[0] )
+							.then(
+								function(results){
+									//Pass the user to the job overview page.
+									//This will allow them to see the status of the spot instance request.
+									//Spot instance status should show up in the job block
+									//It might be more helpful to send them to a job status page. TBD on that.
+
+									sails.log(results);
+									sails.log.info(jobs[0].renders);
+
+									//The queue of tasks have been created
+									BrendaRun.spot(jobs[0], jobs[0].renders[0].price_per_instance)
+										.then(
+											function(results){
+												sails.log(results);
+												//Now run the job with the desired spot instance price.
+												req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
+												res.redirect('/jobs');
+											},
+											function(err){
+												req.flash('error', err);
+												return res.negotiate(err);
+											}
+										);
 
 
-						//Now run the job with the desired spot instance price.
-						req.flash('success', 'The spot request has been initiated. Please see the job record for the status.');
-						res.redirect('/jobs');
-					},
-					function(err){
-						req.flash('error', err);
-						res.serverError(err);
+								},
+								function(err){
+									req.flash('error', err);
+									res.serverError(err);
+								}
+							);
 					}
 				);
 

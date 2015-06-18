@@ -18,65 +18,69 @@ module.exports = {
 	*
 	* Starts an EC2 Spot Instance request. The spot instance reads messages from
 	* the Job's Amazon SQS queue.
-	* @param
+	* @param jobRecord
+	* @param price
 	* @return promise
 	*
 	**/
-	spot: function(instanceCount, price){
-		/*
-		 ami_id = utils.get_opt(opts.ami, conf, 'AMI_ID', default=AMI_ID, must_exist=True)
-	    price = utils.get_opt(opts.price, conf, 'BID_PRICE', must_exist=True)
-	    reqtype = 'persistent' if opts.persistent else 'one-time'
-	    itype = brenda_instance_type(opts, conf)
-	    snapshots = aws.get_snapshots(conf)
-	    bdm, snap_description, istore_dev = aws.blk_dev_map(opts, conf, itype, snapshots)
-	    script = startup_script(opts, conf, istore_dev)
-	    user_data = None
-	    if not opts.idle:
-	        user_data = script
-	    ssh_key_name = conf.get("SSH_KEY_NAME", "brenda")
-	    sec_groups = (conf.get("SECURITY_GROUP", "brenda"),)
-	    run_args = {
-	        'image_id'      : ami_id,
-	        'price'         : price,
-	        'type'          : reqtype,
-	        'count'         : opts.n_instances,
-	        'instance_type' : itype,
-	        'user_data'     : user_data,
-	        'key_name'      : ssh_key_name,
-	        'security_groups' : sec_groups,
-	        'block_device_map' : bdm,
-	        }
+	spot: function(jobRecord, price){
+		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
+			/*
+			 ami_id = utils.get_opt(opts.ami, conf, 'AMI_ID', default=AMI_ID, must_exist=True)
+		    price = utils.get_opt(opts.price, conf, 'BID_PRICE', must_exist=True)
+		    reqtype = 'persistent' if opts.persistent else 'one-time'
+		    itype = brenda_instance_type(opts, conf)
+		    snapshots = aws.get_snapshots(conf)
+		    bdm, snap_description, istore_dev = aws.blk_dev_map(opts, conf, itype, snapshots)
+		    script = startup_script(opts, conf, istore_dev)
+		    user_data = None
+		    if not opts.idle:
+		        user_data = script
+		    ssh_key_name = conf.get("SSH_KEY_NAME", "brenda")
+		    sec_groups = (conf.get("SECURITY_GROUP", "brenda"),)
+		    run_args = {
+		        'image_id'      : ami_id,
+		        'price'         : price,
+		        'type'          : reqtype,
+		        'count'         : opts.n_instances,
+		        'instance_type' : itype,
+		        'user_data'     : user_data,
+		        'key_name'      : ssh_key_name,
+		        'security_groups' : sec_groups,
+		        'block_device_map' : bdm,
+		        }
 
-	    print "----------------------------"
-	    print "AMI ID:", ami_id
-	    print "Max bid price", price
-	    print "Request type:", reqtype
-	    print "Instance type:", itype
-	    print "Instance count:", opts.n_instances
-	    if snap_description:
-	        print "Project EBS snapshot:", snap_description
-	    if istore_dev:
-	        print "Instance store device:", istore_dev
-	    print "SSH key name:", ssh_key_name
-	    print "Security groups:", sec_groups
-	    print_script(opts, conf, script)
-	    aws.get_done(opts, conf) # sanity check on DONE var
-	    if not opts.dry_run:
-	        ec2 = aws.get_ec2_conn(conf)
-	        reservation = ec2.request_spot_instances(**run_args)
-	        print reservation
-        */
-		//brenda-run -N 4 -p 0.07 spot
-		amazon.makeSpotInstanceRequest()
-			.then(
-				function(){
-
-				},
-				function(){
-
-				}
-			);
+		    print "----------------------------"
+		    print "AMI ID:", ami_id
+		    print "Max bid price", price
+		    print "Request type:", reqtype
+		    print "Instance type:", itype
+		    print "Instance count:", opts.n_instances
+		    if snap_description:
+		        print "Project EBS snapshot:", snap_description
+		    if istore_dev:
+		        print "Instance store device:", istore_dev
+		    print "SSH key name:", ssh_key_name
+		    print "Security groups:", sec_groups
+		    print_script(opts, conf, script)
+		    aws.get_done(opts, conf) # sanity check on DONE var
+		    if not opts.dry_run:
+		        ec2 = aws.get_ec2_conn(conf)
+		        reservation = ec2.request_spot_instances(**run_args)
+		        print reservation
+	        */
+			//brenda-run -N 4 -p 0.07 spot
+			amazon.makeSpotInstanceRequest(jobRecord, price)
+				.then(
+					function(results){
+						fulfill(results);
+					},
+					function(err){
+						reject(err);
+					}
+				);
+		});
+		return promise;
 	},
 
 	/**

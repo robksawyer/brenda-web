@@ -12,6 +12,7 @@ var path = require('path'),
 	fs = require('fs'),
 	AWS = require('aws-sdk'),
 	xrange = require('xrange'),
+	moment = require('moment'),
 	changeCase = require('change-case');
 
 module.exports = {
@@ -21,16 +22,143 @@ module.exports = {
 	/**
 	*
 	* Handles making an Amazon EC2 spot instance request.
-	* @param
+	* @url http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#requestSpotInstances-property
+	* @param jobRecord: object - Job record holding the details
+	* @param spotPrice: float - The max price to pay for an instance
+	* @param keepAlive: string ('one-time' | 'persistent') - Keep the instances alive or shut them off after completio of the queue tasks
+	* @param dry: boolean - Whether or not to make a dry run
+	* @param monitoring: boolean - Describes the monitoring for the instance. (TODO: Learn more about this.)
 	* @return
 	**/
-	makeSpotInstanceRequest: function(){
+	makeSpotInstanceRequest: function(jobRecord, spotPrice, keepAlive, dry, monitoring){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//Load the credentials and build configuration
 			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
 			//AWS.config.loadFromPath( path.resolve('config', 'aws.json') );
 			AWS.config.update(sails.config.aws.credentials);
 
+			if(!keepAlive || keepAlive == false) {
+				keepAlive = 'one-time';
+			} else if(keepAlive == true){
+				keepAlive = 'persistent';
+			}
+			if(!monitoring) monitoring = false;
+			if(!dry) dry = false;
+
+			/*
+			var params = {
+				SpotPrice: 'STRING_VALUE', //required
+				AvailabilityZoneGroup: 'STRING_VALUE',
+				ClientToken: 'STRING_VALUE',
+				DryRun: true || false,
+				InstanceCount: 0,
+				LaunchGroup: 'STRING_VALUE',
+				LaunchSpecification: {
+				AddressingType: 'STRING_VALUE',
+				BlockDeviceMappings: [
+				  {
+				    DeviceName: 'STRING_VALUE',
+				    Ebs: {
+				      DeleteOnTermination: true || false,
+				      Encrypted: true || false,
+				      Iops: 0,
+				      SnapshotId: 'STRING_VALUE',
+				      VolumeSize: 0,
+				      VolumeType: 'standard | io1 | gp2'
+				    },
+				    NoDevice: 'STRING_VALUE',
+				    VirtualName: 'STRING_VALUE'
+				  },
+				],
+				EbsOptimized: true || false,
+				IamInstanceProfile: {
+				  Arn: 'STRING_VALUE',
+				  Name: 'STRING_VALUE'
+				},
+				ImageId: 'STRING_VALUE',
+				InstanceType: 't1.micro | m1.small | m1.medium | m1.large | m1.xlarge | m3.medium | m3.large | m3.xlarge | m3.2xlarge | m4.large | m4.xlarge | m4.2xlarge | m4.4xlarge | m4.10xlarge | t2.micro | t2.small | t2.medium | m2.xlarge | m2.2xlarge | m2.4xlarge | cr1.8xlarge | i2.xlarge | i2.2xlarge | i2.4xlarge | i2.8xlarge | hi1.4xlarge | hs1.8xlarge | c1.medium | c1.xlarge | c3.large | c3.xlarge | c3.2xlarge | c3.4xlarge | c3.8xlarge | c4.large | c4.xlarge | c4.2xlarge | c4.4xlarge | c4.8xlarge | cc1.4xlarge | cc2.8xlarge | g2.2xlarge | cg1.4xlarge | r3.large | r3.xlarge | r3.2xlarge | r3.4xlarge | r3.8xlarge | d2.xlarge | d2.2xlarge | d2.4xlarge | d2.8xlarge',
+				KernelId: 'STRING_VALUE',
+				KeyName: 'STRING_VALUE',
+				Monitoring: {
+				  Enabled: true || false //required
+				},
+				NetworkInterfaces: [
+				  {
+				    AssociatePublicIpAddress: true || false,
+				    DeleteOnTermination: true || false,
+				    Description: 'STRING_VALUE',
+				    DeviceIndex: 0,
+				    Groups: [
+				      'STRING_VALUE',
+				    ],
+				    NetworkInterfaceId: 'STRING_VALUE',
+				    PrivateIpAddress: 'STRING_VALUE',
+				    PrivateIpAddresses: [
+				      {
+				        PrivateIpAddress: 'STRING_VALUE', //required
+				        Primary: true || false
+				      },
+				    ],
+				    SecondaryPrivateIpAddressCount: 0,
+				    SubnetId: 'STRING_VALUE'
+				  },
+				],
+				Placement: {
+				  AvailabilityZone: 'STRING_VALUE',
+				  GroupName: 'STRING_VALUE'
+				},
+				RamdiskId: 'STRING_VALUE',
+				SecurityGroupIds: [
+				  'STRING_VALUE',
+				],
+				SecurityGroups: [
+				  'STRING_VALUE',
+				],
+				SubnetId: 'STRING_VALUE',
+				UserData: 'STRING_VALUE'
+				},
+				Type: 'one-time | persistent',
+				ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789,
+				ValidUntil: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789
+				};
+			*/
+
+			var params = {
+				SpotPrice: spotPrice, //required
+				//AvailabilityZoneGroup: 'STRING_VALUE', //The user-specified name for a logical grouping of bids.
+				DryRun: dry,
+				InstanceCount: jobRecord.aws_ec2_instance_count,
+				// LaunchGroup: 'STRING_VALUE', //The instance launch group. Launch groups are Spot Instances that launch together and terminate together. (Default: Instances are launched and terminated individually)
+				LaunchSpecification: {
+					// AddressingType: 'STRING_VALUE',
+					// EbsOptimized: true || false,
+					ImageId: jobRecord.ami_id,
+					InstanceType: jobRecord.instance_type, //'t1.micro | m1.small | m1.medium | m1.large | m1.xlarge | m3.medium | m3.large | m3.xlarge | m3.2xlarge | m4.large | m4.xlarge | m4.2xlarge | m4.4xlarge | m4.10xlarge | t2.micro | t2.small | t2.medium | m2.xlarge | m2.2xlarge | m2.4xlarge | cr1.8xlarge | i2.xlarge | i2.2xlarge | i2.4xlarge | i2.8xlarge | hi1.4xlarge | hs1.8xlarge | c1.medium | c1.xlarge | c3.large | c3.xlarge | c3.2xlarge | c3.4xlarge | c3.8xlarge | c4.large | c4.xlarge | c4.2xlarge | c4.4xlarge | c4.8xlarge | cc1.4xlarge | cc2.8xlarge | g2.2xlarge | cg1.4xlarge | r3.large | r3.xlarge | r3.2xlarge | r3.4xlarge | r3.8xlarge | d2.xlarge | d2.2xlarge | d2.4xlarge | d2.8xlarge',
+					Monitoring: {
+						Enabled: monitoring
+					},
+					/*SecurityGroupIds: [
+						'STRING_VALUE',
+					],
+					SecurityGroups: [
+						'STRING_VALUE',
+					],*/
+				},
+				Type: 'one-time' //'one-time | persistent',
+				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
+																								 //If the request is persistent, the request becomes active at this date and time and remains active until it expires or is canceled.
+				//Make the request valid for 5 minutes
+				ValidUntil: moment.duration().add(5, 'm') //The end date of the request. If this is a one-time request, the request remains active until all instances launch, the request is canceled, or this date is reached.
+				                                                                               //If the request is persistent, it remains active until it is canceled or this date and time is reached.
+				};
+
+			var ec2 = new AWS.EC2();
+			ec2.requestSpotInstances(params, function (err, data) {
+				if (err) {
+					reject(err, err.stack); // an error occurred
+				}
+				fulfill(data); // successful response
+			});
 
 		});
 		return promise;

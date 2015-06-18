@@ -44,13 +44,12 @@ module.exports = {
 	/**
 	*
 	* Responsible for submitting the commands that will push tasks to SQS queue to be executed by render farm.
-	*
-	* @parma jobRecord_id: integer - The job record id to pull
-	* @param user_id: integer - The logged in user to ensure they have permission to start the job
+	* @param userId: integer - The logged in user to ensure they have permission to start the job
+	* @parma jobRecord: object
 	* @return promise
 	*
 	**/
-	start: function(user_id, jobRecord_id)
+	start: function(userId, jobRecord)
 	{
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//
@@ -59,159 +58,81 @@ module.exports = {
 			//TODO: Figure out if I can target a specific queue. Right now it appears to just pull from a single queue.
 			//
 
-			if(!user_id) reject("You must provide a valid user id.");
-			if(!jobRecord_id) reject("You must provide a valid job record id.");
+			if(!userId) reject("You must provide a valid user id.");
+			if(!jobRecord) reject("You must provide a valid job record id.");
 
-			Jobs.find({id: jobRecord_id, owner: user_id})
-				.populate('queue')
-				.exec(
-					function(err, jobs){
-						if(err){
-							reject(err);
+			if(!jobRecord.queue) reject("The job record does not contain a queue.");
+
+			/*if(typeof jobRecord.aws_s3_render_bucket === 'undefined'){
+				var applyDefaultRenderBucket = new sails.RSVP.Promise( function(fulfill, reject) {
+					//Add the default from Settings
+					Setting.find({owner: req.user.id}).exec(
+						function(err, settings){
+							if(err){
+								reject(err);
+							}
+							fulfill(settings[0].aws_s3_render_bucket);
+						}
+					);
+				});
+			}*/
+
+			//Create a Render record.
+			brenda.createRenderRecord( userId, jobRecord.id, jobRecord.name, jobRecord.aws_s3_render_bucket )
+				.then(
+					function(renderRecord){
+
+						var step = 1; //brenda default
+						var task_size = 1; //brenda default
+
+						var taskFilePath = path.join('lib','brenda','task-scripts','frame');
+						taskFilePath = path.resolve(taskFilePath);
+
+						if(typeof taskFilePath === 'undefined'){
+							reject("Unable to find the task file.");
+						}
+						if(typeof jobRecord.animation_start_frame === 'undefined'){
+							reject("Unable to find the animation start frame.");
+						}
+						if(typeof jobRecord.animation_end_frame === 'undefined'){
+							reject("Unable to find the animation end frame.");
 						}
 
-						/*if(typeof jobs[0].aws_s3_render_bucket === 'undefined'){
-							var applyDefaultRenderBucket = new sails.RSVP.Promise( function(fulfill, reject) {
-								//Add the default from Settings
-								Setting.find({owner: req.user.id}).exec(
-									function(err, settings){
-										if(err){
-											reject(err);
-										}
-										fulfill(settings[0].aws_s3_render_bucket);
-									}
-								);
-							});
-						}*/
+						sails.log(taskFilePath);
 
-						//Create a Render record.
-						brenda.createRenderRecord( user_id, jobs[0].id, jobs[0].name, jobs[0].aws_s3_render_bucket )
+						//Build a task list and push the messages to the Amazon SQS queue
+						amazon.buildTaskList(taskFilePath, jobRecord.animation_start_frame, jobRecord.animation_end_frame, step, task_size)
 							.then(
-								function(renderRecord){
-
-									var step = 1; //brenda default
-									var task_size = 1; //brenda default
-
-									var taskFilePath = path.join('lib','brenda','task-scripts','frame');
-									taskFilePath = path.resolve(taskFilePath);
-
-									if(typeof taskFilePath === 'undefined'){
-										reject("Unable to find the task file.");
-									}
-									if(typeof jobs[0].animation_start_frame === 'undefined'){
-										reject("Unable to find the animation start frame.");
-									}
-									if(typeof jobs[0].animation_end_frame === 'undefined'){
-										reject("Unable to find the animation end frame.");
-									}
-
-									sails.log(taskFilePath);
-
-									//Build a task list and push the messages to the Amazon SQS queue
-									amazon.buildTaskList(taskFilePath, jobs[0].animation_start_frame, jobs[0].animation_end_frame, step, task_size)
-										.then(
-											function(tasklist){
-												if(tasklist){
-													amazon.pushSQSQueueTasklist(tasklist, jobs[0].queue.url)
-														.then(
-															function(results){
-																sails.log("Pushed the tasklist to the SQS queue sucessfully!");
-																sails.log(results);
-																fulfill(results);
-															},
-															function(err){
-																sails.log.error("Error pushing to SQS queue.");
-																sails.log.error(err);
-																reject(err);
-															}
-														);
-												} else {
-													sails.log.error("Error with returned tasklist.");
-													reject("Error with returned tasklist.");
-												}
-											},
-											function(err){
-												sails.log.error("Error building SQS queue tasklist.");
-												sails.log.error(err);
-												reject(err);
-											}
-										);
-
-									//DEPRECATED: Ended up just writing a node script that does what brenda-work did.
-									//Build a unique config file for the render
-									//
-									/*brenda.writeBrendaConfigFile( user_id, jobs[0].id, renderRecord.id, jobs[0].aws_s3_render_bucket )
-										.then(
-											function(configFilePath){
-
-												var taskFilePath = path.join('lib','brenda','task-scripts','frame');
-												taskFilePath = path.resolve(taskFilePath);
-
-												//sails.log(configFilePath);
-												sails.log(taskFilePath);
-												sails.log(jobs[0]);
-
-												if(typeof taskFilePath === 'undefined'){
-													reject("Unable to find the task file.");
-												}
-												if(typeof configFilePath === 'undefined'){
-													reject("Unable to find the Brenda config file.");
-												}
-												if(typeof jobs[0].animation_start_frame === 'undefined'){
-													reject("Unable to find the animation start frame.");
-												}
-												if(typeof jobs[0].animation_end_frame === 'undefined'){
-													reject("Unable to find the animation end frame.");
-												}
-
-												var arguments = [
-													'-c', configFilePath,
-													'-T', taskFilePath,
-													'-s', jobs[0].animation_start_frame,
-													'-e', jobs[0].animation_end_frame,
-													//'-d', //dry run
-													'push'
-												];
-												sails.log('Running `brenda-work` with arguments: ');
-												sails.log(arguments);
-
-												var options = {
-													mode: 'binary',
-													pythonPath: sails.config.brenda.settings.pythonPath,
-													pythonOptions: ['-u'],
-													scriptPath: 'lib/brenda/',
-													args: arguments
-												};
-												sails.python.run('brenda-work', options,
-													function (err, results) {
-														if (err) {
-															sails.log.error(err);
-															reject(err);
-														}
-														// results is an array consisting of messages collected during execution
-														sails.log('results: %j', results);
-														fulfill(results);
-													}
-												);
-												sails.python.on('message', function (message) {
-													sails.log.info(message);
-												});
-												sails.python.on('error', function(err){
-													//Handle error
+								function(tasklist){
+									if(tasklist){
+										amazon.pushSQSQueueTasklist(tasklist, jobRecord.queue.url)
+											.then(
+												function(results){
+													sails.log("Pushed the tasklist to the SQS queue sucessfully!");
+													sails.log(results);
+													fulfill(results);
+												},
+												function(err){
+													sails.log.error("Error pushing to SQS queue.");
 													sails.log.error(err);
 													reject(err);
-												});
-											},
-											function(err){
-												reject(err)
-											}
-										);*/
-
+												}
+											);
+									} else {
+										sails.log.error("Error with returned tasklist.");
+										reject("Error with returned tasklist.");
+									}
 								},
 								function(err){
+									sails.log.error("Error building SQS queue tasklist.");
+									sails.log.error(err);
 									reject(err);
 								}
 							);
+
+					},
+					function(err){
+						reject(err);
 					}
 				);
 		});
