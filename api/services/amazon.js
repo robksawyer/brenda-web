@@ -139,18 +139,16 @@ module.exports = {
 			// on the EC2 instance store
 			var iswd = (typeof sails.config.brenda.settings.workDir !== 'undefined') ? sails.config.brenda.settings : '/mnt/brenda';
 			if (iswd != login_dir) {
-				head += '
-					# run Brenda on the EC2 instance store volume
-					B="' + iswd + '"
-					if ! [ -d "$B" ]; then
-					  for f in brenda.pid log task_count task_last DONE ; do
-						ln -s "$B/$f" "' + login_dir + '/$f"
-					  done
-					fi
-					export BRENDA_WORK_DIR="."
-					mkdir -p "$B"
-					cd "$B"
-				';
+				head += "# run Brenda on the EC2 instance store volume";
+				head += 'B="' + iswd + '"';
+				head += 'if ! [ -d "$B" ]; then';
+				head += 'for f in brenda.pid log task_count task_last DONE ; do';
+				head += 'ln -s "$B/$f" "' + login_dir + '/$f"';
+				head += 'done';
+				head += 'fi'
+				head += 'export BRENDA_WORK_DIR="."';
+				head += 'mkdir -p "$B"';
+				head += 'cd "$B"';
 			} else {
 				head += 'cd "' + login_dir + '"\n';
 			}
@@ -186,20 +184,21 @@ module.exports = {
 
 		script = head;
 
-		for k in keys {
+		var v;
+		for (k in keys) {
 			v = conf[k];
-			if not v{
+			if (!v) {
 				return { error: "config key " + k + " must be defined" };
 			}
 			script += k + "=" + v + "\n";
 		}
 		//Not quite sure how to get this working at the moment.
-		for k in optional_keys{
+		for (k in optional_keys) {
 			if (k == "WORK_DIR" && use_istore) {
 				return;
 			}
 			v = conf[k]; //sails.config.brenda.settings.workDir?
-			if v{
+			if (v) {
 				script += k + "=" + v + "\n";
 			}
 		}
