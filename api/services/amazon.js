@@ -42,7 +42,7 @@ module.exports = {
 			} else if(keepAlive == true){
 				keepAlive = 'persistent';
 			}
-			if(!monitoring) monitoring = false;
+			if(!monitoring) monitoring = true;
 			if(!dry) dry = false;
 
 			//
@@ -60,7 +60,7 @@ module.exports = {
 			//var validUntil = moment().add(5, 'minutes');
 			//validUntil = moment(validUntil).toDate(); //Amazon likes it as Date object, ISO-8601 string, or a UNIX timestamp
 
-			sails.log.info("-------------------------------------");
+			/*sails.log.info("-------------------------------------");
 			sails.log.info("--- SPOT INSTANCE REQUEST DETAILS ---");
 			sails.log.info("AMI ID:", jobRecord.ami_id);
 			sails.log.info("Max bid price", spotPrice);
@@ -70,7 +70,7 @@ module.exports = {
 			sails.log.info("SSH key name:", jobRecord.ssh_key_name);
 			sails.log.info("Security groups:", jobRecord.sec_groups);
 			sails.log.info("Script:", script);
-			sails.log.info("-------------------------------------");
+			sails.log.info("-------------------------------------");*/
 
 			var params = {
 				SpotPrice: spotPrice, //required
@@ -86,13 +86,7 @@ module.exports = {
 					Monitoring: {
 						Enabled: monitoring
 					},
-					SecurityGroupIds: [
-						jobRecord.ssh_key_name
-					],
-					SecurityGroups: [
-						jobRecord.sec_groups
-					],
-					UserData: script //The startup script that runs the SQS queue goes here
+					UserData: script.toString() //The startup script that runs the SQS queue goes here
 				},
 				Type: keepAlive, //'one-time | persistent'
 				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
@@ -101,6 +95,18 @@ module.exports = {
 				//ValidUntil: validUntil //The end date of the request. If this is a one-time request, the request remains active until all instances launch, the request is canceled, or this date is reached.
 																							   //If the request is persistent, it remains active until it is canceled or this date and time is reached.
 				};
+
+			if(typeof jobRecord.ssh_key_name !== 'undefined'){
+				params.LaunchSpecification.SecurityGroupIds = [ jobRecord.ssh_key_name ];
+			}
+			if(typeof jobRecord.sec_groups !== 'undefined'){
+				params.LaunchSpecification.SecurityGroups = [ jobRecord.sec_groups ];
+			}
+
+			sails.log.info("-------------------------------------");
+			sails.log.info("--- SPOT INSTANCE REQUEST DETAILS ---");
+			sails.log.info(params);
+			sails.log.info("-------------------------------------");
 
 			var ec2 = new AWS.EC2();
 			ec2.requestSpotInstances(params, function (err, data) {
@@ -141,8 +147,9 @@ module.exports = {
 			if (typeof sails.config.brenda.settings.workDir !== 'undefined') {
 				iswd = sails.config.brenda.settings.workDir;
 			}
-			if (iswd != login_dir) {
-				head += "# run Brenda on the EC2 instance store volume";
+			sails.log(iswd !== login_dir);
+			if (iswd !== login_dir) {
+				head += '# run Brenda on the EC2 instance store volume';
 				head += 'B="' + iswd + '"';
 				head += 'if ! [ -d "$B" ]; then';
 				head += 'for f in brenda.pid log task_count task_last DONE ; do';
@@ -189,8 +196,6 @@ module.exports = {
 
 		var v;
 		for (var k of keys) {
-			sails.log.info(k);
-			sails.log.info(conf[k]);
 			v = conf[k];
 			if (!v) {
 				return { error: "config key " + k + " must be defined" };
@@ -567,7 +572,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			var errors = [];
 			for (task in tasklist){
-				sails.log(tasklist[task]);
+				//sails.log(tasklist[task]);
 				if(typeof queueURL !== 'undefined'){
 					//Send the task/message
 					amazon.writeSQSQueue(tasklist[task], queueURL, dry)
