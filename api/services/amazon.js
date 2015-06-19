@@ -137,7 +137,10 @@ module.exports = {
 		if (use_istore) {
 			// script to start brenda-node running
 			// on the EC2 instance store
-			var iswd = (typeof sails.config.brenda.settings.workDir !== 'undefined') ? sails.config.brenda.settings : '/mnt/brenda';
+			var iswd = '/mnt/brenda';
+			if (typeof sails.config.brenda.settings.workDir !== 'undefined') {
+				iswd = sails.config.brenda.settings.workDir;
+			}
 			if (iswd != login_dir) {
 				head += "# run Brenda on the EC2 instance store volume";
 				head += 'B="' + iswd + '"';
