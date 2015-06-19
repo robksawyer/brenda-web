@@ -45,89 +45,17 @@ module.exports = {
 			if(!monitoring) monitoring = false;
 			if(!dry) dry = false;
 
-			/*
-			var params = {
-				SpotPrice: 'STRING_VALUE', //required
-				AvailabilityZoneGroup: 'STRING_VALUE',
-				ClientToken: 'STRING_VALUE',
-				DryRun: true || false,
-				InstanceCount: 0,
-				LaunchGroup: 'STRING_VALUE',
-				LaunchSpecification: {
-				AddressingType: 'STRING_VALUE',
-				BlockDeviceMappings: [
-				  {
-					DeviceName: 'STRING_VALUE',
-					Ebs: {
-					  DeleteOnTermination: true || false,
-					  Encrypted: true || false,
-					  Iops: 0,
-					  SnapshotId: 'STRING_VALUE',
-					  VolumeSize: 0,
-					  VolumeType: 'standard | io1 | gp2'
-					},
-					NoDevice: 'STRING_VALUE',
-					VirtualName: 'STRING_VALUE'
-				  },
-				],
-				EbsOptimized: true || false,
-				IamInstanceProfile: {
-				  Arn: 'STRING_VALUE',
-				  Name: 'STRING_VALUE'
-				},
-				ImageId: 'STRING_VALUE',
-				InstanceType: 't1.micro | m1.small | m1.medium | m1.large | m1.xlarge | m3.medium | m3.large | m3.xlarge | m3.2xlarge | m4.large | m4.xlarge | m4.2xlarge | m4.4xlarge | m4.10xlarge | t2.micro | t2.small | t2.medium | m2.xlarge | m2.2xlarge | m2.4xlarge | cr1.8xlarge | i2.xlarge | i2.2xlarge | i2.4xlarge | i2.8xlarge | hi1.4xlarge | hs1.8xlarge | c1.medium | c1.xlarge | c3.large | c3.xlarge | c3.2xlarge | c3.4xlarge | c3.8xlarge | c4.large | c4.xlarge | c4.2xlarge | c4.4xlarge | c4.8xlarge | cc1.4xlarge | cc2.8xlarge | g2.2xlarge | cg1.4xlarge | r3.large | r3.xlarge | r3.2xlarge | r3.4xlarge | r3.8xlarge | d2.xlarge | d2.2xlarge | d2.4xlarge | d2.8xlarge',
-				KernelId: 'STRING_VALUE',
-				KeyName: 'STRING_VALUE',
-				Monitoring: {
-				  Enabled: true || false //required
-				},
-				NetworkInterfaces: [
-				  {
-					AssociatePublicIpAddress: true || false,
-					DeleteOnTermination: true || false,
-					Description: 'STRING_VALUE',
-					DeviceIndex: 0,
-					Groups: [
-					  'STRING_VALUE',
-					],
-					NetworkInterfaceId: 'STRING_VALUE',
-					PrivateIpAddress: 'STRING_VALUE',
-					PrivateIpAddresses: [
-					  {
-						PrivateIpAddress: 'STRING_VALUE', //required
-						Primary: true || false
-					  },
-					],
-					SecondaryPrivateIpAddressCount: 0,
-					SubnetId: 'STRING_VALUE'
-				  },
-				],
-				Placement: {
-				  AvailabilityZone: 'STRING_VALUE',
-				  GroupName: 'STRING_VALUE'
-				},
-				RamdiskId: 'STRING_VALUE',
-				SecurityGroupIds: [
-				  'STRING_VALUE',
-				],
-				SecurityGroups: [
-				  'STRING_VALUE',
-				],
-				SubnetId: 'STRING_VALUE',
-				UserData: 'STRING_VALUE'
-				},
-				Type: 'one-time | persistent',
-				ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789,
-				ValidUntil: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789
-				};
-			*/
-
 			//
 			//Make some edits before sending the request
 			//
 			spotPrice = spotPrice.toString(); //Amazon likes it as a string
 
+			//Build a configuration object that is easily traversable by the startupScript method below
+			var conf = brenda.getBrendaConfigDataAsObject(jobRecord, renderRecord);
+			if(typeof conf.error !== 'undefined'){
+				reject(conf.error);
+			}
+			var script = amazon.startupScript(conf);
 			//This will terminate the instance after a certain period
 			//var validUntil = moment().add(5, 'minutes');
 			//validUntil = moment(validUntil).toDate(); //Amazon likes it as Date object, ISO-8601 string, or a UNIX timestamp
@@ -141,6 +69,7 @@ module.exports = {
 			sails.log.info("Instance count:", jobRecord.aws_ec2_instance_count);
 			sails.log.info("SSH key name:", jobRecord.ssh_key_name);
 			sails.log.info("Security groups:", jobRecord.sec_groups);
+			sails.log.info("Script:", script);
 			sails.log.info("-------------------------------------");
 
 			var params = {
@@ -163,7 +92,7 @@ module.exports = {
 					SecurityGroups: [
 						jobRecord.sec_groups
 					],
-					UserData: '' //The startup script that runs the SQS queue goes here
+					UserData: script //The startup script that runs the SQS queue goes here
 				},
 				Type: keepAlive, //'one-time | persistent'
 				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
@@ -188,81 +117,95 @@ module.exports = {
 	/**
 	*
 	* The commands sent to EC2 instances when they start up.
-	* @param
+	* @param conf: object - A configuration object that holds the details from Job and Render models that the EC2 needs to run the job.
 	* @return string
+	*
 	**/
-
-	startupScript: function(){
+	startupScript: function(conf){
 		//def startup_script(opts, conf, istore_dev):
 		var login_dir = "/root";
 
 		var head = "#!/bin/bash\n";
 		var script = "";
 
+		var use_istore = 0;
 		// use EC2 instance store on render farm instance?
-		//var use_istore = int(conf.get('USE_ISTORE', '1' if istore_dev else '0'))
+		if(typeof sails.config.brenda.settings.useIStore !== 'undefined') {
+			use_istore = int(sails.config.brenda.settings.useIStore);
+		}
 
-		/*if use_istore{
-				# script to start brenda-node running
-				# on the EC2 instance store
-				iswd = conf.get('WORK_DIR', '/mnt/brenda')
-				if iswd != login_dir:
-					head += """\
-		# run Brenda on the EC2 instance store volume
-		B="%s"
-		if ! [ -d "$B" ]; then
-		  for f in brenda.pid log task_count task_last DONE ; do
-			ln -s "$B/$f" "%s/$f"
-		  done
-		fi
-		export BRENDA_WORK_DIR="."
-		mkdir -p "$B"
-		cd "$B"
-		""" % (iswd, login_dir)
-				else:
-					head += 'cd "%s"\n' % (login_dir,)
-			else:
-				head += 'cd "%s"\n' % (login_dir,)
+		if (use_istore) {
+			// script to start brenda-node running
+			// on the EC2 instance store
+			var iswd = (typeof sails.config.brenda.settings.workDir !== 'undefined') ? sails.config.brenda.settings : '/mnt/brenda';
+			if (iswd != login_dir) {
+				head += '
+					# run Brenda on the EC2 instance store volume
+					B="' + iswd + '"
+					if ! [ -d "$B" ]; then
+					  for f in brenda.pid log task_count task_last DONE ; do
+						ln -s "$B/$f" "' + login_dir + '/$f"
+					  done
+					fi
+					export BRENDA_WORK_DIR="."
+					mkdir -p "$B"
+					cd "$B"
+				';
+			} else {
+				head += 'cd "' + login_dir + '"\n';
+			}
+		} else {
+			head += 'cd "' + login_dir + '"\n';
+		}
 
-			head += "/usr/local/bin/brenda-node --daemon <<EOF\n"
-			tail = "EOF\n"
-			keys = [
-				'AWS_ACCESS_KEY',
-				'AWS_SECRET_KEY',
-				'BLENDER_PROJECT',
-				'WORK_QUEUE',
-				'RENDER_OUTPUT'
-				]
-			optional_keys = [
-				"S3_REGION",
-				"SQS_REGION",
-				"CURL_MAX_THREADS",
-				"CURL_N_RETRIES",
-				"CURL_DEBUG",
-				"VISIBILITY_TIMEOUT",
-				"VISIBILITY_TIMEOUT_REASSERT",
-				"N_RETRIES",
-				"ERROR_PAUSE",
-				"RESET_PERIOD",
-				"BLENDER_PROJECT_ALWAYS_REFETCH",
-				"WORK_DIR",
-				"SHUTDOWN",
-				"DONE"
-				] + list(aws.additional_ebs_iterator(conf))
+		head += "/usr/local/bin/brenda-node --daemon <<EOF\n";
+		tail = "EOF\n";
+		keys = [
+			'AWS_ACCESS_KEY',
+			'AWS_SECRET_KEY',
+			'BLENDER_PROJECT',
+			'WORK_QUEUE',
+			'RENDER_OUTPUT'
+			]
+		optional_keys = [
+			"S3_REGION",
+			"SQS_REGION",
+			"CURL_MAX_THREADS",
+			"CURL_N_RETRIES",
+			"CURL_DEBUG",
+			"VISIBILITY_TIMEOUT",
+			"VISIBILITY_TIMEOUT_REASSERT",
+			"N_RETRIES",
+			"ERROR_PAUSE",
+			"RESET_PERIOD",
+			"BLENDER_PROJECT_ALWAYS_REFETCH",
+			"WORK_DIR",
+			"SHUTDOWN",
+			"DONE"
+			]; //+ list(amazon.additionalEBSIterator(conf))
 
-			script = head
-			for k in keys:
-				v = conf.get(k)
-				if not v:
-					raise ValueError("config key %r must be defined" % (k,))
-				script += "%s=%s\n" % (k, v)
-			for k in optional_keys:
-				if k == "WORK_DIR" and use_istore:
-					continue
-				v = conf.get(k)
-				if v:
-					script += "%s=%s\n" % (k, v)
-			script += tail*/
+		script = head;
+
+		for k in keys {
+			v = conf[k];
+			if not v{
+				return { error: "config key " + k + " must be defined" };
+			}
+			script += k + "=" + v + "\n";
+		}
+		//Not quite sure how to get this working at the moment.
+		for k in optional_keys{
+			if (k == "WORK_DIR" && use_istore) {
+				return;
+			}
+			v = conf[k]; //sails.config.brenda.settings.workDir?
+			if v{
+				script += k + "=" + v + "\n";
+			}
+		}
+
+		script += tail;
+
 		return script
 	},
 
@@ -293,6 +236,27 @@ module.exports = {
 		});
 		return promise;
 	},
+
+	/**
+	*
+	* This adds some extra properties to the EC2 instance script.
+	* @param conf
+	* @return
+	**/
+
+	/*additionalEBSIterator: function(conf){
+		var i = 0;
+		var key = "";
+		while (true) {
+			key = "ADDITIONAL_EBS_" + i;
+			if key in conf{
+				yield key
+			} else {
+				break;
+			}
+			i += 1;
+		}
+	},*/
 
 
 	/**

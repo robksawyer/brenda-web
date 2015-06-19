@@ -638,6 +638,108 @@ module.exports = {
 
 	/**
 	*
+	* Returns an object that is used for the EC2 instances. The values are pulled from the Job and Render record.
+	* @param userId: integer - The user that owns the job
+	* @param jobRecord: object - The Job record id to pull config data from. WARNING: Must contain Queue and Files model records.
+	* @param renderRecord: object - The Render record id to pull config data from.
+	* @return promise
+	*
+	* Required:
+	*   AWS_ACCESS_KEY
+	*   AWS_SECRET_KEY
+	*   BLENDER_PROJECT
+	*   WORK_QUEUE
+	*   RENDER_OUTPUT
+	*
+	* Optional:
+	*   S3_REGION
+	*   SQS_REGION
+	*   CURL_MAX_THREADS
+	*   CURL_N_RETRIES
+	*   CURL_DEBUG
+	*   VISIBILITY_TIMEOUT
+	*   VISIBILITY_TIMEOUT_REASSERT
+	*   N_RETRIES
+	*   ERROR_PAUSE
+	*   RESET_PERIOD
+	*   BLENDER_PROJECT_ALWAYS_REFETCH
+	*   WORK_DIR
+	*   SHUTDOWN
+	*   DONE
+	*
+	**/
+	getBrendaConfigDataAsObject: function(jobRecord, renderRecord)
+	{
+		if(typeof jobRecord === 'undefined'){
+			sails.log.error("Unable to find the Job record id.");
+			return { error: "Unable to find the Job record id." };
+		}
+		if(typeof renderRecord === 'undefined'){
+			sails.log.error("Unable to find the Render record id.");
+			return { error: "Unable to find the Render record id." };
+		}
+
+		//Build the config based on the job record information
+		var brendaConfigFileData = {
+			AWS_ACCESS_KEY: sails.config.aws.credentials.accessKeyId,
+			AWS_SECRET_KEY: sails.config.aws.credentials.secretAccessKey,
+			INSTANCE_TYPE: jobRecord.instance_type, //m3.xlarge
+		};
+
+		if(typeof jobRecord.files === 'undefined'){
+			sails.log.error("Unable to find an associated Blender file for the job.");
+			return { error: "Unable to find an associated Blender file for the job." };
+		} else if(typeof jobRecord.files.aws_s3_location === 'undefined'){
+			sails.log.error("Unable to find the Amazon S3 location of the file for the job.");
+			return { error: "Unable to find the Amazon S3 location of the file for the job." };
+		}
+
+		if(typeof jobRecord.queue === 'undefined'){
+			sails.log.error("Unable to find an associated SQS queue for the job.");
+			return { error: "Unable to find an associated SQS queue for the job." };
+		} else if(typeof jobRecord.queue.url === 'undefined'){
+			sails.log.error("Unable to find the Amazon SQS queue location for the job.");
+			return { error: "Unable to find the Amazon SQS queue location for the job." };
+		}
+
+		if(typeof renderRecord === 'undefined'){
+			sails.log.error("Unable to find an associated Render record for the job.");
+			return { error: "Unable to find an associated Render record for the job." };
+		}
+
+		var blenderProjectFile = jobRecord.files;
+		var blenderProjectQueue = jobRecord.queue;
+		var blenderProjectFileName = blenderProjectFile.fileName + blenderProjectFile.extension; //dot is included in the extension
+		var s3Protocol = "s3://";
+		var sqsProtocol = "sqs://";
+
+		brendaConfigFileData.BLENDER_PROJECT = s3Protocol + blenderProjectFile.aws_s3_bucket + '/' + blenderProjectFileName; //PROJECT_BUCKET/myproject.tar.gz
+		brendaConfigFileData.SQS_REGION = jobRecord.aws_sqs_region;
+
+		//Add the S3 region
+		var s3Region = "us-west-2";
+		//Apply the region related to the File
+		if(typeof jobRecord.files[0].aws_s3_region !== 'undefined'){
+			s3Region = jobRecord.files[0].aws_s3_region;
+		} else if(typeof sails.config.aws.credentials.region !== 'undefined'){
+			//Apply the default s3 region
+			s3Region = sails.config.aws.credentials.region;
+		}
+		brendaConfigFileData.S3_REGION = s3Region;
+
+		brendaConfigFileData.WORK_QUEUE = sqsProtocol + blenderProjectQueue.name;
+
+		//Right now pull this from settings. But in the future tie it to Render model.
+		brendaConfigFileData.RENDER_OUTPUT = s3Protocol + renderRecord.aws_s3_bucket; //s3://FRAME_BUCKET
+
+		//Default to shutting the instances down after the task is complete
+		brendaConfigFileData.DONE = "shutdown"; //poll?
+
+		return brendaConfigFileData;
+	},
+
+	/**
+	*
 	* Helper to write files to the disk.
 	* @param filePath: string - This must include the file name.
 	* @param fileData: string

@@ -23,6 +23,9 @@ module.exports = {
 		fileSize: {
 			type: 'integer'
 		},
+		aws_s3_region:{
+			type: 'string'
+		},
 		aws_s3_location: {
 			type: 'string'
 		},
