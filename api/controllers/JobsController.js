@@ -365,6 +365,7 @@ module.exports = {
 
 			Jobs.find({id: req.param('id'), owner: req.user.id})
 				.populate('queue')
+				.populate('files')
 				.populate('renders')
 				.exec(
 					function(err, jobs){
@@ -394,7 +395,7 @@ module.exports = {
 												}
 
 												//The queue of tasks have been created
-												BrendaRun.spot(jobs[0], renderRecord.price_per_instance)
+												BrendaRun.spot(jobs[0], renderRecord)
 													.then(
 														function(results){
 															sails.log.info("Hooray! The spot instance request was successfully initiated.");

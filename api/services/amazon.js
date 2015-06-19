@@ -24,13 +24,13 @@ module.exports = {
 	* Handles making an Amazon EC2 spot instance request.
 	* @url http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/EC2.html#requestSpotInstances-property
 	* @param jobRecord: object - Job record holding the details
-	* @param spotPrice: float - The max price to pay for an instance
+	* @param renderRecord: object - Render record to pull price from
 	* @param keepAlive: string ('one-time' | 'persistent') - Keep the instances alive or shut them off after completio of the queue tasks
 	* @param dry: boolean - Whether or not to make a dry run
 	* @param monitoring: boolean - Describes the monitoring for the instance. (TODO: Learn more about this.)
 	* @return
 	**/
-	requestSpotInstances: function(jobRecord, spotPrice, keepAlive, dry, monitoring){
+	requestSpotInstances: function(jobRecord, renderRecord, keepAlive, dry, monitoring){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//Load the credentials and build configuration
 			//@url http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html
@@ -48,7 +48,7 @@ module.exports = {
 			//
 			//Make some edits before sending the request
 			//
-			spotPrice = spotPrice.toString(); //Amazon likes it as a string
+			var spotPrice = renderRecord.price_per_instance.toString(); //Amazon likes it as a string
 
 			//Build a configuration object that is easily traversable by the startupScript method below
 			var conf = brenda.getBrendaConfigDataAsObject(jobRecord, renderRecord);

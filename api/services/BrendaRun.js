@@ -19,14 +19,14 @@ module.exports = {
 	* Starts an EC2 Spot Instance request. The spot instance reads messages from
 	* the Job's Amazon SQS queue.
 	* @param jobRecord
-	* @param price
+	* @param renderRecord
 	* @return promise
 	*
 	**/
-	spot: function(jobRecord, price){
+	spot: function(jobRecord, renderRecord){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			//brenda-run -N 4 -p 0.07 spot
-			amazon.requestSpotInstances(jobRecord, price)
+			amazon.requestSpotInstances(jobRecord, renderRecord)
 				.then(
 					function(results){
 						fulfill(results);
