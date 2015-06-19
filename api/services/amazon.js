@@ -131,7 +131,7 @@ module.exports = {
 		var use_istore = 0;
 		// use EC2 instance store on render farm instance?
 		if(typeof sails.config.brenda.settings.useIStore !== 'undefined') {
-			use_istore = int(sails.config.brenda.settings.useIStore);
+			use_istore = parseInt(sails.config.brenda.settings.useIStore);
 		}
 
 		if (use_istore) {
@@ -185,7 +185,9 @@ module.exports = {
 		script = head;
 
 		var v;
-		for (k in keys) {
+		for (var k of keys) {
+			sails.log.info(k);
+			sails.log.info(conf[k]);
 			v = conf[k];
 			if (!v) {
 				return { error: "config key " + k + " must be defined" };
@@ -193,7 +195,7 @@ module.exports = {
 			script += k + "=" + v + "\n";
 		}
 		//Not quite sure how to get this working at the moment.
-		for (k in optional_keys) {
+		for (var k of optional_keys) {
 			if (k == "WORK_DIR" && use_istore) {
 				return;
 			}

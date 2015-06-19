@@ -718,9 +718,10 @@ module.exports = {
 
 		//Add the S3 region
 		var s3Region = "us-west-2";
+
 		//Apply the region related to the File
-		if(typeof jobRecord.files[0].aws_s3_region !== 'undefined'){
-			s3Region = jobRecord.files[0].aws_s3_region;
+		if(typeof jobRecord.files.aws_s3_region !== 'undefined'){
+			s3Region = jobRecord.files.aws_s3_region;
 		} else if(typeof sails.config.aws.credentials.region !== 'undefined'){
 			//Apply the default s3 region
 			s3Region = sails.config.aws.credentials.region;
