@@ -86,7 +86,7 @@ module.exports = {
 					Monitoring: {
 						Enabled: monitoring
 					},
-					UserData: script.toString() //The startup script that runs the SQS queue goes here
+					UserData: script //The startup script that runs the SQS queue goes here
 				},
 				Type: keepAlive, //'one-time | persistent'
 				//ValidFrom: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789, //The start date of the request. If this is a one-time request, the request becomes active at this date and time and remains active until all instances launch, the request expires, or the request is canceled.
@@ -143,11 +143,10 @@ module.exports = {
 		if (use_istore) {
 			// script to start brenda-node running
 			// on the EC2 instance store
-			var iswd = '/mnt/brenda';
+			var iswd = "/mnt/brenda";
 			if (typeof sails.config.brenda.settings.workDir !== 'undefined') {
 				iswd = sails.config.brenda.settings.workDir;
 			}
-			sails.log(iswd !== login_dir);
 			if (iswd !== login_dir) {
 				head += '# run Brenda on the EC2 instance store volume';
 				head += 'B="' + iswd + '"';
@@ -193,7 +192,6 @@ module.exports = {
 			]; //+ list(amazon.additionalEBSIterator(conf))
 
 		script = head;
-
 		var v;
 		for (var k of keys) {
 			v = conf[k];
@@ -215,7 +213,11 @@ module.exports = {
 
 		script += tail;
 
-		return script
+		//Amazon requires the UserData to be passed along as Base64
+		//See:
+		//@url http://serverfault.com/questions/592423/how-do-i-launch-an-amazon-ec2-spot-instance-with-userdata
+		//@url http://stackoverflow.com/questions/6182315/how-to-do-base64-encoding-in-node-js
+		return new Buffer(script).toString('base64');
 	},
 
 	/**
