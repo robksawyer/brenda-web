@@ -66,34 +66,33 @@ aws: {
 # Data Storage
 The project is currently dependent on [MongoDB](https://www.mongodb.org/) as its data storage provider. [mongo-express](https://www.npmjs.com/package/mongo-express) is used as a gui to make life a bit easier. It's also worth noting that all of this is made possible, because of the [sails-mongo](https://github.com/balderdashy/sails-mongo) Waterline adapter.
 
-Visit your mongo-express interface at <http://localhost:8081>.
+Visit your mongo-express interface at <http://localhost:1336>. This can be changed via the `node_modules/mongo-express/config` `site.url` property.
 
 > There's a helper script to start mongo-express. Just run `npm run mongo` to start it up. You can change this in `package.json`.
 
 ## Setting up MongoDB locally
 1. Install it via Homebrew
-1. Make a data storage location `sudo mkdir /data/db`
-1. Change ownership to your user `sudo chown [yourusername] -R /data`
-1. Create a config file with the following and save at `/etc/mongo.conf`
+1. Make sure the data storage location `ls -al /usr/local/var/mongodb/` exists.
+1. Start it up in the background with `mongod --config /usr/local/etc/mongod.conf --fork`
+
+However, if you want to keep MongoDB running at any time, even when you reboot the system, you should use the following commands:
 ```
-processManagement:
-   fork: true
-net:
-   bindIp: 127.0.0.1
-   port: 27017
-storage:
-   dbPath: /data/db
-systemLog:
-   destination: file
-   path: "/var/log/mongodb/mongod.log"
-   logAppend: true
-storage:
-   journal:
-      enabled: true
+//Start mongod main process on session start:
+ln -sfv /usr/local/opt/mongodb/*.plist ~/Library/LaunchAgents
 ```
-1. Create a log location `sudo mkdir /var/log/mongodb`
-1. Change the read/write props `sudo chmod -R 777 /var/log/mongodb`
-1. Start up `mongod` with the config file using `mongod --config /etc/mongod.conf`.
+
+Warning: In order to get this working, I had to make some permission updates.
+```
+$ sudo chown -R robsawyer /usr/local/var/log/mongodb/
+$ sudo chown -R robsawyer /usr/local/var/mongodb
+$ sudo chown -R robsawyer /usr/local/etc/mongod.conf
+
+```
+
+```
+//Start MongoDB now, in background, and keep it running
+$ launchctl load ~/Library/LaunchAgents/homebrew.mxcl.mongodb.plist
+```
 
 # Wuh? What is Brenda?
 - [Blender Cycles Cloud Render Farming Using AWS, Deadline and Brenda](https://www.youtube.com/watch?v=NkZ60lF-nKM) is a great introduction to the software.
