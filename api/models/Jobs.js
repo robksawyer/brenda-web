@@ -54,19 +54,19 @@ module.exports = {
 			type: 'string'
 		},
 		queue: {
-			model: 'queue'
+			model: 'Queue'
 		},
 		renders: {
-			model: 'render',
+			collection: 'Render',
 			via: 'job'
 		},
-		files: {
-			model: 'file',
+		uploads: {
+			collection: 'Upload',
 			via: 'job'
 		},
 		owner: {
-			model: 'user',
-			via: 'jobs'
+			model: 'User',
+			via: 'job'
 		}
 	}
 };

@@ -41,23 +41,23 @@ var User = {
 			defaultsTo: false
 		},
 		settings: {
-			collection: 'settings',
+			model: 'Settings',
 			via: 'owner'
 		},
 		jobs: {
-			collection: 'jobs',
+			collection: 'Jobs',
 			via: 'owner'
 		},
-		files: {
-			collection: 'file',
+		uploads: {
+			collection: 'Upload',
 			via: 'uploadedBy'
 		},
 		queues: {
-			collection: 'queue',
+			collection: 'Queue',
 			via: 'owner'
 		},
 		renders: {
-			collection: 'render',
+			collection: 'Render',
 			via: 'owner'
 		}
 	}

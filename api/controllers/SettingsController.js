@@ -45,7 +45,7 @@ module.exports = {
 
 					res.view({
 						//version: results,
-						settings: userRecord.settings[0]
+						settings: userRecord.settings
 					});
 				}
 
@@ -144,7 +144,7 @@ module.exports = {
 					sails.log.error(err);
 				}
 
-				Settings.findOne({id: userRecord.settings[0].id}, function(err, settingRecord){
+				Settings.findOne({id: userRecord.settings.id}, function(err, settingRecord){
 					if(err){
 						return res.serverError(err);
 					}
@@ -164,7 +164,7 @@ module.exports = {
 					}
 
 					//Ensure the id and user id are the same
-					settingRecord.id = userRecord.settings[0].id;
+					settingRecord.id = userRecord.settings.id;
 					settingRecord.owner = userRecord.id;
 					settingRecord.save(function(err, savedRecord){
 						if(err){
@@ -219,7 +219,7 @@ module.exports = {
 				return res.notFound(err);
 			}
 
-			Settings.findOne({ id: userRecord.settings[0].id }).exec(function(err, settingRecord) {
+			Settings.findOne({ id: userRecord.settings.id }).exec(function(err, settingRecord) {
 				if(err){
 					sails.log.error(err);
 					return res.serverError(err);
@@ -292,7 +292,7 @@ module.exports = {
 
 			//Check to ensure the id exists in the database
 			//TODO: Add the logged in user id here to ensure the user has permissions to this id.
-			Settings.findOne({ id: userRecord.settings[0].id }).exec(function(err, found) {
+			Settings.findOne({ id: userRecord.settings.id }).exec(function(err, found) {
 				if(err){
 					sails.log.error(err);
 					return res.serverError(reason);

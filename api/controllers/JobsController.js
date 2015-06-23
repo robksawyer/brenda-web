@@ -38,7 +38,7 @@ module.exports = {
 
 	/**
 	*
-	* Responsible for destroying a job along with associated files, queue and renders.
+	* Responsible for destroying a job along with associated uploads, queue and renders.
 	*
 	**/
 	destroy: function(req, res){
@@ -51,7 +51,7 @@ module.exports = {
 		//Check to see if the job exists and the user has permission.
 		Jobs.find({ id: req.param('id'), owner: req.user.id })
 			.populate('queue')
-			.populate('files')
+			.populate('uploads')
 			.populate('renders')
 			.exec( function(err, job){
 
@@ -69,13 +69,13 @@ module.exports = {
 
 						var promises = [];
 
-						sails.log('files:');
-						sails.log(job[0].files);
+						sails.log('uploads:');
+						sails.log(job[0].uploads);
 
-						if(typeof job[0].files !== 'undefined'){
+						if(typeof job[0].uploads !== 'undefined'){
 							//Delete associations
 							var deleteFiles = new sails.RSVP.Promise( function(fulfill, reject) {
-								File.destroy({ id: job[0].files }).exec(
+								File.destroy({ id: job[0].uploads[0] }).exec(
 									function(err){
 										if(err){
 											reject(err);
@@ -365,7 +365,7 @@ module.exports = {
 
 			Jobs.find({id: req.param('id'), owner: req.user.id})
 				.populate('queue')
-				.populate('files')
+				.populate('uploads')
 				.populate('renders')
 				.exec(
 					function(err, jobs){

@@ -40,10 +40,10 @@ module.exports = {
 			type: 'object'
 		},
 		job: {
-			model: 'jobs'
+			model: 'Jobs'
 		},
 		owner:{
-			model: 'user'
+			model: 'User'
 		}
 	}
 };

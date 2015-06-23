@@ -60,6 +60,8 @@ aws: {
 - [adm-zip](https://www.npmjs.com/package/adm-zip): Automatically zipping .blend files in order to push to Amazon S3
 - [moment](http://momentjs.com/) - Formatting time data
 
+## Other Dependencies
+- [CodeMirror](https://codemirror.net): Log window and live feedback display. See [Recreate Similar Travis CI Console Log Interface](http://stackoverflow.com/questions/30948708/recreate-similar-travis-ci-console-log-interface/30957814#30957814).
 
 # Wuh? What is Brenda?
 - [Blender Cycles Cloud Render Farming Using AWS, Deadline and Brenda](https://www.youtube.com/watch?v=NkZ60lF-nKM) is a great introduction to the software.
