@@ -66,7 +66,32 @@ aws: {
 # Data Storage
 The project is currently dependent on [MongoDB](https://www.mongodb.org/) as its data storage provider. [mongo-express](https://www.npmjs.com/package/mongo-express) is used as a gui to make life a bit easier. It's also worth noting that all of this is made possible, because of the [sails-mongo](https://github.com/balderdashy/sails-mongo) Waterline adapter.
 
-> There's a helper script to start mongo-express. Just run `node mongo` to start it up. You can change this in `package.json`.
+> There's a helper script to start mongo-express. Just run `npm run mongo` to start it up. You can change this in `package.json`.
+
+## Setting up MongoDB locally
+1. Install it via Homebrew
+1. Make a data storage location `sudo mkdir /data/db`
+1. Change ownership to your user `sudo chown [yourusername] -R /data`
+1. Create a config file with the following and save at `/etc/mongo.conf`
+```
+processManagement:
+   fork: true
+net:
+   bindIp: 127.0.0.1
+   port: 27017
+storage:
+   dbPath: /data/db
+systemLog:
+   destination: file
+   path: "/var/log/mongodb/mongod.log"
+   logAppend: true
+storage:
+   journal:
+      enabled: true
+```
+1. Create a log location `sudo mkdir /var/log/mongodb`
+1. Change the read/write props `sudo chmod -R 777 /var/log/mongodb`
+1. Start up `mongod` with the config file using `mongod --config /etc/mongod.conf`.
 
 # Wuh? What is Brenda?
 - [Blender Cycles Cloud Render Farming Using AWS, Deadline and Brenda](https://www.youtube.com/watch?v=NkZ60lF-nKM) is a great introduction to the software.
