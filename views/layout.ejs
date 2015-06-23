@@ -154,6 +154,18 @@
 				label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
 				input.trigger('fileselect', [numFiles, label]);
 		});
+
+		$(document).ready(function subscribeAndListen() {
+			// When the document loads, send a request to users.testSocket
+			// The controller code will subscribe you to all of the 'users' model instances (records)
+			io.socket.get('/auth/subscribe', function(message){
+				console.log(message);
+			});
+			//
+			/*io.socket.on('message', function(message){
+				console.log(message);
+			});*/
+		});
 		</script>
 	</body>
 </html>

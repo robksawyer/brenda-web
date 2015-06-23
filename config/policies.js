@@ -53,7 +53,8 @@ module.exports.policies = {
 	'*': ['passport', 'sessionAuth', 'flash'],
 
 	'auth': {
-		'*': ['passport']
+		'*': ['passport'],
+		'subscribe': ['flash']
 	}
 
 };

@@ -1,3 +1,6 @@
 [submodule "lib/brenda"]
 	path = lib/brenda
 	url = https://github.com/robksawyer/brenda.git
+[submodule "lib/codemirror"]
+	path = lib/codemirror
+	url = https://github.com/codemirror/codemirror

@@ -68,6 +68,15 @@ var AuthController = {
    * @param {Object} res
    */
   logout: function (req, res) {
+
+    // Publish a socket message
+    if(req.user && req.isSocket){
+      User.publishUpdate(req.user.id, {
+        loggedIn: false,
+        id: req.user.id
+      });
+    }
+
     req.logout();
 
     // mark the user as logged out for auth purposes
@@ -165,6 +174,14 @@ var AuthController = {
           return tryAgain(err);
         }
 
+        // Publish a socket message
+        if(user.id && req.isSocket){
+          User.publishUpdate(user.id, {
+            loggedIn: true,
+            id: user.id
+          });
+        }
+
         // Mark the session as authenticated to work with default Sails sessionAuth.js policy
         req.session.authenticated = true;
 
@@ -183,6 +200,28 @@ var AuthController = {
    */
   disconnect: function (req, res) {
     passport.disconnect(req, res);
+  },
+
+  /**
+  *
+  * Socket subscriber
+  *
+  **/
+  subscribe: function(req, res){
+
+    User.find({}, function foundUsers(err, users){
+      if(err) return next(err);
+
+      //Subscribe this socket to the User model classroom
+      User.subscribe(req.socket);
+
+      //Subscribe this socket to the User model instance rooms
+      User.subscribe(req.socket, users);
+
+      //This will avoid a warning from the socket for trying to render
+      //HTML over the socket.
+      res.send(200);
+    });
   }
 };
 
