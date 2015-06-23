@@ -186,7 +186,7 @@ var AuthController = {
 				// Update the user's online status
 				if(user.id){
 
-					User.update({ id: user.id }, { online:true })
+					User.update({ id: user.id }, { online: true })
 						.exec(
 							function update(err, updated){
 								if(err){

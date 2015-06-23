@@ -66,7 +66,7 @@ aws: {
 # Data Storage
 The project is currently dependent on [MongoDB](https://www.mongodb.org/) as its data storage provider. [mongo-express](https://www.npmjs.com/package/mongo-express) is used as a gui to make life a bit easier. It's also worth noting that all of this is made possible, because of the [sails-mongo](https://github.com/balderdashy/sails-mongo) Waterline adapter.
 
-Visit your mongo-express interface at <http://localhost:1336>. This can be changed via the `node_modules/mongo-express/config` `site.url` property.
+Visit your mongo-express interface at <http://localhost:1336>. This can be changed via the `node_modules/mongo-express/config` `site.url` property. The default user/pass is `admin` and `pass`. This can be changed in the config file.
 
 > There's a helper script to start mongo-express. Just run `npm run mongo` to start it up. You can change this in `package.json`.
 
