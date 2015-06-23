@@ -18,7 +18,7 @@ module.exports = {
 			type: 'string'
 		},
 		owner: {
-			model: 'user',
+			model: 'User',
 			via: 'queues'
 		}
 	}

@@ -69,13 +69,13 @@
 			</div>
 		<% } %>
 		<% if (typeof messages !== 'undefined'){ %>
-			<% if(typeof messages['error'][0] !== 'undefined') { %>
+			<% if(typeof messages['error'] !== 'undefined' && typeof messages['error'][0] !== 'undefined') { %>
 				<div class="alert alert-danger" role="alert"><% _.forEach(messages['error'], function(message) { %><%= message %><br><% }); %></div><br>
 			<% } %>
-			<% if (typeof messages['warning'][0] !== 'undefined') { %>
+			<% if (typeof messages['warning'] !== 'undefined' && typeof messages['warning'][0] !== 'undefined') { %>
 				<div class="alert alert-warning" role="alert"><% _.forEach(messages['warning'], function(message) { %><%= message %><br><% }); %></div><br>
 			<% } %>
-			<% if (typeof messages['success'][0] !== 'undefined') { %>
+			<% if (typeof messages['success'] !== 'undefined' && typeof messages['success'][0] !== 'undefined') { %>
 				<div class="alert alert-success" role="alert"><% _.forEach(messages['success'], function(message) { %><%= message %><br><% }); %></div><br>
 			<% } %>
 		<% } %>

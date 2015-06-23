@@ -11,6 +11,7 @@ var fs = require('fs'),
 	path = require('path'),
 	util = require('util'),
 	AWS = require('aws-sdk'),
+	moment = require('moment'),
 	changeCase = require('change-case');
 
 module.exports = {
@@ -189,7 +190,7 @@ module.exports = {
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 
 			//Create and save the job to the database
-			Jobs.create(
+			Job.create(
 				{
 					name: params.name,
 					files: [fileRecord_id],
@@ -403,38 +404,39 @@ module.exports = {
 			}
 
 			//Start with record id 1
-			Settings.create({owner: user_id}).exec(function(err, created){
-				if(err){
-					sails.log.error(err);
-					reject(err);
-				}
-
-				sails.log("Created the settings record " + created.id);
-
-				//Get the version of Brenda that's being used.
-				brenda.getBrendaVersion().then(
-					function (data){
-						if(data){
-							created.brenda_version = data;
-							created.save(function(err, updatedRecord){
-								if(err){
-									reject("There was an error adding the Brenda version to the settings.");
-								}
-								sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
-								fulfill(updatedRecord);
-							});
-
-						}else{
-							reject("There was an error finding the Brenda version.");
-						}
-					},
-					function (reason){
-						sails.log.error(reason);
-						reject(reason);
+			Settings.create({ owner: user_id })
+				.exec(function(err, created){
+					if(err){
+						sails.log.error(err);
+						reject(err);
 					}
-				);
 
-			});
+					sails.log("Created the settings record " + created.id);
+
+					//Get the version of Brenda that's being used.
+					brenda.getBrendaVersion().then(
+						function (data){
+							if(data){
+								created.brenda_version = data;
+								created.save(function(err, updatedRecord){
+									if(err){
+										reject("There was an error adding the Brenda version to the settings.");
+									}
+									sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
+									fulfill(updatedRecord);
+								});
+
+							}else{
+								reject("There was an error finding the Brenda version.");
+							}
+						},
+						function (reason){
+							sails.log.error(reason);
+							reject(reason);
+						}
+					);
+
+				});
 		});
 		return promise;
 	},
@@ -546,7 +548,7 @@ module.exports = {
 			}
 
 			//Check the owner here?
-			Jobs.find({ id: jobRecord_id })
+			Job.find({ id: jobRecord_id })
 				.populate('queue')
 				.populate('files')
 				.exec(

@@ -39,7 +39,7 @@ module.exports = {
 			model: 'User'
 		},
 		job: {
-			model: 'Jobs'
+			model: 'Job'
 		}
 	}
 };

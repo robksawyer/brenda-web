@@ -12,45 +12,50 @@ module.exports = {
 	index: function (req, res){
 
 		//Retrieve the settings
-		User.findOne({id: req.user.id}).populate('settings').exec(
-			function findSettings(err, userRecord){
-				if(err){
-					sails.log.error(err);
-					res.view('settings/index',{
-							messages: { error: [err] }
-						});
-				}
-
-				if(userRecord.settings.length < 1){
-
-					//Generate a settings record
-					sails.log.info('Settings have not been established. Creating a settings record for user '+ req.user.username +' ('+req.user.id+').');
-					brenda.createSettingsRecord(req.user.id).then(
-						function(data){
-							sails.log("SettingsController then()");
-							sails.log(data);
-							res.view('settings/index', {
-								settings: data,
-								messages: {success: ["Generated a settings record."] }
+		User.find({ id: req.user.id })
+			.populate('settings')
+			.exec(
+				function findSettings(err, userRecord){
+					if(err){
+						sails.log.error(err);
+						res.view('settings/index',{
+								messages: { error: [err] }
 							});
-						},
-						function(reason){
-							sails.log.error(reason);
-							return res.serverError(err);
+					}
+
+					sails.log(userRecord);
+
+					if(typeof userRecord.settings === 'undefined'){
+
+						//Generate a settings record
+						sails.log.info('Settings have not been established. Creating a settings record for user '+ req.user.username +' ('+req.user.id+').');
+						brenda.createSettingsRecord(req.user.id)
+							.then(
+								function(data){
+									sails.log("SettingsController then()");
+									sails.log(data);
+									res.view('settings/index', {
+										settings: data,
+										messages: {success: ["Generated a settings record."] }
+									});
+								},
+								function(reason){
+									sails.log.error(reason);
+									return res.serverError(err);
+								});
+
+					} else {
+						//Check to see if the user has a settings record
+						//
+
+						res.view({
+							//version: results,
+							settings: userRecord.settings
 						});
+					}
 
-				} else {
-					//Check to see if the user has a settings record
-					//
-
-					res.view({
-						//version: results,
-						settings: userRecord.settings
-					});
 				}
-
-			}
-		);
+			);
 
 	},
 

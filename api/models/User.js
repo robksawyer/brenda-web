@@ -40,12 +40,8 @@ var User = {
 			type: 'boolean',
 			defaultsTo: false
 		},
-		settings: {
-			model: 'Settings',
-			via: 'owner'
-		},
 		jobs: {
-			collection: 'Jobs',
+			collection: 'Job',
 			via: 'owner'
 		},
 		uploads: {
@@ -59,6 +55,9 @@ var User = {
 		renders: {
 			collection: 'Render',
 			via: 'owner'
+		},
+		settings: {
+			model: 'Setting'
 		}
 	}
 };
