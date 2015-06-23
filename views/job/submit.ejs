@@ -1,0 +1,42 @@
+<div class="container">
+	<div class="row-fluid">
+		<div class="header">
+			<h1>Submit Job</h1>
+			<p class="lead">Are you ready to start the job <%= job.name %>?</p>
+			<!--
+				This page should contain an overview of the job details. It should also allow you to kickoff the main Brenda job.
+
+				1. Generate a brenda.conf based on the job details.
+				2. Push the frames (Match the total that was added to the job.) to the SQS Queue.
+					- `brenda-work -c [config file location] -T './lib/task-scripts/frame' -s [animation_start_frame] -e [animation_end_frame] push`
+					- Possibly do a dry run using -d
+				3. Wait five minutes for the spot instance confirmation. The app should have a callback that handles when the spot instance is accepted.
+					- `brenda-work status`
+				4. Allow the user to update the price if it's declined. They should then be able to restart it.
+				5. Run the script
+					- `brenda-run -N [aws_ec2_instance_count] -p [max_spend_amount] spot`
+				6. Print the status from
+					- `brenda-run status`
+
+			-->
+			<p>Upon submission, <label class="label label-info"><%= (job.aws_ec2_instance_count) || 0 %></label> Amazon EC2 instance(s) of the type <label class="label label-info"><%= (job.instance_type) || "unknown" %></label> will be spun up. The app will also start the Amazon SQS work queue named <label class="label label-info"><%= job.queue.name %></label>. It will be filled with a total of <label class="label label-info"><%= (job.animation_total_frames) || 0 %></label> frames.</p>
+		</div>
+		<section class="job-details">
+			<form id="submitJob" action="/jobs/start_spot/<%= job.id %>" method="POST" enctype="multipart/form-data">
+				<!-- <div class="form-group">
+					<label for="inputMaxAmount">Max Amount (in dollars)</label>
+					<div class="input-group">
+						<div class="input-group-addon">$</div>
+						<input type="text" class="form-control input-xs" id="inputMaxAmount" name="max_spend_amount" placeholder=".07">
+					</div>
+				</div> -->
+				<div class="form-group clearfix">
+					<div class="pull-right">
+						<input type="hidden" name="type" value="spot">
+						<button type="submit" id="submit" class="btn btn-success" title="Starts the job." value="start">Start</button>
+					</div>
+				</div>
+			</form>
+		</section>
+	</div>
+</div>

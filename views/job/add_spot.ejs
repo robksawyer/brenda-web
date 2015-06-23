@@ -1,0 +1,252 @@
+
+
+<!--<div id="projectfile" class="projectfile">
+	<div class="js-preview userpic__preview"></div>
+	<div class="btn btn-success js-fileapi-wrapper">
+		<div class="js-browse">
+			<span class="btn-txt">Choose</span>
+			<input type="file" name="filedata">
+		</div>
+		<div class="js-upload" style="display: none;">
+			<div class="progress progress-success"><div class="js-progress bar"></div></div>
+			<span class="btn-txt">Uploading</span>
+		</div>
+	</div>
+</div>
+
+<div id="popup" class="popup" style="display: none;">
+	<div class="popup__body"><div class="js-img"></div></div>
+	<div style="margin: 0 0 5px; text-align: center;">
+		<div class="js-upload btn btn_browse btn_browse_small">Upload</div>
+	</div>
+</div>
+
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>
+
+<script>
+	var examples = [];
+</script>-->
+<div class="container">
+	<div class="row-fluid">
+		<div class="header">
+			<h1>Add a Spot Instance Render Job</h1>
+			<p class="lead">Choose one of the following to start creating your job on <a href="http://aws.amazon.com/" target="_blank">Amazon Web Services</a>.</p>
+		</div>
+
+		<!-- <div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-files-o"></i> Clone an existing job</h1>
+			</div>
+			<form id="clone-job" action="/jobs/clone" method="PUT">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="selectionCloneJob">Select job:</label>
+						<select class="form-control" id="selectionCloneJob">
+							<option>Fake Job 1</option>
+							<option>Fake Job 2</option>
+							<option>Fake Job 3</option>
+							<option>Fake Job 4</option>
+						</select>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-success" title="Copyies the settings from the selected job and starts a new one from it.">Clone Job</button>
+					</div>
+				</div>
+			</form>
+		</div> -->
+		<form id="addSpot" action="/jobs/add_spot" method="POST" enctype="multipart/form-data">
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Job Settings</h1>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputJobName">Job Name</label>
+						<input type="text" class="form-control" id="inputJobName" name="name" placeholder="My Blender Job">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Animation Frames</p>
+							<div class="input-group">
+								<div class="col-xs-3">
+									<label for="inputStartFrame">Start</label>
+									<input type="text" class="form-control input-xs" id="inputStartFrame" name="animation_start_frame" placeholder="1" value="1">
+								</div>
+								<div class="col-xs-3">
+									<label for="inputEndFrame">End</label>
+									<input type="text" class="form-control input-xs" id="inputEndFrame" name="animation_end_frame" placeholder="100">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Amazon Settings</h1>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="<%= settings.ami_id %>" value="<%= settings.ami_id %>">
+						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. Or, see <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" name="instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<label for="inputRenderBucket">Amazon S3 Render Bucket</label>
+						<input type="text" class="form-control" id="inputRenderBucket" name="aws_s3_render_bucket" placeholder="<%= settings.aws_s3_render_bucket %>" value="<%= settings.aws_s3_render_bucket %>">
+						<span id="helpBlock" class="help-block alert alert-info">This will be where the rendered frames will be stored.</span>
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-4">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="us-west-2" value="<%= settings.aws_sqs_region %>">
+								</div>
+								<div class="col-xs-4">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="us-west-2" value="<%= settings.aws_ec2_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20" value="<%= settings.aws_ec2_instance_count %>">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div>
+					<div class="form-group">
+						<label for="inputMaxAmount">Max Amount (in dollars)</label>
+						<div class="input-group">
+							<div class="input-group-addon">$</div>
+							<input type="text" class="form-control input-xs" id="inputMaxAmount" name="max_spend_amount" placeholder=".07">
+						</div>
+					</div>
+					<br>
+				</div>
+				<!-- <div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" id="save" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later." value="save">Save</button>
+						<button type="submit" id="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job." value="start">Start</button>
+					</div>
+				</div> -->
+			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h1 class="panel-title"><i class="fa fa-cloud-upload"></i> Project Settings</h1>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<div class="input-group">
+							<input type="hidden" name="type" value="spot">
+							<label for="inputProjectFile">Upload Blender <img src="/images/blender.png" alt="" width="15" height="15" style="margin: -4px 0 0 0" /> Project</label><br>
+							<span class="btn btn-default btn-file">
+								Browse <input type="file" id="inputProjectFile" name="project_file">
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group clearfix">
+				<div class="pull-right">
+					<button type="submit" id="save" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later." value="save">Save</button>
+					<button type="submit" id="submit" class="btn btn-success" title="Submits the job to the SQS queue and runs the job." value="start">Start</button>
+				</div>
+			</div>
+		</form>
+
+		<!-- Existing job on S3 -->
+		<!-- TODO: Retrieve a list of jobs in the project bucket. -->
+		<!-- <div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-file-archive-o"></i> Use a file already uploaded on S3</h1>
+			</div>
+			<form id="existing-job" action="/jobs/existingS3Job" method="PUT">
+				<div class="panel-body">
+					<div class="control-group">
+						<label class="control-label" for="selectmultiple">Select Multiple</label>
+						<div class="controls">
+							<select id="selectmultiple" name="selectmultiple" class="form-control " multiple="">
+								<option>Option one</option>
+								<option>Option two</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your job to the Amazon SQS queue. You can come back and start it later.">Select File</button>
+					</div>
+				</div>
+			</form>
+		</div> -->
+	</div>
+</div>
+
+<!--<link href="http://rubaxa.github.io/jquery.fileapi/statics/main.css" rel="stylesheet" type="text/css"/>
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
+
+<!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
+<!-- <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script> -->
+
+<!-- <script type="text/javascript">
+$(document).ready(function() {
+	console.log('ready')
+
+	$('#userpic').fileapi({
+		url: '/file/s3upload',
+		accept: 'image/*',
+		imageSize: { minWidth: 200, minHeight: 200 },
+		elements: {
+			active: { show: '.js-upload', hide: '.js-browse' },
+			preview: {
+				el: '.js-preview',
+				width: 200,
+				height: 200
+			},
+			progress: '.js-progress'
+		},
+		onSelect: function (evt, ui){
+			var file = ui.files[0];
+			if( !FileAPI.support.transform ) {
+				alert('Your browser does not support Flash :(');
+			} else if( file ){
+				$('#popup').modal({
+					closeOnEsc: true,
+					closeOnOverlayClick: false,
+					onOpen: function (overlay){
+							$(overlay).on('click', '.js-upload', function (){
+							$.modal().close();
+							$('#userpic').fileapi('upload');
+						});
+						$('.js-img', overlay).cropper({
+							file: file,
+							bgColor: '#fff',
+							maxSize: [$(window).width()-100, $(window).height()-100],
+							minSize: [200, 200],
+							selection: '90%',
+							onSelect: function (coords){
+								$('#userpic').fileapi('crop', file, coords);
+								console.log($('#userpic').fileapi('crop', file, coords))
+							}
+						});
+					}
+				}).open();
+			}
+		}
+	});
+});
+</script>-->

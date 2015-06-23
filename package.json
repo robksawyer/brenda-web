@@ -47,6 +47,7 @@
     "sails": "~0.11.0",
     "sails-disk": "~0.10.0",
     "sails-hook-validation": "^0.2.1",
+    "sails-mongo": "^0.11.2",
     "skipper": "^0.5.5",
     "skipper-s3": "^0.5.5",
     "skipper-s3-alt": "^0.1.0",
@@ -57,6 +58,7 @@
   },
   "scripts": {
     "start": "sails lift",
+    "mongo": "node node_modules/mongo-express/app",
     "debug": "forever -wfvd --minUptime 1000ms --spinSleepTime 1000ms start app.js --dev",
     "test": "make test",
     "watch-test": "node_modules/.bin/_mocha --watch --reporter spec"
@@ -76,6 +78,7 @@
     "grunt-remove": "^0.1.0",
     "istanbul": "^0.3.14",
     "mocha": "^2.2.5",
+    "mongo-express": "^0.21.0",
     "node-inspector": "^0.10.1",
     "sails-generate-auth": "^0.3.1",
     "sinon": "^1.14.1"

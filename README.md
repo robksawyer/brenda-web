@@ -63,6 +63,11 @@ aws: {
 ## Other Dependencies
 - [CodeMirror](https://codemirror.net): Log window and live feedback display. See [Recreate Similar Travis CI Console Log Interface](http://stackoverflow.com/questions/30948708/recreate-similar-travis-ci-console-log-interface/30957814#30957814).
 
+# Data Storage
+The project is currently dependent on [MongoDB](https://www.mongodb.org/) as its data storage provider. [mongo-express](https://www.npmjs.com/package/mongo-express) is used as a gui to make life a bit easier. It's also worth noting that all of this is made possible, because of the [sails-mongo](https://github.com/balderdashy/sails-mongo) Waterline adapter.
+
+> There's a helper script to start mongo-express. Just run `node mongo` to start it up. You can change this in `package.json`.
+
 # Wuh? What is Brenda?
 - [Blender Cycles Cloud Render Farming Using AWS, Deadline and Brenda](https://www.youtube.com/watch?v=NkZ60lF-nKM) is a great introduction to the software.
 - [James Yonan – Build Your Own Low-Cost Yet Highly Scalable Blender Render Farm (BConf 2013)](http://www.youtube.com/watch?v=_Oqo383uviw)

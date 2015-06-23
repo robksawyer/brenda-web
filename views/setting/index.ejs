@@ -1,0 +1,405 @@
+
+
+<!--<div id="projectfile" class="projectfile">
+	<div class="js-preview userpic__preview"></div>
+	<div class="btn btn-success js-fileapi-wrapper">
+		<div class="js-browse">
+			<span class="btn-txt">Choose</span>
+			<input type="file" name="filedata">
+		</div>
+		<div class="js-upload" style="display: none;">
+			<div class="progress progress-success"><div class="js-progress bar"></div></div>
+			<span class="btn-txt">Uploading</span>
+		</div>
+	</div>
+</div>
+
+<div id="popup" class="popup" style="display: none;">
+	<div class="popup__body"><div class="js-img"></div></div>
+	<div style="margin: 0 0 5px; text-align: center;">
+		<div class="js-upload btn btn_browse btn_browse_small">Upload</div>
+	</div>
+</div>
+
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>
+
+<script>
+	var examples = [];
+</script>-->
+<div class="container">
+	<div class="row-fluid">
+		<div class="header">
+			<h1>Settings</h1>
+			<p class="lead">These settings allow you to customize your rendering experience.</p>
+		</div>
+
+		<!-- MODALS -->
+		<div id="modal_project_bucket_delete" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Amazon S3 Project Bucket Deletion</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row">
+							<p>Are you sure you want to delete the S3 bucket <span class="label label-warning"><%= settings.aws_s3_project_bucket %></span>?</p>
+							<p class="alert alert-danger"><strong>Warning:</strong> This will destroy the contents of it as well.</p>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+						<button type="submit" class="btn btn-danger" onclick="document.getElementById('form_project_bucket_delete').submit();">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="modal_render_bucket_delete" class="modal fade" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h4 class="modal-title">Amazon S3 Render Bucket Deletion</h4>
+					</div>
+					<div class="modal-body">
+						<p>Are you sure you want to delete the S3 bucket <span class="label label-warning"><%= settings.aws_s3_render_bucket %></span>?</p>
+						<p class="alert alert-danger"><strong>Warning:</strong> This will destroy the contents of it as well.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+						<button type="submit" class="btn btn-danger" onclick="document.getElementById('form_render_bucket_delete').submit();">Delete</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /MODALS -->
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-user"></i> Profile Settings</h1>
+			</div>
+			<form id="user-settings" name="userSettings" action="/setting/profile" method="POST">
+				<div class="panel-body">
+					<!-- <div class="form-group">
+						<div class="input-group">
+							<div class="col-md-5">
+								<img src="holder.js/128x128" alt="user-profile-thumb" />
+							</div>
+							<div class="col-md-7">
+								<label for="inputProjectFile">Upload Profile Image <br>
+								<span id="inputProjectFile" class="btn btn-default btn-file">
+									Browse <input type="file" name="profile_image">
+								</span>
+							</div>
+						</div>
+					</div> -->
+					<div class="form-group">
+						<label for="inputName">Full Name</label>
+						<input type="text" class="form-control" id="inputName" name="fullname" placeholder="Groot" value="<%= (user.fullname) || '' %>">
+					</div>
+					<div class="form-group">
+						<label for="inputName">Username</label>
+						<input type="text" class="form-control" id="inputName" name="username" placeholder="numberonegroot" value="<%= (user.username) || '' %>">
+					</div>
+					<div class="form-group">
+						<label for="inputEmail">Email</label>
+						<input type="text" class="form-control" id="inputEmail" name="email" placeholder="funny@aol.com" value="<%= (user.email) || '' %>">
+						<span id="helpBlock" class="help-block alert alert-info">Used only to send you notifications.</span>
+					</div>
+					<div class="form-group">
+						<div class="checkbox">
+							<label>
+								<% if( user.email_on_render_complete ){ %>
+								<input type="checkbox" name="email_on_render_complete" checked>
+								<% } else { %>
+								<input type="checkbox" name="email_on_render_complete">
+								<% } %>
+								Email on render complete. (Coming soon.)
+								</label>
+							</div>
+							<div class="checkbox disabled">
+							<label>
+								<% if( user.email_on_instance_idle ){ %>
+								<input type="checkbox" name="email_on_instance_idle" disabled>
+								<% } else { %>
+								<input type="checkbox" name="email_on_instance_idle" disabled>
+								<% } %>
+								Email when instance idles for more than an hour. (Coming soon.)
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cogs"></i> Amazon Settings</h1>
+			</div>
+			<form id="amazon-settings" name="amazon_settings" action="/setting/amazon" method="POST">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" name="ami_id" placeholder="ami-0529086c" value="<%= settings.ami_id %>">
+						<span id="helpBlock" class="help-block alert alert-info">Need an AMI? Check out the <a href="http://brendapro.com/forum/viewforum.php?f=2" target="_blank">public listing</a>. Or, see <a href="http://brendapro.com/forum/viewtopic.php?f=2&t=19#p96" target="_blank">this post</a> on how to make your own.</span>
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" name="default_instance_type" placeholder="<%= settings.default_instance_type %>" value="<%= settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-3">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" name="aws_sqs_region" placeholder="us-west-2" value="<%= settings.aws_sqs_region %>">
+								</div>
+								<div class="col-xs-3">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" name="aws_ec2_region" placeholder="us-west-2" value="<%= settings.aws_ec2_region %>">
+								</div>
+								<div class="col-xs-3">
+									<label for="inputS3Region">S3 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputS3Region" name="aws_s3_region" placeholder="us-west-2" value="<%= settings.aws_s3_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" name="aws_ec2_instance_count" placeholder="20" value="<%= settings.aws_ec2_instance_count %>">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div>
+					<!-- <div class="form-group">
+						<label for="inputMaxAmount">Max Amount (in dollars)</label>
+    					<div class="input-group">
+							<div class="input-group-addon">$</div>
+							<input type="text" class="form-control input-xs" id="inputMaxAmount" placeholder=".07">
+						</div>
+					</div> -->
+					<!-- <div class="form-group">
+						<label for="inputRenderOutput">Render Output Location</label>
+						<input type="text" class="form-control" id="inputRenderOutput" placeholder="s3://mybucket.blender.frame.bucket">
+					</div> -->
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-th"></i> Amazon Bucket Settings</h1>
+			</div>
+			<!--<form id="amazon-bucket-settings" name="amazon_bucket_settings" action="/setting/amazon" method="POST">-->
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="col-xs-5">
+
+							<% if ( settings.aws_s3_project_bucket ) { %>
+								<form action="/setting/removeBucket" method="POST" id="form_project_bucket_delete">
+									<label for="inputS3ProjectBucketDel">Project Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3ProjectBucketDel" name="aws_s3_project_bucket" value="<%= settings.aws_s3_project_bucket %>">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_project_bucket">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#modal_project_bucket_delete"><i class="fa fa-trash text-danger"></i></a></div>
+									</div>
+									<span id="helpBlock" class="help-block alert alert-warning">This is destructive and will also delete everything in the bucket.</span>
+								</form>
+							<% } else { %>
+								<form action="/setting/createBucket" method="POST" id="form_project_bucket_add">
+									<label for="inputS3ProjectBucketAdd">Project Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3ProjectBucketAdd" name="aws_s3_project_bucket" placeholder="my-bucket-name">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_project_bucket">
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a href="#" onclick="document.getElementById('form_project_bucket_add').submit();"><i class="fa fa-plus-square text-success"></i></a></div>
+									</div>
+									<span id="helpBlock" class="help-block alert alert-info">You are not charged when you create a bucket; you are charged when you store objects in the bucket and when you transfer objects in and out of the bucket. For more information, see <a href="http://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 Pricing</a>.</span>
+								</form>
+							<% } %>
+
+						</div>
+						<div class="col-xs-5">
+
+							<% if ( settings.aws_s3_render_bucket ) { %>
+								<form action="/setting/removeBucket" method="POST" id="form_render_bucket_delete">
+									<label for="inputS3RenderBucketDel">Frame &amp; Render Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3RenderBucketDel" name="aws_s3_render_bucket" value="<%= settings.aws_s3_render_bucket %>">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_render_bucket">
+										<div class="input-group-addon" title="Delete the Amazon S3 bucket"><a data-toggle="modal" href="#modal_render_bucket_delete"><i class="fa fa-trash text-danger"></i></a></div>
+									</div>
+									<span id="helpBlock" class="help-block alert alert-warning">This is destructive and will also delete everything in the bucket.</span>
+								</form>
+							<% } else { %>
+								<form action="/setting/createBucket" method="POST" id="form_render_bucket_add">
+									<label for="inputS3RenderBucketAdd">Frame &amp; Render Bucket</label>
+									<div class="input-group">
+										<input type="text" class="form-control" id="inputS3RenderBucketAdd" name="aws_s3_render_bucket" placeholder="my-bucket-name">
+										<input type="hidden" name="id" value="<%= settings.id %>">
+										<input type="hidden" name="type" value="aws_s3_render_bucket">
+										<div class="input-group-addon" title="Add the Amazon S3 bucket"><a href="#" onclick="document.getElementById('form_render_bucket_add').submit();"><i class="fa fa-plus-square text-success"></i></a></div>
+									</div>
+									<span id="helpBlock" class="help-block alert alert-info">You are not charged when you create a bucket; you are charged when you store objects in the bucket and when you transfer objects in and out of the bucket. For more information, see <a href="http://aws.amazon.com/s3/pricing/" target="_blank">Amazon S3 Pricing</a>.</span>
+								</form>
+							<% } %>
+
+						</div>
+					</div>
+				</div>
+				<span id="helpBlock" class="help-block alert alert-info"><strong>Tip:</strong> If you've already created a bucket in your S3 account, just add the name, click <i class="fa fa-plus-square text-success"></i> and the app will make the association.</span>
+			</div>
+			<!-- </form> -->
+		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h1 class="panel-title"><i class="fa fa-cubes"></i> Brenda Settings <small>Settings wll be used by default when starting a new render job.</small></h1>
+			</div>
+			<form id="brenda-settings" name="brendaSettings" action="/setting/brenda" method="POST">
+				<div class="panel-body">
+					<div class="row-fluid">
+						<p>Current version: <%= settings.brenda_version %></p>
+					</div>
+					<!-- <div class="form-group">
+						<label for="inputAMI">Amazon AMI ID <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputAMI" placeholder="<%= sails.config.brenda.settings.ami_id %>" value="<%= sails.config.brenda.settings.ami_id %>">
+					</div>
+					<div class="form-group">
+						<label for="inputInstanceType">Amazon Instance Type <a href="http://aws.amazon.com/ec2/purchasing-options/spot-instances/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+						<input type="text" class="form-control" id="inputInstanceType" placeholder="<%= sails.config.brenda.settings.default_instance_type %>" value="<%= sails.config.brenda.settings.default_instance_type %>">
+					</div>
+					<div class="form-group">
+						<div class="well">
+							<p class="lead">Amazon Regions</p>
+							<div class="input-group">
+								<div class="col-xs-4">
+									<label for="inputSQSRegion">SQS Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputSQSRegion" placeholder="<%= sails.config.brenda.settings.sqs_region %>" value="<%= sails.config.brenda.settings.sqs_region %>">
+								</div>
+								<div class="col-xs-4">
+									<label for="inputEC2Region">EC2 Region <a href="http://aws.amazon.com/about-aws/global-infrastructure/" target="_blank"><i class="fa fa-info-circle"></i></a></label>
+									<input type="text" class="form-control" id="inputEC2Region" placeholder="<%= sails.config.brenda.settings.ec2_region %>" value="<%= sails.config.brenda.settings.ec2_region %>">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputEC2InstanceCount">Total EC2 Instances</label>
+						<input type="text" class="form-control" id="inputEC2InstanceCount" placeholder="20">
+						<span id="helpBlock" class="help-block alert alert-warning">Amazon does have <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html" target="_blank">instance limits <i class="fa fa-external-link-square"></i></a> on the EC2 spot instances. These vary based on the type.</span>
+					</div> -->
+				</div>
+				<div class="panel-footer clearfix">
+					<div class="pull-right">
+						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!--<link href="http://rubaxa.github.io/jquery.fileapi/statics/main.css" rel="stylesheet" type="text/css"/>
+<link href="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.css" rel="stylesheet" type="text/css"/>-->
+
+<!--<script src="//code.jquery.com/jquery-1.8.2.min.js"></script>-->
+<!-- <script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/FileAPI/FileAPI.exif.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jquery.fileapi.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/jcrop/jquery.Jcrop.min.js"></script>
+<script src="http://rubaxa.github.io/jquery.fileapi/statics/jquery.modal.js"></script> -->
+
+<script type="text/javascript">
+$(document).ready(function() {
+	if(console) console.log('ready');
+
+	/*$('#openBtn').click(function(){
+		$('#modal_project_bucket_delete').modal({show:true});
+		$('#modal_render_bucket_delete').modal({show:true});
+	});*/
+
+	//Stacking modal windows
+	//More info: http://miles-by-motorcycle.com/fv-b-8-670/stacking-bootstrap-dialogs-using-event-callbacks
+	/*$('.modal').on('hidden.bs.modal', function( event ) {
+		$(this).removeClass( 'fv-modal-stack' );
+		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) - 1 );
+	});
+
+	$('.modal').on( 'shown.bs.modal', function ( event ) {
+		// keep track of the number of open modals
+		if ( typeof( $('body').data( 'fv_open_modals' ) ) == 'undefined' )
+		{
+			$('body').data( 'fv_open_modals', 0 );
+		}
+
+		// if the z-index of this modal has been set, ignore.
+		if ( $(this).hasClass( 'fv-modal-stack' ) )
+		{
+			return;
+		}
+
+		$(this).addClass( 'fv-modal-stack' );
+		$('body').data( 'fv_open_modals', $('body').data( 'fv_open_modals' ) + 1 );
+		$(this).css('z-index', 1040 + (10 * $('body').data( 'fv_open_modals' )));
+		$('.modal-backdrop' ).not( '.fv-modal-stack' ).css( 'z-index', 1039 + (10 * $('body').data( 'fv_open_modals' )));
+		$('.modal-backdrop' ).not( 'fv-modal-stack' ).addClass( 'fv-modal-stack' );
+	});*/
+
+	/*$('#userpic').fileapi({
+		url: '/file/s3upload',
+		accept: 'image/*',
+		imageSize: { minWidth: 200, minHeight: 200 },
+		elements: {
+			active: { show: '.js-upload', hide: '.js-browse' },
+			preview: {
+				el: '.js-preview',
+				width: 200,
+				height: 200
+			},
+			progress: '.js-progress'
+		},
+		onSelect: function (evt, ui){
+			var file = ui.files[0];
+			if( !FileAPI.support.transform ) {
+				alert('Your browser does not support Flash :(');
+			} else if( file ){
+				$('#popup').modal({
+					closeOnEsc: true,
+					closeOnOverlayClick: false,
+					onOpen: function (overlay){
+							$(overlay).on('click', '.js-upload', function (){
+							$.modal().close();
+							$('#userpic').fileapi('upload');
+						});
+						$('.js-img', overlay).cropper({
+							file: file,
+							bgColor: '#fff',
+							maxSize: [$(window).width()-100, $(window).height()-100],
+							minSize: [200, 200],
+							selection: '90%',
+							onSelect: function (coords){
+								$('#userpic').fileapi('crop', file, coords);
+								console.log($('#userpic').fileapi('crop', file, coords))
+							}
+						});
+					}
+				}).open();
+			}
+		}
+	});*/
+});
+</script>
