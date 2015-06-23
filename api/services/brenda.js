@@ -404,7 +404,7 @@ module.exports = {
 			}
 
 			//Start with record id 1
-			Settings.create({ owner: user_id })
+			Setting.create({ owner: user_id })
 				.exec(function(err, created){
 					if(err){
 						sails.log.error(err);
@@ -413,28 +413,32 @@ module.exports = {
 
 					sails.log("Created the settings record " + created.id);
 
-					//Get the version of Brenda that's being used.
-					brenda.getBrendaVersion().then(
-						function (data){
-							if(data){
-								created.brenda_version = data;
-								created.save(function(err, updatedRecord){
-									if(err){
-										reject("There was an error adding the Brenda version to the settings.");
-									}
-									sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
-									fulfill(updatedRecord);
-								});
+					sails.log.info(created);
 
-							}else{
-								reject("There was an error finding the Brenda version.");
+					//Get the version of Brenda that's being used.
+					brenda.getBrendaVersion()
+						.then(
+							function (data){
+								if(data){
+									created.brenda_version = data;
+									created.owner = user_id;
+									created.save(function(err, updatedRecord){
+										if(err){
+											reject("There was an error adding the Brenda version to the settings.");
+										}
+										sails.log.info("Brenda version " + updatedRecord.brenda_version + " added to settings.");
+										fulfill(updatedRecord);
+									});
+
+								}else{
+									reject("There was an error finding the Brenda version.");
+								}
+							},
+							function (reason){
+								sails.log.error(reason);
+								reject(reason);
 							}
-						},
-						function (reason){
-							sails.log.error(reason);
-							reject(reason);
-						}
-					);
+						);
 
 				});
 		});

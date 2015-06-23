@@ -57,7 +57,8 @@ var User = {
 			via: 'owner'
 		},
 		settings: {
-			model: 'Setting'
+			model: 'Setting',
+			via: 'owner'
 		}
 	}
 };
