@@ -42,6 +42,7 @@ config/local.js
 config/aws.json
 .env
 jobs/
+localDiskDb.db
 
 
 
