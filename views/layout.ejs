@@ -104,7 +104,7 @@
 			-->
 
 			<!--TEMPLATES-->
-			
+
 			<!--TEMPLATES END-->
 
 		</div> <!-- /container -->
@@ -149,11 +149,11 @@
 		window.onload = function subscribeAndListen(){
 			// When the document loads, send a request to users.testSocket
 			// The controller code will subscribe you to all of the 'users' model instances (records)
-			io.socket.get('/user');
+			/*io.socket.get('/user');
 			io.socket.on('user', function(resData, jwres){
 				console.log(resData);
 				console.log(jwres);
-			});
+			});*/
 		};
 		//Pretty file input buttons thanks to...
 		//http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/

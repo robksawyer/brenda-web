@@ -195,70 +195,70 @@ module.exports = {
 
 	/**
 	*
-	* Creates a file record in the database
-	* @param files: array The files that were uploaded.
+	* Creates a upload record in the database
+	* @param upload: array The file that was uploaded.
 	* @param aws_data: object The Amazon S3 data object from s3-upload-stream
 	* @return promise
 	**/
-	createFileRecord: function(user_id, file, aws_data){
+	createFileRecord: function(user_id, upload, aws_data){
 		var promise = new sails.RSVP.Promise( function(fulfill, reject) {
 			if(!user_id){
 				sails.log.error("You must provide a user id.");
 				reject("You must provide a user id.");
 			}
-			if(!file){
-				sails.log.error("You must provide a valid file record.");
-				reject("You must provide a valid file record.");
+			if(!upload){
+				sails.log.error("You must provide a valid upload record.");
+				reject("You must provide a valid upload record.");
 			}
 			if(aws_data.length < 1){
 				sails.log.error("Not a valid s3-upload-stream return object.");
 				reject("Not a valid s3-upload-stream return object.");
 			}
-			var fileParams = {};
+			var uploadParams = {};
 
-			if(typeof file.fd !== 'undefined'){
-				fileParams = {
-					fileName: aws_data.Key.split('/').pop().split('.').shift(),
+			if(typeof upload.fd !== 'undefined'){
+				uploadParams = {
+					uploadName: aws_data.Key.split('/').pop().split('.').shift(),
 					extension: path.extname(aws_data.Key),
-					originalName: file.fd.filename,
-					contentType: file.type,
-					fileSize: file.size,
+					originalName: upload.fd.uploadname,
+					contentType: upload.type,
+					uploadSize: upload.size,
 					aws_s3_location: aws_data.Location,
 					aws_s3_bucket: aws_data.Bucket,
 					aws_s3_etag: aws_data.ETag.replace(/['"]+/g, ''),
 					uploadedBy: user_id
 				};
-			} else if(typeof file.filename !== 'undefined'){
-				fileParams = {
-					fileName: aws_data.Key.split('/').pop().split('.').shift(),
+			} else if(typeof upload.uploadname !== 'undefined'){
+				uploadParams = {
+					uploadName: aws_data.Key.split('/').pop().split('.').shift(),
 					extension: path.extname(aws_data.Key),
-					originalName: file.filename,
-					contentType: file.headers['content-type'],
-					fileSize: file.byteCount,
+					originalName: upload.uploadname,
+					contentType: upload.headers['content-type'],
+					uploadSize: upload.byteCount,
 					aws_s3_location: aws_data.Location,
 					aws_s3_bucket: aws_data.Bucket,
 					aws_s3_etag: aws_data.ETag.replace(/['"]+/g, ''),
 					uploadedBy: user_id
 				};
 			}else {
-				reject('Unable to parse the file.');
+				reject('Unable to parse the upload.');
 			}
 
-			sails.log(fileParams);
+			sails.log(uploadParams);
 
-			// Create a File model.
-			File.create(fileParams, function(err, newFile) {
+			// Create a Upload model.
+			Upload.create(fileParams, function(err, newUpload) {
 				if (err) {
 					reject(err);
 				}
-				fulfill(newFile);
+				fulfill(newUpload);
 			});
 		});
 		return promise;
 	},
 
 	/**
-	 * `FileController.upload()`
+	 * `UploadController.upload()`
 	 *
 	 * Upload file(s) to the server's disk.
 	 */
@@ -304,7 +304,7 @@ module.exports = {
 	},
 
 	/**
-	 * `FileController.s3upload()`
+	 * `UploadController.s3upload()`
 	 *
 	 * Upload file(s) to an S3 bucket.
 	 *
@@ -360,7 +360,7 @@ module.exports = {
 
 
 	/**
-	 * FileController.download()
+	 * UploadController.download()
 	 *
 	 * Download a file from the server's disk.
 	 */

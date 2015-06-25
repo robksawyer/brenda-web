@@ -72,7 +72,7 @@ var AuthController = {
 		// Publish a socket message
 		if(req.user){
 
-			User.update({ id: req.user.id }, { online: false })
+			/*User.update({ id: req.user.id }, { online: false })
 				.exec(
 					function update(err, updated){
 						if(err){
@@ -83,7 +83,7 @@ var AuthController = {
 							id: updated[0].id
 						});
 					}
-				);
+				);*/
 		}
 
 		req.logout();
@@ -186,7 +186,7 @@ var AuthController = {
 				// Update the user's online status
 				if(user.id){
 
-					User.update({ id: user.id }, { online: true })
+					/*User.update({ id: user.id }, { online: true })
 						.exec(
 							function update(err, updated){
 								if(err){
@@ -198,7 +198,7 @@ var AuthController = {
 									id: updated[0].id
 								});
 							}
-						);
+						);*/
 
 				}
 
