@@ -23,8 +23,6 @@ module.exports = {
 							});
 					}
 
-					sails.log(userRecord);
-
 					if(typeof userRecord[0].settings === 'undefined'){
 
 						//Generate a settings record
@@ -128,7 +126,7 @@ module.exports = {
 						var settingAttributes = Object.keys(User.attributes);
 						for(var i=0; i < settingAttributes.length; i++){
 							if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
-								sails.log(settingAttributes[i]);
+								//sails.log(settingAttributes[i]);
 								if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
 									userRecord[0][settingAttributes[i]] = req.param(settingAttributes[i]);
 								}
