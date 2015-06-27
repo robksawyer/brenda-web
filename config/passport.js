@@ -23,7 +23,7 @@ module.exports.passport = {
     strategy: require('passport-http-bearer').Strategy
   },
 
-  /*twitter: {
+  twitter: {
     name: 'Twitter',
     protocol: 'oauth',
     strategy: require('passport-twitter').Strategy,
@@ -31,9 +31,9 @@ module.exports.passport = {
       consumerKey: 'your-consumer-key',
       consumerSecret: 'your-consumer-secret'
     }
-  },*/
+  },
 
-  /*github: {
+  github: {
     name: 'GitHub',
     protocol: 'oauth2',
     strategy: require('passport-github').Strategy,
@@ -41,20 +41,20 @@ module.exports.passport = {
       clientID: 'your-client-id',
       clientSecret: 'your-client-secret'
     }
-  },*/
+  },
 
-  /*facebook: {
+  facebook: {
     name: 'Facebook',
     protocol: 'oauth2',
     strategy: require('passport-facebook').Strategy,
     options: {
       clientID: 'your-client-id',
       clientSecret: 'your-client-secret',
-      scope: ['email'] // email is necessary for login behavior
+      scope: ['email'] /* email is necessary for login behavior */
     }
-  },*/
+  },
 
-  /*google: {
+  google: {
     name: 'Google',
     protocol: 'oauth2',
     strategy: require('passport-google-oauth').OAuth2Strategy,
@@ -62,9 +62,9 @@ module.exports.passport = {
       clientID: 'your-client-id',
       clientSecret: 'your-client-secret'
     }
-  },*/
+  },
 
-  /*cas: {
+  cas: {
     name: 'CAS',
     protocol: 'cas',
     strategy: require('passport-cas').Strategy,
@@ -73,5 +73,5 @@ module.exports.passport = {
       serverBaseURL: 'http://localhost:1337',
       serviceURL: 'http://localhost:1337/auth/cas/callback'
     }
-  }*/
+  }
 };

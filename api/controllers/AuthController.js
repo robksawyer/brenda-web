@@ -68,24 +68,6 @@ var AuthController = {
 	 * @param {Object} res
 	 */
 	logout: function (req, res) {
-
-		// Publish a socket message
-		if(req.user){
-
-			/*User.update({ id: req.user.id }, { online: false })
-				.exec(
-					function update(err, updated){
-						if(err){
-							next(err);
-						}
-						User.publishUpdate(updated[0].id, {
-							loggedIn: false,
-							id: updated[0].id
-						});
-					}
-				);*/
-		}
-
 		req.logout();
 
 		// mark the user as logged out for auth purposes
@@ -183,31 +165,12 @@ var AuthController = {
 					return tryAgain(err);
 				}
 
-				// Update the user's online status
-				if(user.id){
-
-					/*User.update({ id: user.id }, { online: true })
-						.exec(
-							function update(err, updated){
-								if(err){
-									sails.log.error(err);
-									next(err);
-								}
-								User.publishUpdate(updated[0].id, {
-									loggedIn: true,
-									id: updated[0].id
-								});
-							}
-						);*/
-
-				}
-
 				// Mark the session as authenticated to work with default Sails sessionAuth.js policy
-				req.session.authenticated = true;
+				req.session.authenticated = true
 
 				// Upon successful login, send the user to the homepage were req.user
 				// will be available.
-				res.redirect('/job');
+				res.redirect('/');
 			});
 		});
 	},
@@ -220,28 +183,7 @@ var AuthController = {
 	 */
 	disconnect: function (req, res) {
 		passport.disconnect(req, res);
-	},
-
-	/**
-	*
-	* Socket subscriber
-	*
-	**/
-	/*subscribe: function(req, res){
-		User.find({}, function foundUsers(err, users){
-			if(err) return next(err);
-
-			//Subscribe this socket to the User model classroom
-			User.subscribe(req.socket);
-
-			//Subscribe this socket to the User model instance rooms
-			User.subscribe(req.socket, users);
-
-			//This will avoid a warning from the socket for trying to render
-			//HTML over the socket.
-			res.send(200);
-		});
-	}*/
+	}
 };
 
 module.exports = AuthController;

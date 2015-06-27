@@ -3,32 +3,14 @@ var User = {
 	schema: true,
 
 	attributes: {
-		id: {
-			type: 'integer',
-			unique: true,
-			primaryKey: true,
-			required: true
-		},
-		username: {
-			type: 'string',
-			unique: true
-		},
+		username  : { type: 'string', unique: true },
+		email     : { type: 'email',  unique: true },
+		passports : { collection: 'Passport', via: 'user' },
+
 		fullname : {
 			type: 'string'
 		},
-		email: {
-			type: 'email',
-			unique: true
-		},
-		passports: {
-			collection: 'Passport',
-			via: 'user'
-		},
-		email_on_render_complete: {
-			type: 'boolean',
-			defaultsTo: false
-		},
-		email_on_instance_idle: {
+		email_on_end_date: {
 			type: 'boolean',
 			defaultsTo: false
 		},
@@ -40,25 +22,9 @@ var User = {
 			type: 'boolean',
 			defaultsTo: false
 		},
-		jobs: {
-			collection: 'Job',
-			via: 'owner'
-		},
 		uploads: {
 			collection: 'Upload',
 			via: 'uploadedBy'
-		},
-		queues: {
-			collection: 'Queue',
-			via: 'owner'
-		},
-		renders: {
-			collection: 'Render',
-			via: 'owner'
-		},
-		settings: {
-			model: 'Setting',
-			via: 'owner'
 		}
 	}
 };
