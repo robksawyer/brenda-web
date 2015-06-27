@@ -131,6 +131,9 @@
 				</div>
 				<div class="panel-footer clearfix">
 					<div class="pull-right">
+						<% if( user.id ){ %>
+							<input type="hidden" name="id" value="<%= user.id %>"/>
+						<% } %>
 						<button type="submit" class="btn btn-primary" title="Saves your settings.">Save</button>
 					</div>
 				</div>

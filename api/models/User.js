@@ -14,6 +14,14 @@ var User = {
 			type: 'boolean',
 			defaultsTo: false
 		},
+		email_on_render_complete:{
+			type: 'boolean',
+			defaultsTo: false
+		},
+		email_on_instance_idle:{
+			type: 'boolean',
+			defaultsTo: false
+		},
 		online: {
 			type: 'boolean',
 			defaultsTo: false

@@ -12,7 +12,7 @@ module.exports = {
 	index: function (req, res){
 
 		//Retrieve the settings
-		User.findOne({ id: req.user.id })
+		User.find({ id: req.user.id })
 			.populate('settings')
 			.exec(
 				function findSettings(err, userRecord){
@@ -23,15 +23,15 @@ module.exports = {
 							});
 					}
 
-					if(typeof userRecord.settings === 'undefined'){
+					sails.log(userRecord);
+
+					if(typeof userRecord[0].settings === 'undefined'){
 
 						//Generate a settings record
 						sails.log.info('Settings have not been established. Creating a settings record for user '+ req.user.username +' ('+req.user.id+').');
 						brenda.createSettingsRecord(req.user.id)
 							.then(
 								function(data){
-									sails.log("SettingsController then()");
-									sails.log(data);
 
 									//Update the user record
 									User.update({ id: req.user.id }, { settings: data.id })
@@ -43,7 +43,6 @@ module.exports = {
 													messages: {error: ["There was an error saving the settings record."] }
 												});
 											}
-											sails.log.info(user);
 											res.view('setting/index', {
 												settings: data,
 												messages: {success: ["Generated a settings record."] }
@@ -60,7 +59,7 @@ module.exports = {
 						//
 						res.view({
 							//version: results,
-							settings: userRecord.settings
+							settings: userRecord[0].settings
 						});
 					}
 
@@ -116,31 +115,40 @@ module.exports = {
 	profile: function(req, res){
 
 		if(req.method == 'POST'){
-
-			User.findOne({id: req.user.id}, function(err, userRecord){
-				if(err){
-					return res.serverError(err);
-				}
-
-				var ignoreAttributes = ['id', 'createdAt','updatedAt'];
-				var settingAttributes = Object.keys(User.attributes);
-				for(var i=0; i < settingAttributes.length; i++){
-					if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
-						//sails.log(settingAttributes[i]);
-						if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
-							userRecord[settingAttributes[i]] = req.param(settingAttributes[i]);
-						}
-					}
-				}
-
-				userRecord.save(function(err, savedRecord){
+			User.find({id: req.user.id})
+				.populate('settings')
+				.exec(function(err, userRecord){
 					if(err){
 						return res.serverError(err);
 					}
-					res.redirect('setting/');
-				});
 
-			});
+					var settings = userRecord[0].settings;
+					if(typeof settings !== 'undefined'){
+						var ignoreAttributes = ['id', 'createdAt','updatedAt', 'online', 'admin', 'passports', 'settings'];
+						var settingAttributes = Object.keys(User.attributes);
+						for(var i=0; i < settingAttributes.length; i++){
+							if(ignoreAttributes.indexOf( settingAttributes[i] ) === -1){
+								sails.log(settingAttributes[i]);
+								if( req.param(settingAttributes[i]) != undefined || req.param(settingAttributes[i]) != "" ){
+									userRecord[0][settingAttributes[i]] = req.param(settingAttributes[i]);
+								}
+							}
+						}
+
+						userRecord[0].save(function(err, savedRecord){
+							if(err){
+								return res.serverError(err);
+							}
+							res.redirect('setting/');
+						});
+
+					} else {
+						if(err){
+							return res.serverError(err);
+						}
+					}
+
+				});
 		}
 	},
 
