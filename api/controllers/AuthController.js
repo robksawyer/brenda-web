@@ -170,7 +170,7 @@ var AuthController = {
 
 				// Upon successful login, send the user to the homepage were req.user
 				// will be available.
-				res.redirect('/');
+				res.redirect('/job');
 			});
 		});
 	},

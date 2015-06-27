@@ -25,6 +25,10 @@ var User = {
 		uploads: {
 			collection: 'Upload',
 			via: 'uploadedBy'
+		},
+		settings: {
+			model: 'Setting',
+			via: 'owner'
 		}
 	}
 };
