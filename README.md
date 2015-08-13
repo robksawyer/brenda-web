@@ -5,7 +5,7 @@
 
 # Milestones and Progress
 
-[Beta 1.0 - Coming Late July](https://github.com/robksawyer/brenda-web/milestones/Beta%20Version%201.0)
+[Beta 1.0 - Coming Early 2016](https://github.com/robksawyer/brenda-web/milestones/Beta%20Version%201.0)
 
 Be sure to check out the progress report at [PROGRESS.md](https://github.com/robksawyer/brenda-web/blob/master/PROGRESS.md) for the latest feature list and status.
 
